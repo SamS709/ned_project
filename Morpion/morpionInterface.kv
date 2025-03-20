@@ -1,0 +1,128 @@
+#:import box_layout_with_action_bar box_layout_with_action_bar
+
+
+<MorpionGame>:
+    canvas:
+        Color:
+            rgba : 182/256,229/265,246/256,1
+        Rectangle:
+            size: self.size
+            pos : self.pos
+        Color:
+            rgba : 1,1,1,1
+        Line:
+            points : 1.33*self.width/5,0.8*self.height/4,1.20*self.width/5,0.7*self.height/4,1.20*self.width/5,0
+            width:2
+        Line:
+            points : 1.33*self.width/5,(1-0.05)*self.height/4,1.33*self.width/5,0.05*self.height
+            width:2
+        Line:
+            points : 1.43*self.width/5,0.65*self.height/4,1.43*self.width/5,0.08*self.height,1.6*self.width/5,0.02*self.height,0.92*self.width,0.02*self.height,0.97*self.width,0.1*self.height,0.97*self.width,0.95*self.height/4
+            width:2
+        Line:
+            points : 0.77*self.width,0.95*self.height/4,0.72*self.width,0.95*self.height/4-0.08*self.height,0.72*self.width,0.02*self.height
+            width:2
+        Line:
+            points : self.width-2,self.height-50,self.width-2,(1-0.05)*self.height/4
+            width:2
+        Line:
+            points : self.width, (1-0.05)*self.height/4, self.width*0.18/2 , (1-0.05)*self.height/4, self.width*0.18/2, self.height-50
+            width:2
+        Line:
+            points : self.width*0.18/2,self.height/3, self.width*0.08/2,self.height/3*1.2,self.width*0.08/2,self.height*0.75
+            width:2
+        Line:
+            points : self.width*0.18/2,self.height/3*1.2, self.width*0.25/2,self.height/3*1.4,self.width*0.25/2,self.height*0.65
+            width:2
+    orientation:'vertical'
+    BoxLayoutWithActionBar:
+        BoxLayout:
+            BoxLayout:
+                size_hint:.25,1
+            RelativeLayout:
+                BoxLayout:
+                    padding:0,self.height*0.03,0,0
+                    MorpionItems:
+                        id:G
+            BoxLayout:
+                padding : (30,0,30,0)
+                size_hint:.25,1
+                Image:
+                    image_num : 0
+                    id : feuLose
+                    y : 0
+                    source: 'Morpion/image/feu%d.png' % int(self.image_num)
+                    allow_stretch: False
+                    keep_ratio: False
+                    size_hint: 1,.7
+        BoxLayout:
+            size_hint:1,.4
+            padding : 0,0.1*self.height,0,0
+            BoxLayout:
+                padding: 0.1*self.width,0*self.height,0.2*self.width,0.0*self.height
+                Image:
+                    id : G1
+                    source: 'Morpion/gifs/bras-robotique-gros.gif'
+                    allow_stretch: False
+                    keep_ratio: True
+                    anim_delay : root.delay
+                    pos_hint:{'top': 0.9}
+            BoxLayout:
+                Button:
+                    id : B1
+                    size_hint : 1,.5
+                    font_size : 0.065*self.width
+                    font_name: "fonts/pixel.TTF"
+                    pos_hint:{'center_y':.5,'center_x':.5}
+                    background_color:(0,0,0,0)
+                    color:115/256,63/256,11/256,1
+                    canvas.before:
+                        Color:
+                            rgba : root.colors
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [48]
+                        Color:
+                            rgba : root.colorsLine
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width-3, self.height, 58, 58, 58, 58, 100
+                            width : 3
+                    text: ' Press when you \nfinished your move'
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+            BoxLayout:
+                padding: 0.07*self.width,0*self.height,0,0.1*self.height
+                Image:
+                    source: 'Morpion/image/mines.png'
+                    allow_stretch: False
+                    keep_ratio: True
+
+
+<MorpionGrille>:
+    canvas.after:
+        Color:
+            rgba : 168/256,114/256,60/256,1
+        Line:
+            points:((self.width-0.1*self.width)/3+0.05*self.width,0.05*self.height,(self.width-0.1*self.width)/3+0.05*self.width,self.height-0.05*self.height)
+            width : 2
+        Line:
+            points:(2*(self.width-0.1*self.width)/3+0.05*self.width,0.05*self.height,2*(self.width-0.1*self.width)/3+0.05*self.width,self.height-0.05*self.height)
+            width : 2
+        Line:
+            points:(0.05*self.width,(self.height-0.1*self.height)/3+0.05*self.height,self.width-0.05*self.width,(self.height-0.1*self.height)/3+0.05*self.height)
+            width : 2
+        Line:
+            points:(0.05*self.width,2*(self.height-0.1*self.height)/3+0.05*self.height,self.width-0.05*self.width,2*(self.height-0.1*self.height)/3+0.05*self.height)
+            width : 2
+    canvas.before:
+        Color:
+            rgba : 182/256,229/265,246/256,1
+        Rectangle:
+            size: self.size
+            pos : self.pos
+    Image:
+        source: 'Morpion/image/plateau1.png'
+        allow_stretch: True
+        keep_ratio: False
+
