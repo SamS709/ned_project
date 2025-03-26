@@ -1,0 +1,23 @@
+<BoxLayoutWithActionBar>:
+    canvas.after:
+        Color:
+            rgba : 1,1,1,1
+        Line:
+            points:(0,self.height-49,self.width,self.height-49)
+            width:2
+
+
+    orientation: "vertical"
+    ActionBar:
+        background_image : ''
+        background_normal: ''
+        background_down: ''
+        background_color: [0,0,1,1]
+        ActionView:
+            ActionPrevious:
+                title: root.title #c'est le titre donné au BoxLayoutWithActionBar
+                #on_release: root.parent.parent.pop()     # on remonte dans les parents : BoxLayoutWithActionBar->Screen->ScreenManager
+                on_release: app.manager.pop()
+                app_icon : "images/lab_logo.png"
+                app_icon_height : "35dp"
+                app_icon_width : "35dp"

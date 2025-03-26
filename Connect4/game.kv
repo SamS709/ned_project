@@ -1,0 +1,46 @@
+<Grille>:
+
+<Game>:
+
+<Mode>:
+    orientation : 'vertical'
+    BoxLayout:
+        id:B1
+        size_hint:.2,None
+    BoxLayout:
+        id:B2
+        Button:
+            background_color:(0,0,0,0)
+            canvas.before:
+                Color:
+                    rgba : root.colors1
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [58]
+            text: '1 Player'
+            size_hint : .5,1
+            on_press : root.changeColor(self)
+            on_release : root.pressB(self)
+
+        Button:
+            background_color:(0,0,0,0)
+            canvas.before:
+                Color:
+                    rgba : root.colors2
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [58]
+                Color:
+                    rgba : 1,1,1,1
+                Line:
+                    rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                    width : 2
+            text: '2 Players'
+            size_hint : .5,1
+            on_press : root.changeColor(self)
+            on_release : root.pressB(self)
+
+    BoxLayout:
+        id:B3
