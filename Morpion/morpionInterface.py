@@ -145,7 +145,7 @@ class MorpionGame(BoxLayout):
 
 
     def feu(self,i):
-            animate = Animation(image_num=i,d=0)
+            animate = Animation(image_num=i,d=0.2)
             animate.start(self.ids.feuLose)
 
     def robot_animation(self,i):
@@ -154,7 +154,7 @@ class MorpionGame(BoxLayout):
             animate = Animation(image_num=0, duration=0)
             animate.start(self.ids.robot)
         if i == 2:
-            animate = Animation(image_num=1, duration=0)
+            animate = Animation(image_num=4, duration=0)
             animate.start(self.ids.robot)
 
 
@@ -162,6 +162,7 @@ class MorpionGame(BoxLayout):
         if instance.text == ' Press when you \nfinished your move' or instance.text == 'Enleve les pieces\npour recommencer':
             self.table = self.camera.modif_table()
             if not self.morpion.end(self.table):
+                self.feu_image = 'Morpion/image/feu3.png'
                 self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
                 self.delay = 1/33
                 self.first_end = False
@@ -177,7 +178,6 @@ class MorpionGame(BoxLayout):
                             self.game.add_widget(self.game.Lwcircle[i][j])
                         if self.table[i,j] == 2:
                             self.game.add_widget(self.game.Lwsquare[i][j])
-                self.feu(3)
             else:
                 self.colors = [185/256,0,0,1]
                 instance.text = 'Enleve les pieces\npour recommencer'

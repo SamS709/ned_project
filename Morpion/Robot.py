@@ -1,5 +1,6 @@
 from pyniryo import *
 
+# WARNING : only works with pyniryo==1.1.2
 
 robot_ip_address = "10.10.10.10"
 
@@ -72,9 +73,17 @@ class Robot:
 
 if __name__ == '__main__':
     robot1 = Robot()
-    #robot.move_to_home_pose()
+    '''#robot.move_to_home_pose()
     p = robot.get_pose()
     j = robot.get_joints()
     print(p)
-    print(j)
+    print(j)'''
+    '''robot.open_gripper()
+    robot.move_pose(robot1.stock)
+    robot.close_gripper()
+    robot.move_to_home_pose()
+
+    robot.move_pose(robot1.place(1,2))
+    robot.open_gripper()
+    robot.move_to_home_pose()'''
     robot.pick_and_place(robot1.stock,robot1.place(1,2))

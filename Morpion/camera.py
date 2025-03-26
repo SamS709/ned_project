@@ -1,5 +1,3 @@
-
-
 import cv2
 import numpy as np
 import math
@@ -280,10 +278,6 @@ class Camera:
 
 
 if __name__ == "__main__":
-    robot1 = Camera()
-    #robot1.init_cam()
-    print(robot1.modif_table())
-    robot1.home_pos()
     A = robot.get_pose()
     #robot1.dance1()
     print(A)
