@@ -18,8 +18,8 @@ class Camera:
                 roll=-3.140, pitch=1.234, yaw=-3.140
             ))
         else:
-            robot.move_pose(PoseObject(x = 0.1344, y = -0.0002, z = 0.2212,
-                                       roll = 0.016, pitch = 0.413, yaw = -0.001))
+            robot.move_pose(PoseObject(x = 0.1346, y = 0.0077, z = 0.2262,
+                                       roll = -0.014, pitch = 0.292, yaw = 0.056))
 
     def home_pos(self):
         robot.move_to_home_pose()
@@ -136,17 +136,50 @@ class Camera:
     def pos_grid(self,i,j):  # IL FAUT REPERER LES POSITIONS SUR LA CAMERA
         #(on peut s'aider de red_green_pos et rajouter une barre d'incertitude en pernant une photo de la grille remplie de pions rouges par exemple)
         x0,x1,y0,y1 = 0,0,0,0
-        eps = 50
-        if i == 5:
-            y = 210
-            y0,y1 = y-eps,y+eps
-        if j == 0:
-            x = 285
-            x0,x1 = x-eps,x+eps
-        if j == 1:
-            x = 441
-            x0,x1 = x-eps,x+eps
-        return np.array([x0,x1,y0,y1])
+        eps = 20
+        if i == 0:
+            if j == 0:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 7:
+                x = 0
+                y = 0
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+
+        return [x0,x1,y0,y1 ]
 
     def modif_table(self):
         imageFrame,Lposred,Lposgreen = self.red_yellow_pos()
@@ -211,6 +244,7 @@ class Camera:
 
 if __name__=='__main__':
     camera = Camera()
+    print(robot.get_pose())
     camera.get_HSV_and_mousePos()
     #imageFrame,Lposred,Lposgreen=camera.red_green_pos()
     '''print('Lposred=',Lposred)
