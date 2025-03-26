@@ -77,4 +77,4 @@ if __name__ == '__main__':
     j = robot.get_joints()
     print(p)
     print(j)
-    #robot.pick_and_place(robot1.stock,robot1.place(1,2))
+    robot.pick_and_place(robot1.stock,robot1.place(1,2))
