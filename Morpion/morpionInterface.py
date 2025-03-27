@@ -109,9 +109,9 @@ class MorpionGame(BoxLayout):
         self.minimax = MinMax()
         self.ai = AI()
         self.depth = 6
-        self.camera = Camera()
         self.robot1 = Robot()
         self.robot1.waiting_pos()
+        self.robot1.robot.close_connection()
 
 
     def on_kv_post(self, base_widget):
@@ -159,6 +159,8 @@ class MorpionGame(BoxLayout):
 
 
     def pressB(self,instance):
+        self.camera = Camera()
+        self.robot1 = Robot()
         if instance.text == ' Press when you \nfinished your move' or instance.text == 'Enleve les pieces\npour recommencer':
             self.table = self.camera.modif_table()
             if not self.morpion.end(self.table):
@@ -266,6 +268,8 @@ class MorpionGame(BoxLayout):
                 self.animationFire('redFire')
 #le robot dit non de la tête
             self.first_end = True
+        self.robot1.robot.close_connection()
+        self.camera.robot.close_connection()
 
 
 class morpionInterfaceApp(App):

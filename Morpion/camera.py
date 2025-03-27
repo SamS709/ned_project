@@ -4,7 +4,7 @@ import math
 import time
 import cv2 as cv
 from pyniryo import *
-from Morpion.Robot import robot
+
 
 
 
@@ -13,6 +13,12 @@ from Morpion.Robot import robot
 class Camera:
 
     def __init__(self):
+        robot_ip_address = "10.10.10.10"
+        robot = NiryoRobot(robot_ip_address)
+        robot.calibrate_auto()
+        robot.update_tool()
+        robot.set_arm_max_velocity(100)
+        self.robot = robot
         self.observation_pose = PoseObject(
             x=0.2032, y=0.00, z=0.3231,
         roll = -3.140, pitch = 1.234, yaw = -3.140
@@ -22,18 +28,18 @@ class Camera:
 
 
     def cam_pos(self):
-            robot.move_pose(PoseObject(
+            self.robot.move_pose(PoseObject(
                 x=0.2032, y=0.00, z=0.3231,
             roll = -3.140, pitch = 1.234, yaw = -3.140
             ))
 
     def home_pos(self):
-        robot.move_to_home_pose()
+        self.robot.move_to_home_pose()
 
     def init_cam(self):
         self.cam_pos()
-        mtx,dist = robot.get_camera_intrinsics() #renvoie: cam intrinsics, distortion coeff
-        img = robot.get_img_compressed()
+        mtx,dist = self.robot.get_camera_intrinsics() #renvoie: cam intrinsics, distortion coeff
+        img = self.robot.get_img_compressed()
         img_uncom = uncompress_image(img)
         img_resize = self.rescaleFrame(img_uncom, scale=1.2)
         img_undis = undistort_image(img_resize, mtx, dist)
@@ -42,7 +48,7 @@ class Camera:
         print(img_gray)
         while 'User do not press Escapre neither Q':
             #getting image
-            img = robot.get_img_compressed()
+            img = self.robot.get_img_compressed()
 
             #uncompressing image
             img_uncom= uncompress_image(img)
@@ -106,9 +112,9 @@ class Camera:
     def photo(self):
         self.cam_pos()
         time.sleep(0.5)
-        mtx, dist = robot.get_camera_intrinsics()
+        mtx, dist = self.robot.get_camera_intrinsics()
         # getting image
-        img = robot.get_img_compressed()
+        img = self.robot.get_img_compressed()
 
         # uncompressing image
         img_uncom = uncompress_image(img)

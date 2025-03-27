@@ -9,8 +9,8 @@ from kivy.animation import Animation
 from kivy.uix.widget import Widget
 from Connect4.AI.AI import *
 
-#from Camera import *
-#from Robot import *
+from Connect4.Robot import *
+
 
 
 Builder.load_file('Connect4/connect4Interface.kv')
@@ -113,10 +113,7 @@ class Connect4Game(BoxLayout):
         self.table = np.array([[0 for j in range(7)] for i in range(6)])
         self.depth = depth
         self.ai = AI()
-        #self.stock = PoseObject()
-        #self.robot1 = Robot()
-        #self.camera = Camera()
-        # self.robot1.waiting_pos()
+
 
     def on_kv_post(self, base_widget):
         self.game = self.ids.G
@@ -160,6 +157,8 @@ class Connect4Game(BoxLayout):
             animate.start(self.ids.robot)
 
     def pressB(self,instance):
+        self.robot1 = Robot()
+        self.table = self.robot1.modif_table()
         grid = self.connect4.table_to_grid(self.table)
         if instance.text == ' Press when you \nfinished your move' or instance.text == 'Enleve les pieces\npour recommencer':
             if not self.connect4.end(grid):
@@ -171,7 +170,6 @@ class Connect4Game(BoxLayout):
                 self.colorsLine = self.colorLine2
                 instance.color = [1, 1, 1, 1]
                 self.delay = 1 / 30
-                #self.table = self.camera.modif_table()
                 for i in range(self.table.shape[0]):
                     for j in range(self.table.shape[1]):
                         self.game.remove_widget(self.game.LwCR[i][j])
@@ -180,7 +178,7 @@ class Connect4Game(BoxLayout):
                             self.game.add_widget(self.game.LwCR[i][j])
                         if self.table[i, j] == 2:
                             self.game.add_widget(self.game.LwCJ[i][j])
-                self.feu(3)
+                self.ids.feuLose.source = "Connect4/image/feu3.png"
             else:
                 print('AAAA')
                 self.colors = [185/256,0,0,1]
@@ -189,8 +187,10 @@ class Connect4Game(BoxLayout):
                 instance.color = [1,1,1,1]
                 self.colorsLine = [1,1,1,1]
 
+
+
     def releaseB(self,instance):
-        self.feu_image = 'Morpion/image/feu1.png'
+        self.ids.feuLose.source = "Connect4/image/feu%d.png" % int(self.ids.feuLose.image_num)
         mode = var1.MODE
         level = var1.LEVEL
         grid = self.connect4.table_to_grid(self.table)
@@ -217,8 +217,7 @@ class Connect4Game(BoxLayout):
                     pass
                 p,q = pos[0],pos[1]
                 self.table[p,q]=1
-                #robot.pick_and_place(self.robot.stock,self.robot.place(pos[1]))
-                #self.robot1.waiting_pos()
+                self.robot1.place(pos[1])
                 self.game.add_widget(self.game.LwCR[p][q])
                 instance.text = ' Press when you \nfinished your move'
                 self.colors = self.color1
@@ -273,6 +272,7 @@ class Connect4Game(BoxLayout):
                 self.delay = 1/40
                 # self.robot1.say_no() #le robot dit non de la tête
             self.first_end = True
+        self.robot1.robot.close_connection()
 
 
 

@@ -3,33 +3,39 @@ import time
 import numpy as np
 import cv2
 from pyniryo import *
-from Robot import robot
 
 
 class Camera:
 
     def __init__(self):
-        pass
+        robot_ip_address = "10.10.10.10"
+        robot = NiryoRobot(robot_ip_address)
+        robot.calibrate_auto()
+        robot.update_tool()
+        robot.set_arm_max_velocity(100)
+        self.robot = robot
+
+
 
     def cam_pos(self, i=1):
         if i == 1:
-            robot.move_pose(PoseObject(
+            self.robot.move_pose(PoseObject(
                 x=0.2032, y=0.00, z=0.3231,
                 roll=-3.140, pitch=1.234, yaw=-3.140
             ))
         else:
-            robot.move_pose(PoseObject(x = 0.1346, y = 0.0077, z = 0.2262,
+            self.robot.move_pose(PoseObject(x = 0.1346, y = 0.0077, z = 0.2262,
                                        roll = -0.014, pitch = 0.292, yaw = 0.056))
 
     def home_pos(self):
-        robot.move_to_home_pose()
+        self.robot.move_to_home_pose()
 
     def red_yellow_pos(self):
         self.cam_pos(2)
         time.sleep(0.5)
-        mtx,dist = robot.get_camera_intrinsics() #renvoie: cam intrinsics, distortion coeff
+        mtx,dist = self.robot.get_camera_intrinsics() #renvoie: cam intrinsics, distortion coeff
         # getting image
-        img = robot.get_img_compressed()
+        img = self.robot.get_img_compressed()
         # uncompressing image
         img_uncom = uncompress_image(img)
         # resize
@@ -75,20 +81,7 @@ class Camera:
         L_pos_yellow = np.array([[0, 0]])
 
         # Creating contour to track red color
-        contours, hierarchy = cv2.findContours(red_mask1, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-        for pic, contour in enumerate(contours):
-            area = cv2.contourArea(contour)
-            if (area > 500):
-                x, y, w, h = cv2.boundingRect(contour)
-                L_pos_red = np.concatenate((L_pos_red,np.array([[int(x+w/2),int(y+h/2)]])))
-                imageFrame = cv2.rectangle(imageFrame, (x, y),
-                                           (x + w, y + h),
-                                           (0, 0, 255), 2)
-
-                cv2.putText(imageFrame, "Red", (x, y),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1.0,
-                            (0, 0, 255))
 
         contours, hierarchy = cv2.findContours(red_mask2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -112,7 +105,7 @@ class Camera:
 
         for pic, contour in enumerate(contours):
             area = cv2.contourArea(contour)
-            if (area > 100):
+            if (area > 500):
                 x, y, w, h = cv2.boundingRect(contour)
                 L_pos_yellow = np.concatenate((L_pos_yellow,np.array([[int(x+w/2),int(y+h/2)]])))
                 imageFrame = cv2.rectangle(imageFrame, (x, y),
@@ -184,7 +177,7 @@ class Camera:
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y = 423 , 19
+                x, y = 423 , 197
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
@@ -259,7 +252,7 @@ class Camera:
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y= 162 , 39
+                x,y= 162 , 390
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
@@ -317,14 +310,14 @@ class Camera:
         return [x0,x1,y0,y1 ]
 
     def modif_table(self):
-        imageFrame,Lposred,Lposgreen = self.red_yellow_pos()
+        imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
         table = np.array([[0 for i in range(7)]for i in range(6)])
         for pos in Lposred:
             for i in range(6):
                 for j in range(7):
                     if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
                         table[i,j]=1
-        for pos in Lposgreen:
+        for pos in Lposyellow:
             for i in range(6):
                 for j in range(7):
                     if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
@@ -379,8 +372,9 @@ class Camera:
 
 if __name__=='__main__':
     camera = Camera()
-    print(robot.get_pose())
-    camera.get_HSV_and_mousePos()
+    #camera.get_HSV_and_mousePos()
+    table = camera.modif_table()
+    print(table)
     #imageFrame,Lposred,Lposgreen=camera.red_green_pos()
     '''print('Lposred=',Lposred)
     print('Lposgreen=', Lposgreen)'''

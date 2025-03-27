@@ -2,21 +2,22 @@ from pyniryo import *
 
 # WARNING : only works with pyniryo==1.1.2
 
-robot_ip_address = "10.10.10.10"
 
-
-#Connect to robot & calibrate
-robot = NiryoRobot(robot_ip_address)
-robot.calibrate_auto()
-robot.update_tool()
-robot.set_arm_max_velocity(100)
 
 
 class Robot:
 
     def __init__(self):
+        robot_ip_address = "10.10.10.10"
+        robot = NiryoRobot(robot_ip_address)
+        robot.calibrate_auto()
+        robot.update_tool()
+        robot.set_arm_max_velocity(100)
+        self.robot = robot
         self.stock = PoseObject(x=0.3195, y=-0.1041, z=0.1029,
                                 roll=-0.894, pitch=1.529, yaw=-0.883)  # position du stock de cercles
+
+
 
     def place(self, i, j):
         if i == 0:
@@ -53,7 +54,7 @@ class Robot:
                                   )
 
     def waiting_pos(self):
-        robot.move_to_home_pose()
+        self.robot.move_to_home_pose()
 
     def celebrate(self,i):
         if i == 1:
@@ -64,12 +65,12 @@ class Robot:
             pos1 = []
             pos2 = []
             pos3 = []
-        robot.execute_trajectory_from_poses([pos1,pos2,pos3])
+        self.robot.execute_trajectory_from_poses([pos1,pos2,pos3])
 
     def say_no(self):
         pos1 = []
         pos2 = []
-        robot.execute_trajectory_from_poses([pos1,pos2])
+        self.robot.execute_trajectory_from_poses([pos1,pos2])
 
 if __name__ == '__main__':
     robot1 = Robot()
