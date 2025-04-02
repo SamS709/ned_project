@@ -45,6 +45,7 @@ class ChoiceGame(BoxLayout):
     image_morpion = StringProperty('images/morpion.png')
     image_connect4 = StringProperty('images/puissance4.png')
 
+
     colors1 = ListProperty([0, 0, 1, 1])
     colors2 = ListProperty([0, 0, 1, 1])
     colors5 = ListProperty([169 / 256, 221 / 256, 175 / 256, 1])

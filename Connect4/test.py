@@ -1,11 +1,13 @@
-from Camera import *
+import multiprocessing
+import time
 
-A = np.array([[0,0]])
+def main():
+    print("Hello")
+    time.sleep(1)
+    print("...world")
 
-A = np.concatenate((A,np.array([[1,2]])))
-
-A = np.concatenate((A,np.array([[5,6]])))
-
-for pos in A:
-    print(pos)
-
+p = multiprocessing.Process(target=main)
+__name__ = "coucou"
+if __name__=="__main__":
+    p.start()
+    print("coucou")

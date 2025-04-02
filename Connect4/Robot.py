@@ -306,8 +306,6 @@ class Robot:
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
 
-
-
         return [x0,x1,y0,y1 ]
 
     def modif_table(self):
@@ -416,8 +414,17 @@ class Robot:
             pos3 = []
         self.robot.execute_trajectory_from_poses([pos1, pos2, pos3])
 
+    def say_no(self):
+        pos1 = [0.1271,-0.0404,0.2085,-0.122, 0.333,-0.305]
+        pos2 = [0.1276, 0.0350,0.2117,-0.086,0.359,0.294]
+        self.robot.set_arm_max_velocity(100)
+
+        self.robot.execute_trajectory_from_poses([pos1, pos2,pos1,pos2])
+
 
 
 if __name__=='__main__':
     robot1 = Robot()
-    robot1.place(0)
+    print(robot1.robot.get_pose())
+    #robot1.place(0)
+    robot1.say_no()

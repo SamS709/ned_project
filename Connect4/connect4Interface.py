@@ -180,6 +180,14 @@ class Connect4Game(BoxLayout):
                             self.game.add_widget(self.game.LwCJ[i][j])
                 self.ids.feuLose.source = "Connect4/image/feu3.png"
             else:
+                for i in range(self.table.shape[0]):
+                    for j in range(self.table.shape[1]):
+                        self.game.remove_widget(self.game.LwCR[i][j])
+                        self.game.remove_widget(self.game.LwCJ[i][j])
+                        if self.table[i, j] == 1:
+                            self.game.add_widget(self.game.LwCR[i][j])
+                        if self.table[i, j] == 2:
+                            self.game.add_widget(self.game.LwCJ[i][j])
                 print('AAAA')
                 self.colors = [185/256,0,0,1]
                 self.ids.G1.anim_loop = 1
@@ -270,7 +278,7 @@ class Connect4Game(BoxLayout):
                 self.ids.G1.anim_loop = 1
                 self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
                 self.delay = 1/40
-                # self.robot1.say_no() #le robot dit non de la tête
+                self.robot1.say_no() #le robot dit non de la tête
             self.first_end = True
         self.robot1.robot.close_connection()
 
