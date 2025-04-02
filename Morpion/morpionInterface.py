@@ -159,10 +159,9 @@ class MorpionGame(BoxLayout):
 
 
     def pressB(self,instance):
-        self.camera = Camera()
         self.robot1 = Robot()
         if instance.text == ' Press when you \nfinished your move' or instance.text == 'Enleve les pieces\npour recommencer':
-            self.table = self.camera.modif_table()
+            self.table = self.robot1.modif_table()
             if not self.morpion.end(self.table):
                 self.feu_image = 'Morpion/image/feu3.png'
                 self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
@@ -174,12 +173,12 @@ class MorpionGame(BoxLayout):
                 instance.color = [1, 1, 1, 1]
                 for i in range(self.table.shape[0]):
                     for j in range(self.table.shape[1]):
-                        self.game.remove_widget(self.game.Lwsquare[i][j])
-                        self.game.remove_widget(self.game.Lwcircle[i][j])
+                        self.game.remove_widget(self.game.Lwsquare[2-i][2-j])
+                        self.game.remove_widget(self.game.Lwcircle[2-i][2-j])
                         if self.table[i,j]==1:
-                            self.game.add_widget(self.game.Lwcircle[i][j])
+                            self.game.add_widget(self.game.Lwcircle[2-i][2-j])
                         if self.table[i,j] == 2:
-                            self.game.add_widget(self.game.Lwsquare[i][j])
+                            self.game.add_widget(self.game.Lwsquare[2-i][2-j])
             else:
                 self.colors = [185/256,0,0,1]
                 instance.text = 'Enleve les pieces\npour recommencer'
@@ -216,9 +215,8 @@ class MorpionGame(BoxLayout):
                     pos = self.ai.best_pos(self.table,self.P1)
                 p,q = pos[0],pos[1]
                 self.table[p,q]=1
-                robot.pick_and_place(self.robot1.stock,self.robot1.place(p,q))
-                self.robot1.waiting_pos()
-                self.game.add_widget(self.game.Lwcircle[p][q])
+                self.robot1.place(p,q)
+                self.game.add_widget(self.game.Lwcircle[2-p][2-q])
                 instance.text = ' Press when you \nfinished your move'
                 instance.color = [115/256,63/256,11/256,1]
                 self.colors = self.color1
@@ -269,7 +267,6 @@ class MorpionGame(BoxLayout):
 #le robot dit non de la tête
             self.first_end = True
         self.robot1.robot.close_connection()
-        self.camera.robot.close_connection()
 
 
 class morpionInterfaceApp(App):
