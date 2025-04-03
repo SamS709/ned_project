@@ -112,12 +112,16 @@ class MorpionGame(BoxLayout):
         self.robot1 = Robot()
         self.robot1.waiting_pos()
         self.robot1.robot.close_connection()
+        self.pressText = ' Press when you \nfinished your move'
+        self.restartText = 'Enleve les pieces\npour recommencer'
+        self.releaseText = 'Ned is playing...'
 
 
     def on_kv_post(self, base_widget):
         self.game =self.ids.G
 
     def animationFire(self, state):
+        self.ids.feuLose.source = "Morpion/image/feu%d.png" % int(self.ids.feuLose.image_num)
         if state == 'end':
             animate = Animation(image_num=3, duration=0)
             for i in range(3):
@@ -144,9 +148,12 @@ class MorpionGame(BoxLayout):
 
 
 
-    def feu(self,i):
-            animate = Animation(image_num=i,d=0.2)
-            animate.start(self.ids.feuLose)
+    def fire(self,color):
+            if color == "green":
+                self.ids.feuLose.source = "Morpion/image/feuLose/feu1.png"
+            if color == "red":
+                self.ids.feuLose.source = "Morpion/image/feuLose/feu3.png"
+
 
     def robot_animation(self,i):
         n_images = 161
@@ -159,91 +166,112 @@ class MorpionGame(BoxLayout):
 
 
     def pressB(self,instance):
-        self.robot1 = Robot()
-        if instance.text == ' Press when you \nfinished your move' or instance.text == 'Enleve les pieces\npour recommencer':
+        if instance.text == self.pressText or instance.text == self.restartText:
+            instance.text = self.releaseText
+            self.robot1 = Robot()
             self.table = self.robot1.modif_table()
-            if not self.morpion.end(self.table):
-                self.feu_image = 'Morpion/image/feu3.png'
-                self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
-                self.delay = 1/33
-                self.first_end = False
-                instance.text = "Ned is playing..."
-                self.colors = self.color2
-                self.colorsLine = self.colorLine2
-                instance.color = [1, 1, 1, 1]
-                for i in range(self.table.shape[0]):
-                    for j in range(self.table.shape[1]):
-                        self.game.remove_widget(self.game.Lwsquare[2-i][2-j])
-                        self.game.remove_widget(self.game.Lwcircle[2-i][2-j])
-                        if self.table[i,j]==1:
-                            self.game.add_widget(self.game.Lwcircle[2-i][2-j])
-                        if self.table[i,j] == 2:
-                            self.game.add_widget(self.game.Lwsquare[2-i][2-j])
-            else:
-                self.colors = [185/256,0,0,1]
-                instance.text = 'Enleve les pieces\npour recommencer'
-                self.ids.G1.anim_loop = 1
-                instance.color = [1,1,1,1]
-                self.colorsLine = [1,1,1,1]
+            self.fire("red")
+            self.delay = 1/33
+            self.first_end = False
+            instance.text = "Ned is playing..."
+            self.colors = self.color2
+            self.colorsLine = self.colorLine2
+            instance.color = [1, 1, 1, 1]
+            for i in range(self.table.shape[0]):
+                for j in range(self.table.shape[1]):
+                    self.game.remove_widget(self.game.Lwsquare[2 - i][2 - j])
+                    self.game.remove_widget(self.game.Lwcircle[2 - i][2 - j])
+                    if self.table[i, j] == 1:
+                        self.game.add_widget(self.game.Lwcircle[2 - i][2 - j])
+                    if self.table[i, j] == 2:
+                        self.game.add_widget(self.game.Lwsquare[2 - i][2 - j])
+
+    def firstPlayer(self,table):
+        n1 = np.count_nonzero(table == 1)
+        n2 = np.count_nonzero(table == 2)
+        if n1 >= n2:  # On détermine qui a joué en premier
+            P1 = '1'
+        else:
+            P1 = '2'
+        return P1
+
+    def detPos(self, mode, level):
+        if mode == 'minimax':
+            if level == 'novice':
+                self.depth = 1
+            if level == 'debutant':
+                self.depth = 2
+            if level == 'intermediaire':
+                self.depth = 4
+            if level == 'expert':
+                self.depth = 7
+            return self.minimax.best_pos(self.table,self.depth)
+        else:
+            return self.ai.best_pos(self.table,self.P1)
+
+    def modifUI(self,instance,i,p=0,q=0):
+        if i == 1:
+            self.game.add_widget(self.game.Lwcircle[2 - p][2 - q])
+            instance.text = ' Press when you \nfinished your move'
+            instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
+            self.colors = self.color1
+            self.colorsLine = self.colorLine1
+        if i == 2:
+            self.animationFire('end')
+            instance.text = 'Enleve les pieces\npour recommencer'
+            self.ids.G1.anim_loop = 1
+            instance.color = [1, 1, 1, 1]
+            self.colorsLine = [1, 1, 1, 1]
+            self.colors = [240 / 256, 0, 0, 1]
+            self.first_end = True  # indicates that the end game has already been signaled to te user
+        if i == 3:
+            self.ids.G1._coreimage.anim_reset(True)
+            self.ids.G1.anim_loop = 1
+            self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
+            self.delay = 1 / 40
+            self.animationFire('redFire')
+            instance.color = [1,1,1,1]
+            self.colors = [1,0,0,1]
+
+
 
     def releaseB(self,instance):
-        self.feu_image = 'Morpion/image/feu1.png'
+        self.feu_image = 'Morpion/image/feuLose/feu1.png'
         mode = var1.MODE
         level = var1.LEVEL
         print(mode,level)
-        n1 = np.count_nonzero(self.table == 1)
-        n2 = np.count_nonzero(self.table == 2)
-        if n1>= n2: # On détermine quel réseau de neurone utiliser
-            self.P1 = '1'
-        else:
-            self.P1 = '2'
-        if instance.text == 'Ned is playing...': # Si la par
-            if not self.morpion.end(self.table):
-                if mode == 'minimax':
-                    if level == 'novice':
-                        self.depth = 1
-                    if level == 'debutant':
-                        self.depth = 2
-                    if level == 'intermediaire':
-                        self.depth = 4
-                    if level == 'expert':
-                        self.depth = 7
-                    print(self.depth)
-                    pos = self.minimax.best_pos(self.table,self.depth)
-                else:
-                    print("IIIIAAAA")
-                    pos = self.ai.best_pos(self.table,self.P1)
-                p,q = pos[0],pos[1]
-                self.table[p,q]=1
-                self.robot1.place(p,q)
-                self.game.add_widget(self.game.Lwcircle[2-p][2-q])
-                instance.text = ' Press when you \nfinished your move'
-                instance.color = [115/256,63/256,11/256,1]
-                self.colors = self.color1
-                self.colorsLine = self.colorLine1
-                if self.morpion.end(self.table):
-                    self.animationFire('end')
-                    instance.text = 'Enleve les pieces\npour recommencer'
-                    self.ids.G1.anim_loop = 1
-                    instance.color = [1, 1, 1, 1]
-                    self.colorsLine = [1, 1, 1, 1]
-                    self.colors = [240 / 256, 0, 0, 1]
-                    self.first_end = True
-                    if self.morpion.win(self.table):
-                        #self.robot1.celebrate(1)
-                        pass
-                    if self.morpion.lose(self.table):
-                        #self.robot1.celebrate(2)
-                        pass
-                else:
-                    self.feu(1)
-            '''else:
+        if not self.morpion.end(self.table):
+            self.P1 = self.firstPlayer(self.table) # determines who started to play
+            pos = self.detPos(mode, level) # determines the position of the piece played by the robot
+            p,q = pos[0],pos[1]
+            self.table[p,q]=1
+            self.robot1.place(p,q) # robot pick and place the piece to the position determined above
+            self.modifUI(instance,1,p,q)  # modification on the UI
+            if self.morpion.end(self.table):
+                instance.text= self.releaseText
+                self.modifUI(instance,2)
+                if self.morpion.win(self.table):
+                    #self.robot1.celebrate(1)
+                    pass
                 if self.morpion.lose(self.table):
-                    self.robot1.celebration(2)
-                else:
-                    self.robot1.celebration(1)'''
-
-        else: # si la fin de la partie est détectée après le coup du joeur
+                    #self.robot1.celebrate(2)
+                    pass
+            else:
+                instance.text = self.pressText
+                self.fire("green")
+        else:
+            instance.text = self.restartText
+            if self.first_end==False:
+                # self.robot1.say_no()
+                self.modifUI(instance,3) # red fire blinks
+            else:
+                self.modifiUI(instance,2)
+        '''else:
+            if self.morpion.lose(self.table):
+                self.robot1.celebration(2)
+            else:
+                self.robot1.celebration(1)'''
+        '''else: # si la fin de la partie est détectée après le coup du joeur
             self.colors = [240/256,0,0,1]
             if self.first_end==False: # s'il appuie pour la première fois sur le bouton après avoir gagné
                 print('firstend')
@@ -262,10 +290,10 @@ class MorpionGame(BoxLayout):
                 self.ids.G1.anim_loop = 1
                 self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
                 self.delay = 1/40
-                # self.robot1.say_no()
                 self.animationFire('redFire')
 #le robot dit non de la tête
-            self.first_end = True
+            self.first_end = True'''
+        self.robot1.robot.move_pose(self.robot1.home_pos)
         self.robot1.robot.close_connection()
 
 

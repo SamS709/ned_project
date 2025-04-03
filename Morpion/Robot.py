@@ -20,8 +20,7 @@ class Robot:
         robot.set_arm_max_velocity(100)
         self.robot = robot
         self.stock = PoseObject(x = -0.0220, y = -0.1308, z = 0.0989,
-                                roll = -0.248, pitch = 1.259, yaw = 2.945
-)  # position du stock de cercles
+                                roll = -0.248, pitch = 1.259, yaw = 2.945)  # position du stock de cercles
         self.observation_pose = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
                                            roll = -3.046, pitch = 1.204, yaw = 1.689)
         self.home_pos = PoseObject(x = -0.0003, y = -0.1231, z = 0.1630,
@@ -45,28 +44,19 @@ class Robot:
         while 'User do not press Escapre neither Q':
             #getting image
             img = self.robot.get_img_compressed()
-
             #uncompressing image
             img_uncom= uncompress_image(img)
-
             #resize
             img_resize = self.rescaleFrame(img_uncom,scale=1.2)
-
             #undistort
             img_undis = undistort_image(img_resize,mtx,dist)
             #convert image to greyscale
             img_gray = cv.cvtColor(img_undis,cv.COLOR_BGR2GRAY)
             #apply blur
             img_gblur = cv.GaussianBlur(img_gray,(5,5),0)
-
             #apply otsu's binaryq
             ret, img_thres = cv.threshold(img_gblur,150,255, cv.ADAPTIVE_THRESH_GAUSSIAN_C) #+ cv.THRESH_OTSU)
-            #ret, img_thres1 = cv.threshold(img_gblur,127,255,cv.THRESH_TOZERO_INV)
-            # masking a part of the image:
-            h, w = img_thres.shape
-
             contours, hierarchy = cv2.findContours(image = img_thres, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE ) #ou CHAIN_APPROX_NONE
-
             image_copy = img_gray.copy()
             for cnt in contours:
                 area = cv2.contourArea(cnt)
@@ -78,8 +68,6 @@ class Robot:
                     print(len(approx))
                     x,y,w,h = cv2.boundingRect(approx)
                     cv2.rectangle(image_copy,(x,y),(x+w,y+h),(0,255,0),5)
-
-            #concat = concat_imgs((img_undis , image_copy))
             key = show_img("Otsu's Thresh vs Binary to zero", image_copy, wait_ms=30)
 
             if key in [ord("q")]:  # Will break if user press Q or Escape
@@ -92,25 +80,19 @@ class Robot:
         mtx, dist = self.robot.get_camera_intrinsics()
         # getting image
         img = self.robot.get_img_compressed()
-
         # uncompressing image
         img_uncom = uncompress_image(img)
-
         # resize
         img_resize = self.rescaleFrame(img_uncom, scale=1.2)
-
         # undistort
         img_undis = undistort_image(img_resize, mtx, dist)
         # convert image to greyscale
         img_gray = cv.cvtColor(img_undis, cv.COLOR_BGR2GRAY)
         # apply blur
         img_gblur = cv.GaussianBlur(img_gray, (5, 5), 0)
-
         # apply otsu's binaryq
         ret, img_thres = cv.threshold(img_gblur, 150, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C)  # + cv.THRESH_OTSU)
-        # ret, img_thres1 = cv.threshold(img_gblur,127,255,cv.THRESH_TOZERO_INV)
         # masking a part of the image:
-
         image_copy = img_gray.copy()
         return image_copy,img_thres
 
