@@ -12,10 +12,10 @@ class Robot:
         robot.update_tool()
         robot.set_arm_max_velocity(100)
         self.robot = robot
-        self.stock = PoseObject(x=0.3454, y=-0.1760, z=0.1014,
-                                roll=-0.656, pitch=1.372, yaw=-1.013)  # position du stock de cercles
-        self.middle_pos = PoseObject(x=0.15, y=-0.0003, z=0.4757,
-                                     roll=0.056, pitch=0.053, yaw=0.009)
+        self.stock = PoseObject(x = 0.2368, y = 0.0598, z = 0.1440,
+                                roll = 0.777, pitch = 1.522, yaw = 0.769)  # position du stock de cercles
+        self.middle_pos = PoseObject(x = 0.1041, y = 0.0009, z = 0.4700,
+                                     roll = 0.077, pitch = 1.028, yaw = 0.042)
 
 
     def cam_pos(self, i=1):
@@ -25,15 +25,15 @@ class Robot:
                 roll=-3.140, pitch=1.234, yaw=-3.140
             ))
         else:
-            self.robot.move_pose(PoseObject(x = 0.1346, y = 0.0077, z = 0.2262,
-                                       roll = -0.014, pitch = 0.292, yaw = 0.056))
+            self.robot.move_pose(PoseObject(x = 0.1320, y = 0.0052, z = 0.2225,
+                                            roll = -0.040, pitch = 0.273, yaw = 0.034))
 
     def home_pos(self):
         self.robot.move_to_home_pose()
 
     def red_yellow_pos(self):
         self.cam_pos(2)
-        time.sleep(0.5)
+        time.sleep(1)
         mtx,dist = self.robot.get_camera_intrinsics() #renvoie: cam intrinsics, distortion coeff
         # getting image
         img = self.robot.get_img_compressed()
@@ -130,7 +130,7 @@ class Robot:
     def pos_grid(self,i,j):  # IL FAUT REPERER LES POSITIONS SUR LA CAMERA
         #(on peut s'aider de red_green_pos et rajouter une barre d'incertitude en pernant une photo de la grille remplie de pions rouges par exemple)
         x0,x1,y0,y1 = 0,0,0,0
-        eps = 20
+        eps = 30
         if i == 0:
             if j == 0:
                 x,y= 50 , 134
@@ -427,4 +427,5 @@ if __name__=='__main__':
     robot1 = Robot()
     print(robot1.robot.get_pose())
     #robot1.place(0)
-    robot1.say_no()
+    #robot1.get_HSV_and_mousePos()
+    #robot1.say_no()

@@ -19,8 +19,9 @@ class Robot:
         robot.update_tool()
         robot.set_arm_max_velocity(100)
         self.robot = robot
-        self.stock = PoseObject(x = -0.1226, y = -0.1225, z = 0.0942,
-                                roll = -0.772, pitch = 1.511, yaw = -2.257)  # position du stock de cercles
+        self.stock = PoseObject(x = -0.0220, y = -0.1308, z = 0.0989,
+                                roll = -0.248, pitch = 1.259, yaw = 2.945
+)  # position du stock de cercles
         self.observation_pose = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
                                            roll = -3.046, pitch = 1.204, yaw = 1.689)
         self.home_pos = PoseObject(x = -0.0003, y = -0.1231, z = 0.1630,
@@ -302,8 +303,8 @@ class Robot:
                 pos = PoseObject(x = 0.0553, y = -0.3493, z = 0.1060,
                                   roll = 1.463, pitch = 1.533, yaw = -0.121)
             if j == 1:
-                pos = PoseObject(-0.0643, y = -0.3422, z = 0.1041,
-                                 roll = -0.444, pitch = 1.474, yaw = -2.024)
+                pos = PoseObject(x = -0.0038, y = -0.3382, z = 0.1047,
+                                 roll = -0.044, pitch = 1.453, yaw = -1.575)
             if j == 2:
                 pos = PoseObject(x = 0.0594, y = -0.2836, z = 0.1080,
                                   roll = 1.658, pitch = 1.531, yaw = 0.106)
