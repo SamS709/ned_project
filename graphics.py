@@ -331,7 +331,7 @@ class ChoiceLevel(BoxLayout):
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_source = 'images/level0.png'
             if GAME == 'morpion':
-                App.get_running_app().manager.push('MorpionGame')
+                App.get_running_app().manager.push('MorpionGame') #
             else:
                 App.get_running_app().manager.push('Connect4Game')
 
