@@ -1,13 +1,23 @@
 import multiprocessing
 import time
 
+
+def hello():
+    p1 = multiprocessing.Process(target=main)
+    p1.start()
+    p1.join()
+    p2 = multiprocessing.Process(target=main)
+    p2.start()
+
+    p2.join()
+    print("hellooo")
+
 def main():
     print("Hello")
+
     time.sleep(1)
     print("...world")
 
-p = multiprocessing.Process(target=main)
-__name__ = "coucou"
 if __name__=="__main__":
-    p.start()
-    print("coucou")
+    hello()
+#__name__ = "coucou"

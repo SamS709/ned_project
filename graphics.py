@@ -7,7 +7,6 @@ from kivy.core.window import Window
 
 # WARNING : only works with pyniryo==1.1.2 (pip install pyniryo==1.1.2)
 
-Window.size = (660, 495)
 
 
 GAME = 'morpion'

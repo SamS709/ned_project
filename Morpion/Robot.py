@@ -288,8 +288,8 @@ class Robot:
                 pos = PoseObject(x = -0.0038, y = -0.3382, z = 0.1047,
                                  roll = -0.044, pitch = 1.453, yaw = -1.575)
             if j == 2:
-                pos = PoseObject(x = 0.0594, y = -0.2836, z = 0.1080,
-                                  roll = 1.658, pitch = 1.531, yaw = 0.106)
+                pos = PoseObject(x = -0.0682, y = -0.3479, z = 0.1064,
+                                 roll = 2.728, pitch = 1.560, yaw = 1.182)
         if i == 1:
             if j == 0:
                 pos = PoseObject(x = 0.0567, y = -0.2814, z = 0.1048,

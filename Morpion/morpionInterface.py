@@ -10,6 +10,7 @@ from Morpion.AI.AI import *
 from Connect4.connect4Interface import var1
 from Morpion.Minimax.MinMax import *
 import time
+from multiprocessing import Process
 from Morpion.camera import *
 from Morpion.Robot import *
 
@@ -18,16 +19,15 @@ Builder.load_file('Morpion/morpionInterface.kv')
 
 
 
-class MorpionGrille(GridLayout):
+class MorpionGrille(GridLayout): # creates the grid
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.auto = True
         self.rows = 3
         self.cols = 3
         self.size_hint = 1,1
 
 
-class MorpionItems(Widget):
+class MorpionItems(Widget): # creates the circlesand the square
 
     R = NumericProperty(1)
     L = NumericProperty(1)
@@ -101,26 +101,26 @@ class MorpionGame(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.first_end = False #indique si le robot détecte la fin ou pas: utile pour le feu de fin : si self.end == True et self.first_end == False alors on célèbre le fin. Si self.end == False : on indique q'il faut retirer les pieces
-        self.P1 = 'robot'
+        self.first_end = False # tells if the robot has already detected the end of the game. If this is the case, first_end = True, else: first_end = False
+        self.P1 = 'robot' # tells who plays first
         self.size_hint = 1,1
-        self.table = np.array([[0 for j in range(3)] for i in range(3)])
+        self.table = np.array([[0 for j in range(3)] for i in range(3)]) # create a table of tic tac toe
         self.morpion = Morpion()
         self.minimax = MinMax()
         self.ai = AI()
-        self.depth = 6
-        self.robot1 = Robot()
-        self.robot1.waiting_pos()
-        self.robot1.robot.close_connection()
-        self.pressText = ' Press when you \nfinished your move'
-        self.restartText = 'Enleve les pieces\npour recommencer'
-        self.releaseText = 'Ned is playing...'
+        self.depth = 6 # exploratio's depth of minimax's algorithm
+        self.robot1 = Robot() # useful toaccess to ned's actions
+        self.robot1.waiting_pos() # we want ned to go at its home position when we launch the application
+        self.robot1.robot.close_connection() # we don't want the connectionto remain to long becauseofbugs and because we don't want to connect simunaetly with 2 Robot instancies
+        self.pressText = ' Press when you \nfinished your move' # the text on the button before it is pressed
+        self.restartText = 'Enleve les pieces\npour recommencer' # the text on the button when pieces should be removed
+        self.releaseText = 'Ned is playing...' # the text on the button when ned is playing
 
 
-    def on_kv_post(self, base_widget):
+    def on_kv_post(self, base_widget): # wait until kv file is executed before running this function
         self.game =self.ids.G
 
-    def animationFire(self, state):
+    def animationFire(self, state): # animate the traffic lights
         self.ids.feuLose.source = "Morpion/image/feu%d.png" % int(self.ids.feuLose.image_num)
         if state == 'end':
             animate = Animation(image_num=3, duration=0)
@@ -148,54 +148,37 @@ class MorpionGame(BoxLayout):
 
 
 
-    def fire(self,color):
+    def fire(self,color): # change the color of the traffic light
             if color == "green":
                 self.ids.feuLose.source = "Morpion/image/feuLose/feu1.png"
             if color == "red":
                 self.ids.feuLose.source = "Morpion/image/feuLose/feu3.png"
 
 
-    def robot_animation(self,i):
-        n_images = 161
-        if i == 1:
-            animate = Animation(image_num=0, duration=0)
-            animate.start(self.ids.robot)
-        if i == 2:
-            animate = Animation(image_num=4, duration=0)
-            animate.start(self.ids.robot)
-
-
-    def pressB(self,instance):
+    def pressB(self,instance): # when the button ispressed
         if instance.text == self.pressText or instance.text == self.restartText:
-            instance.text = self.releaseText
-            self.robot1 = Robot()
-            self.table = self.robot1.modif_table()
-            self.fire("red")
-            self.delay = 1/33
-            self.first_end = False
+            instance.text = self.releaseText # change text's button
+            self.robot1 = Robot() # create a new robot
+            self.table = self.robot1.modif_table() # the robot look at the game and change the table according to the detected piece
+            self.fire("red") # change traffic light to red
+            self.first_end = False # if a game is restarted we want first_end to be false
             instance.text = "Ned is playing..."
-            self.colors = self.color2
-            self.colorsLine = self.colorLine2
-            instance.color = [1, 1, 1, 1]
-            for i in range(self.table.shape[0]):
-                for j in range(self.table.shape[1]):
-                    self.game.remove_widget(self.game.Lwsquare[2 - i][2 - j])
-                    self.game.remove_widget(self.game.Lwcircle[2 - i][2 - j])
-                    if self.table[i, j] == 1:
-                        self.game.add_widget(self.game.Lwcircle[2 - i][2 - j])
-                    if self.table[i, j] == 2:
-                        self.game.add_widget(self.game.Lwsquare[2 - i][2 - j])
+            self.colors = self.color2 # change the color of the button
+            self.colorsLine = self.colorLine2 # change the color of the line
+            instance.color = [1, 1, 1, 1] # change the color of the text
+            self.modifUI(instance,0)# update the displayed game according to the table
 
-    def firstPlayer(self,table):
+
+    def firstPlayer(self,table): # tells who played the first move
         n1 = np.count_nonzero(table == 1)
         n2 = np.count_nonzero(table == 2)
-        if n1 >= n2:  # On détermine qui a joué en premier
+        if n1 >= n2:
             P1 = '1'
         else:
             P1 = '2'
         return P1
 
-    def detPos(self, mode, level):
+    def detPos(self, mode, level): # returns the pos calculated by the selected mode (AI or Minimax)
         if mode == 'minimax':
             if level == 'novice':
                 self.depth = 1
@@ -209,7 +192,16 @@ class MorpionGame(BoxLayout):
         else:
             return self.ai.best_pos(self.table,self.P1)
 
-    def modifUI(self,instance,i,p=0,q=0):
+    def modifUI(self,instance,i,p=0,q=0): # change the UI according to the parameter
+        if i == 0:
+            for h in range(self.table.shape[0]):
+                for j in range(self.table.shape[1]):
+                    self.game.remove_widget(self.game.Lwsquare[2 - h][2 - j])
+                    self.game.remove_widget(self.game.Lwcircle[2 - h][2 - j])
+                    if self.table[h, j] == 1:
+                        self.game.add_widget(self.game.Lwcircle[2 - h][2 - j])
+                    if self.table[h, j] == 2:
+                        self.game.add_widget(self.game.Lwsquare[2 - h][2 - j])
         if i == 1:
             self.game.add_widget(self.game.Lwcircle[2 - p][2 - q])
             instance.text = ' Press when you \nfinished your move'
@@ -235,66 +227,33 @@ class MorpionGame(BoxLayout):
 
 
 
-    def releaseB(self,instance):
+    def releaseB(self,instance): # when the button is released
         self.feu_image = 'Morpion/image/feuLose/feu1.png'
-        mode = var1.MODE
-        level = var1.LEVEL
-        print(mode,level)
-        if not self.morpion.end(self.table):
+        mode = var1.MODE # mode selected in the menu (see graphics.py)
+        level = var1.LEVEL # level selected in the menu (see graphics.py)
+        if not self.morpion.end(self.table): # if the game is not finished after the user played
             self.P1 = self.firstPlayer(self.table) # determines who started to play
-            pos = self.detPos(mode, level) # determines the position of the piece played by the robot
+            pos = self.detPos(mode, level) # determines the position of the piece that the robot should play
             p,q = pos[0],pos[1]
-            self.table[p,q]=1
+            self.table[p,q]=1 # change the current table to the one modified by the robot
             self.robot1.place(p,q) # robot pick and place the piece to the position determined above
-            self.modifUI(instance,1,p,q)  # modification on the UI
-            if self.morpion.end(self.table):
+            self.modifUI(instance,1,p,q)  # add the piece on UI and change text / color ....
+            if self.morpion.end(self.table): # if the robot won after its play
                 instance.text= self.releaseText
-                self.modifUI(instance,2)
-                if self.morpion.win(self.table):
-                    #self.robot1.celebrate(1)
-                    pass
-                if self.morpion.lose(self.table):
-                    #self.robot1.celebrate(2)
-                    pass
+                self.modifUI(instance,2) # animation to tell the user the robot won
             else:
-                instance.text = self.pressText
+                instance.text = self.pressText # then, the user will be able to play
                 self.fire("green")
-        else:
+        else: # if the user won after he played (or he tries to play after an end has been detected)
             instance.text = self.restartText
             if self.first_end==False:
                 # self.robot1.say_no()
-                self.modifUI(instance,3) # red fire blinks
+                self.modifUI(instance,3) # traffic light blinks red
             else:
                 self.modifiUI(instance,2)
-        '''else:
-            if self.morpion.lose(self.table):
-                self.robot1.celebration(2)
-            else:
-                self.robot1.celebration(1)'''
-        '''else: # si la fin de la partie est détectée après le coup du joeur
-            self.colors = [240/256,0,0,1]
-            if self.first_end==False: # s'il appuie pour la première fois sur le bouton après avoir gagné
-                print('firstend')
-                self.animationFire('end')
-                if self.morpion.win(self.table):
-                    #self.robot1.celebration(1)
-                    pass
-                if self.morpion.lose(self.table):
-                    #self.robot1.celebration(2)
-                    pass
-                if self.morpion.tie(self.table):
-                    # self.robot1.celebration(3)
-                    pass
-            else:
-                self.ids.G1._coreimage.anim_reset(True)
-                self.ids.G1.anim_loop = 1
-                self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
-                self.delay = 1/40
-                self.animationFire('redFire')
-#le robot dit non de la tête
-            self.first_end = True'''
         self.robot1.robot.move_pose(self.robot1.home_pos)
-        self.robot1.robot.close_connection()
+        self.robot1.robot.close_connection() # close the connection of the robot in order not to connect multiple times to the robot.
+        # Morever, we don't want the robot to be connected too long because it creates bugs
 
 
 class morpionInterfaceApp(App):
