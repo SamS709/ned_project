@@ -17,12 +17,12 @@ class Robot:
                                 roll = 0.777, pitch = 1.522, yaw = 0.769)  # position of the stock of circles (pieces played by the robot)
         self.middle_pos = PoseObject(x = 0.1041, y = 0.0009, z = 0.4700,
                                      roll = 0.077, pitch = 1.028, yaw = 0.042) # middle position when the robot plays in order to avoid collisions with the board
-
+        self.home_pos = PoseObject(x = 0.1344, y = -0.0001, z = 0.1652,
+                                   roll = 0.000, pitch = 1.011, yaw = -0.001)
 
     def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
-        self.robot.move_pose(PoseObject(
-            x=0.2032, y=0.00, z=0.3231,
-            roll=-3.140, pitch=1.234, yaw=-3.140))
+        self.robot.move_pose(PoseObject(x = 0.1320, y = 0.0052, z = 0.2225,
+                                            roll = -0.040, pitch = 0.273, yaw = 0.034))
 
 
     def red_yellow_pos(self): # returns the image frame, a list of red pieces positions and a list of yellow pieces positions
@@ -353,44 +353,38 @@ class Robot:
     def place(self, j): # robot moves to puta piece in the j-th column
 
         if j == 0:
-            pos = PoseObject(x=0.3748, y=0.1351, z=0.4255,
-                             roll=-0.055, pitch=0.536, yaw=0.344)
+            pos = [0.3748, 0.1351, 0.4255,-0.055, 0.536, 0.344]
         if j == 1:
-            pos = PoseObject(x=0.3798, y=0.0909, z=0.4297,
-                             roll=-0.077, pitch=0.579, yaw=0.215)
+            pos = [0.3798, 0.0909, 0.4297,-0.077, 0.579, 0.215]
         if j == 2:
-            pos = PoseObject(x=0.3837, y=0.0432, z=0.4265,
-                             roll=0.024, pitch=0.657, yaw=0.114)
+            pos = [0.3837, 0.0432, 0.4265,0.024, 0.657, 0.114]
         if j == 3:
-            pos = PoseObject(x=0.3882, y=0.0004, z=0.4238,
-                             roll=0.005, pitch=0.600, yaw=-0.013)
+            pos = [0.3882, 0.0004, 0.4238,0.005, 0.600, -0.013]
         if j == 4:
-            pos = PoseObject(x=0.3752, y=-0.0521, z=0.4246,
-                             roll=-0.205, pitch=0.655, yaw=-0.142)
+            pos = [0.3752, -0.0521, 0.4246,-0.205, 0.655, -0.142]
         if j == 5:
-            pos = PoseObject(x=0.3789, y=-0.1021, z=0.4141,
-                             roll=-0.063, pitch=0.510, yaw=-0.237)
+            pos = [0.3789,-0.1021,0.4141,-0.063,0.510,-0.237]
         if j == 6:
-            pos = PoseObject(x=0.3755, y=-0.1474, z=0.4072,
-                             roll=-0.045, pitch=0.380, yaw=-0.343)
+            pos = [0.3755,-0.1474,0.4072,-0.045,0.380,-0.343]
 
-        self.robot.move_to_home_pose()
+        pos1 = [0.1344, -0.0001, 0.1652, 0.000, 1.011, -0.001] # home positionn
+        pos2 = [0.1041, 0.0009, 0.4700, 0.077, 1.028, 0.042] # middle position in order to avoid colisions with the physical board
         self.robot.pick_from_pose(self.stock)
-        self.robot.move_pose(self.middle_pos)
-        self.robot.place_from_pose(pos)
-        self.robot.move_pose(self.middle_pos)
-        self.robot.move_to_home_pose()
+        self.robot.execute_trajectory_from_poses([pos2, pos])
+        self.robot.open_gripper()
+        self.robot.execute_trajectory_from_poses([pos, pos2, pos1])
 
 
     def say_no(self):
         pos1 = [0.1271,-0.0404,0.2085,-0.122, 0.333,-0.305]
         pos2 = [0.1276, 0.0350,0.2117,-0.086,0.359,0.294]
         self.robot.set_arm_max_velocity(100)
-
         self.robot.execute_trajectory_from_poses([pos1, pos2,pos1,pos2])
 
 
 
 if __name__=='__main__':
+
     robot1 = Robot()
-    print(robot1.robot.get_pose())
+    for j in range(7):
+        robot1.place(j)
