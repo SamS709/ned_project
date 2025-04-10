@@ -1,6 +1,5 @@
 from pyniryo import *
 import numpy as np
-import math
 import time
 import cv2 as cv
 
@@ -12,7 +11,7 @@ import cv2 as cv
 class Robot:
 
     def __init__(self):
-
+        # connect to the robot when a new Robot object is created
         robot_ip_address = "10.10.10.10"
         robot = NiryoRobot(robot_ip_address)
         robot.calibrate_auto()
@@ -20,18 +19,18 @@ class Robot:
         robot.set_arm_max_velocity(100)
         self.robot = robot
         self.stock = PoseObject(x = -0.0220, y = -0.1308, z = 0.0989,
-                                roll = -0.248, pitch = 1.259, yaw = 2.945)  # position du stock de cercles
+                                roll = -0.248, pitch = 1.259, yaw = 2.945)  # position of the stock of circles (pieces played by the robot)
         self.observation_pose = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
-                                           roll = -3.046, pitch = 1.204, yaw = 1.689)
+                                           roll = -3.046, pitch = 1.204, yaw = 1.689) # position adapted to analyse the board
         self.home_pos = PoseObject(x = -0.0003, y = -0.1231, z = 0.1630,
                                    roll = -0.014, pitch = 1.053, yaw = -1.560)
 
 
 
-    def cam_pos(self):
+    def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
             self.robot.move_pose(self.observation_pose)
 
-    def init_cam(self):
+    def init_cam(self): # use it to see what the robot currently sees
         self.cam_pos()
         mtx,dist = self.robot.get_camera_intrinsics() #renvoie: cam intrinsics, distortion coeff
         img = self.robot.get_img_compressed()
@@ -74,52 +73,44 @@ class Robot:
                 # cv.imwrite("thresh.jpg",img_thres)
                 break
 
-    def photo(self):
+    def photo(self): # returns 2 undistort image returned by the robot's camera : the first one is just the conversion of colored image to B&W
+                                                                                # the second one is processed to have a white board (rgb = 1,1,1) and black pieces(rgb = 0,0,0)
         self.cam_pos()
-        time.sleep(0.5)
-        mtx, dist = self.robot.get_camera_intrinsics()
-        # getting image
+        time.sleep(0.5) # avoid problems of pieces detection : let time to the camera to adapt its luminosity
+        mtx, dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
         img = self.robot.get_img_compressed()
-        # uncompressing image
         img_uncom = uncompress_image(img)
-        # resize
         img_resize = self.rescaleFrame(img_uncom, scale=1.2)
-        # undistort
         img_undis = undistort_image(img_resize, mtx, dist)
-        # convert image to greyscale
-        img_gray = cv.cvtColor(img_undis, cv.COLOR_BGR2GRAY)
-        # apply blur
-        img_gblur = cv.GaussianBlur(img_gray, (5, 5), 0)
-        # apply otsu's binaryq
-        ret, img_thres = cv.threshold(img_gblur, 150, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C)  # + cv.THRESH_OTSU)
-        # masking a part of the image:
+        img_gray = cv.cvtColor(img_undis, cv.COLOR_BGR2GRAY) # convert image to greyscale
+        img_gblur = cv.GaussianBlur(img_gray, (5, 5), 0) # apply blur
+        ret, img_thres = cv.threshold(img_gblur, 150, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C)  # apply otsu's binary
         image_copy = img_gray.copy()
         return image_copy,img_thres
 
-    def affiche_contours(self):
+    def affiche_contours(self): # displays contours of the pieces
 
         image_copy,img_thres = self.photo()
         contours, hierarchy = cv2.findContours(image=img_thres, mode=cv2.RETR_TREE,
-                                               method=cv2.CHAIN_APPROX_SIMPLE)  # ou CHAIN_APPROX_NONE
+                                               method=cv2.CHAIN_APPROX_SIMPLE)
 
         Nsquare = 0
         Ncircle = 0
         x,y,w,h = 0,0,0,0
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            if 5200 > area > 2000:
+            if 7000 > area > 2000: # pieces have an area between 5200 and 2000
                 cv2.drawContours(image=image_copy, contours=cnt, contourIdx=-1, color=(0, 0, 0), thickness=2,
                                  lineType=cv2.LINE_4)
                 peri = cv2.arcLength(cnt, True)
                 approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
                 x, y, w, h = cv2.boundingRect(approx)
                 cv2.rectangle(image_copy, (x, y), (x + w, y + h), (0, 255, 0), 5)
-                if area>3000:
+                if area>3000: # squares have an area>3000
                     Nsquare +=1
-                else:
+                else: # squares have an area<3000
                     Ncircle +=1
         image_copy[int(y-10+h/2):int(y+10+h/2),int(x-10+w/2):int(x+10+w/2)]=255
-        # concat = concat_imgs((img_undis , image_copy))
         key = cv2.imshow('coucou',image_copy)
         cv2.waitKey(0)
         # Destroys all the windows created
@@ -128,71 +119,72 @@ class Robot:
 
         image_copy, img_thres = self.photo()
         contours, hierarchy = cv2.findContours(image=img_thres, mode=cv2.RETR_TREE,
-                                               method=cv2.CHAIN_APPROX_SIMPLE)  # ou CHAIN_APPROX_NONE
+                                               method=cv2.CHAIN_APPROX_SIMPLE)
         LSpos = []
         LCpos = []
         Nsquare = 0
         Ncircle = 0
-        x,y,w,h = 0,0,0,0
+        x,y,w,h = 0,0,0,0 # x,y -> min(abscissa) and min(ordinate) of the contour. w,h -> width and height of the contour
         shape = None
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            if 7000 > area > 2000:
+            if 7000 > area > 2000: # pieces have an area between 7000 and 2000
                 cv2.drawContours(image=image_copy, contours=cnt, contourIdx=-1, color=(0, 0, 0), thickness=2,
                                  lineType=cv2.LINE_4)
                 peri = cv2.arcLength(cnt, True)
                 approx = cv2.approxPolyDP(cnt, 0.02 * peri, True)
-                print(len(approx))
                 x, y, w, h = cv2.boundingRect(approx)
-                cv2.rectangle(image_copy, (x, y), (x + w, y + h), (0, 255, 0), 5)
-                if area > 3000 and 8>len(approx)>=4:
+                cv2.rectangle(image_copy, (x, y), (x + w, y + h), (0, 255, 0), 5) # creates a rectangle around the pieces on the image
+                if area > 3000 and 8>len(approx)>=4: # detect squares (len(approx) = number of sides of the piece => 4 for a square, but it is sometimes more due to 3D : the robot sees a cuboid
                     LSpos.append([int(y + h / 2), int(x + w/ 2)])
                     Nsquare += 1
                     shape = 'square'
-                elif area<=4000 and 6<=len(approx)<=10 :
+                elif area<=4000 and 6<=len(approx)<=10 : # detect circles
                     LCpos.append([int(y + h / 2), int(x + w/ 2)])
                     shape = 'circle'
                     Ncircle += 1
         return LCpos,LSpos
 
-    def index_pos(self):
+    def index_pos(self): # returns 2 lists :
+        # List of index of circles indexes (LCind) (indexes are between 0 and 2)
+        # List of index of squares indexes (LSind) (indexes are between 0 and 2)
         LCpos,LSpos = self.pos_shape()
         LCind, LSind = [],[]
         for pos in LCpos:
             i,j = None,None
-            if self.square(0,0)[0]<=pos[0]<=self.square(0,0)[1] or self.square(0,1)[0]<=pos[0]<=self.square(0,2)[1] or self.square(0,2)[0]<=pos[0]<=self.square(0,2)[1]:
+            if self.pos_grid(0, 0)[0]<=pos[0]<=self.pos_grid(0, 0)[1] or self.pos_grid(0, 1)[0]<=pos[0]<=self.pos_grid(0, 2)[1] or self.pos_grid(0, 2)[0]<=pos[0]<=self.pos_grid(0, 2)[1]:
                 i = 0
-            if self.square(1,0)[0]<=pos[0]<=self.square(1,0)[1] or self.square(1,1)[0]<=pos[0]<=self.square(1,1)[1] or self.square(1,2)[0]<=pos[0]<=self.square(1,2)[1]:
+            if self.pos_grid(1, 0)[0]<=pos[0]<=self.pos_grid(1, 0)[1] or self.pos_grid(1, 1)[0]<=pos[0]<=self.pos_grid(1, 1)[1] or self.pos_grid(1, 2)[0]<=pos[0]<=self.pos_grid(1, 2)[1]:
                 i = 1
-            if self.square(2,0)[0]<=pos[0]<=self.square(2,0)[1] or self.square(2,1)[0]<=pos[0]<=self.square(2,1)[1] or self.square(2,2)[0]<=pos[0]<=self.square(2,2)[1]:
+            if self.pos_grid(2, 0)[0]<=pos[0]<=self.pos_grid(2, 0)[1] or self.pos_grid(2, 1)[0]<=pos[0]<=self.pos_grid(2, 1)[1] or self.pos_grid(2, 2)[0]<=pos[0]<=self.pos_grid(2, 2)[1]:
                 i = 2
-            if self.square(0,0)[2]<=pos[1]<=self.square(0,0)[3] or self.square(1,0)[2]<=pos[1]<=self.square(1,0)[3] or self.square(2,0)[2]<=pos[1]<=self.square(2,0)[3]:
+            if self.pos_grid(0, 0)[2]<=pos[1]<=self.pos_grid(0, 0)[3] or self.pos_grid(1, 0)[2]<=pos[1]<=self.pos_grid(1, 0)[3] or self.pos_grid(2, 0)[2]<=pos[1]<=self.pos_grid(2, 0)[3]:
                 j = 0
-            if self.square(0,1)[2]<=pos[1]<=self.square(0,1)[3] or self.square(1,1)[2]<=pos[1]<=self.square(1,1)[3] or self.square(2,1)[2]<=pos[1]<=self.square(2,1)[3]:
+            if self.pos_grid(0, 1)[2]<=pos[1]<=self.pos_grid(0, 1)[3] or self.pos_grid(1, 1)[2]<=pos[1]<=self.pos_grid(1, 1)[3] or self.pos_grid(2, 1)[2]<=pos[1]<=self.pos_grid(2, 1)[3]:
                 j = 1
-            if self.square(0,2)[2]<=pos[1]<=self.square(0,2)[3] or self.square(1,2)[2]<=pos[1]<=self.square(1,2)[3] or self.square(2,2)[2]<=pos[1]<=self.square(2,2)[3]:
+            if self.pos_grid(0, 2)[2]<=pos[1]<=self.pos_grid(0, 2)[3] or self.pos_grid(1, 2)[2]<=pos[1]<=self.pos_grid(1, 2)[3] or self.pos_grid(2, 2)[2]<=pos[1]<=self.pos_grid(2, 2)[3]:
                 j = 2
             if i!=None and j!=None:
                 LCind.append([i,j])
         for pos in LSpos:
             i,j = None,None
-            if self.square(0,0)[0]<=pos[0]<=self.square(0,0)[1] or self.square(0,1)[0]<=pos[0]<=self.square(0,2)[1] or self.square(0,2)[0]<=pos[0]<=self.square(0,2)[1]:
+            if self.pos_grid(0, 0)[0]<=pos[0]<=self.pos_grid(0, 0)[1] or self.pos_grid(0, 1)[0]<=pos[0]<=self.pos_grid(0, 2)[1] or self.pos_grid(0, 2)[0]<=pos[0]<=self.pos_grid(0, 2)[1]:
                 i = 0
-            if self.square(1,0)[0]<=pos[0]<=self.square(1,0)[1] or self.square(1,1)[0]<=pos[0]<=self.square(1,1)[1] or self.square(1,2)[0]<=pos[0]<=self.square(1,2)[1]:
+            if self.pos_grid(1, 0)[0]<=pos[0]<=self.pos_grid(1, 0)[1] or self.pos_grid(1, 1)[0]<=pos[0]<=self.pos_grid(1, 1)[1] or self.pos_grid(1, 2)[0]<=pos[0]<=self.pos_grid(1, 2)[1]:
                 i = 1
-            if self.square(2,0)[0]<=pos[0]<=self.square(2,0)[1] or self.square(2,1)[0]<=pos[0]<=self.square(2,1)[1] or self.square(2,2)[0]<=pos[0]<=self.square(2,2)[1]:
+            if self.pos_grid(2, 0)[0]<=pos[0]<=self.pos_grid(2, 0)[1] or self.pos_grid(2, 1)[0]<=pos[0]<=self.pos_grid(2, 1)[1] or self.pos_grid(2, 2)[0]<=pos[0]<=self.pos_grid(2, 2)[1]:
                 i = 2
-            if self.square(0,0)[2]<=pos[1]<=self.square(0,0)[3] or self.square(1,0)[2]<=pos[1]<=self.square(1,0)[3] or self.square(2,0)[2]<=pos[1]<=self.square(2,0)[3]:
+            if self.pos_grid(0, 0)[2]<=pos[1]<=self.pos_grid(0, 0)[3] or self.pos_grid(1, 0)[2]<=pos[1]<=self.pos_grid(1, 0)[3] or self.pos_grid(2, 0)[2]<=pos[1]<=self.pos_grid(2, 0)[3]:
                 j = 0
-            if self.square(0,1)[2]<=pos[1]<=self.square(0,1)[3] or self.square(1,1)[2]<=pos[1]<=self.square(1,1)[3] or self.square(2,1)[2]<=pos[1]<=self.square(2,1)[3]:
+            if self.pos_grid(0, 1)[2]<=pos[1]<=self.pos_grid(0, 1)[3] or self.pos_grid(1, 1)[2]<=pos[1]<=self.pos_grid(1, 1)[3] or self.pos_grid(2, 1)[2]<=pos[1]<=self.pos_grid(2, 1)[3]:
                 j = 1
-            if self.square(0,2)[2]<=pos[1]<=self.square(0,2)[3] or self.square(1,2)[2]<=pos[1]<=self.square(1,2)[3] or self.square(2,2)[2]<=pos[1]<=self.square(2,2)[3]:
+            if self.pos_grid(0, 2)[2]<=pos[1]<=self.pos_grid(0, 2)[3] or self.pos_grid(1, 2)[2]<=pos[1]<=self.pos_grid(1, 2)[3] or self.pos_grid(2, 2)[2]<=pos[1]<=self.pos_grid(2, 2)[3]:
                 j = 2
             if i!=None and j!=None:
                 LSind.append([i,j])
         return LCind,LSind
 
-    def modif_table(self):
+    def modif_table(self): # returns the table detected by the robot
         table = np.array([[0 for i in range(3)]for i in range(3)])
         LCind,LSind = self.index_pos()
         for L2 in LCind:
@@ -202,7 +194,7 @@ class Robot:
         return table
 
 
-    def square(self,i,j):
+    def pos_grid(self, i, j): # returns the position in the real space (x,y) of table[i,j]
         x,x,y,y = 0,0,0,0
         if i==0 :
             if j == 0:
@@ -228,13 +220,14 @@ class Robot:
         eps = 35
         return [y-eps,y+eps,x-eps,x+eps]
 
-    def rescaleFrame(self,frame,scale=0.75):
+    def rescaleFrame(self,frame,scale=0.75): # rescale the frame
         width = int(frame.shape[1]*scale)
         height = int(frame.shape[0]*scale)
         dimensions = (width,height)
         return cv.resize(frame,dimensions,interpolation=cv.INTER_AREA)
 
-    def get_HSV_and_mousePos(self):
+    def get_HSV_and_mousePos(self): # useful to set upper and lower bound of red and yellow masks (HSV color) defined in red_yellow_pos()
+                                    # also to set x and y in pos_grid(i,j) function
         def on_mouse(event, x, y, flags, param):
             # Check if the event was the left mouse button being clicked
             if event == cv2.EVENT_LBUTTONDOWN:
@@ -268,7 +261,6 @@ class Robot:
             frame = self.photo()[0]
             # Display the frame
             cv2.imshow('frame', frame)
-
             # Set the callback function for mouse events
             cv2.setMouseCallback('frame', on_mouse)  # Make sure 'Frame' matches the window name in cv2.imshow
             # Break the loop if 'q' key is pressed
@@ -313,19 +305,7 @@ class Robot:
                                   roll = 0.201, pitch = 1.554, yaw = -1.308)
         self.robot.pick_and_place(self.stock,pos)
         self.robot.move_pose(self.home_pos)
-    def waiting_pos(self):
-        self.robot.move_to_home_pose()
 
-    def celebrate(self,i):
-        if i == 1:
-            pos1 = []
-            pos2 = []
-            pos3 = []
-        if i ==2:
-            pos1 = []
-            pos2 = []
-            pos3 = []
-        self.robot.execute_trajectory_from_poses([pos1,pos2,pos3])
 
     def say_no(self):
         pos1 = []
@@ -334,8 +314,4 @@ class Robot:
 
 if __name__ == '__main__':
     robot1 = Robot()
-    #robot1.init_cam()
-    #print(robot1.modif_table())
-    #robot1.get_HSV_and_mousePos()
-    #robot1.place(0,0)
     print(robot1.robot.get_pose())

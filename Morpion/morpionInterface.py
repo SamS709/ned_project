@@ -10,8 +10,6 @@ from Morpion.AI.AI import *
 from Connect4.connect4Interface import var1
 from Morpion.Minimax.MinMax import *
 import time
-from multiprocessing import Process
-from Morpion.camera import *
 from Morpion.Robot import *
 
 Builder.load_file('Morpion/morpionInterface.kv')
@@ -27,7 +25,7 @@ class MorpionGrille(GridLayout): # creates the grid
         self.size_hint = 1,1
 
 
-class MorpionItems(Widget): # creates the circlesand the square
+class MorpionItems(Widget): # creates the circles and the squares that will be added to the UI
 
     R = NumericProperty(1)
     L = NumericProperty(1)
@@ -110,7 +108,7 @@ class MorpionGame(BoxLayout):
         self.ai = AI()
         self.depth = 6 # exploratio's depth of minimax's algorithm
         self.robot1 = Robot() # useful toaccess to ned's actions
-        self.robot1.waiting_pos() # we want ned to go at its home position when we launch the application
+        self.robot1.robot.move_to_home_pose() # we want ned to go at its home position when we launch the application
         self.robot1.robot.close_connection() # we don't want the connectionto remain to long becauseofbugs and because we don't want to connect simunaetly with 2 Robot instancies
         self.pressText = ' Press when you \nfinished your move' # the text on the button before it is pressed
         self.restartText = 'Enleve les pieces\npour recommencer' # the text on the button when pieces should be removed

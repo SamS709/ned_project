@@ -2,13 +2,18 @@ import random
 
 from Connect4.Connect4 import *
 
+# Minimax algorithm is a tree searching algorithm that determines the best move to play
+
+# In the case of Connect4, this algorith is boosted with alpha-beta pruning that deletes decrease the number of nodes that are evaluated by the minimax algorithm in its search tree
+
 class MinMax(Connect4):
 
     def __init__(self):
         super().__init__()
 
-    def minmax(self,table,depth,alpha,beta,n):
-
+    def minmax(self,table,depth,alpha,beta,n): # returns the score of a board
+        # either an end is detected
+        # either the exploration's depth is reached and the table is evaluated according to the score function
         grid = super().table_to_grid(table)
         if super().win(grid):
             return 1000
@@ -46,7 +51,7 @@ class MinMax(Connect4):
                     return b
             return b
 
-    def best_pos(self,table,depth): # renvoie la meilleure position selon l'algo minmax pour la table donnée
+    def best_pos(self,table,depth): # returns the best move to play among all possible moves
         Lpos = self.avaible_pos_graphics(table)
         a = -10000
         Leqpos = []
@@ -62,14 +67,5 @@ class MinMax(Connect4):
         POS = random.choice(Leqpos)
         return POS
 
-if __name__=='__main__':
-    minmax = MinMax()
-    table = np.array([[0 for j in range(7)] for i in range(6)])
-    table[5,0]=1
-    table[4, 0] = 1
-    table[3, 0] = 1
-    print(table)
-    POS = minmax.best_pos(table,2)
-    table[POS[0],POS[1]]=1
-    print(table)
+
 

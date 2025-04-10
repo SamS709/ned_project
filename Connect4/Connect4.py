@@ -5,7 +5,7 @@ class Connect4:
     def __init__(self):
         pass
 
-    def win(self,grid):
+    def win(self,grid): # tells if the state of the table a win for the robot
         grid = self.grid_to_table(grid)
         # Horizontal positions
         for i in range(grid.shape[0]):
@@ -32,7 +32,7 @@ class Connect4:
         return False
 
 
-    def lose(self,grid):
+    def lose(self,grid): # tells if the state of the table a lose for the robot
         grid = self.grid_to_table(grid)
         # Horizontal positions
         for i in range(grid.shape[0]):
@@ -58,7 +58,7 @@ class Connect4:
         #Autre
         return False
 
-    def tie(self,grid):
+    def tie(self,grid): # tells if the state of the table a tie
         a = True
         if self.win(grid) or self.lose(grid):
             a = False
@@ -68,7 +68,7 @@ class Connect4:
                     a = False
         return a
 
-    def end(self,grid):
+    def end(self,grid): # tells if the state of the table an end
         if self.win(grid):
             return True
         if self.lose(grid):
@@ -77,14 +77,14 @@ class Connect4:
             return True
         return False
 
-    def grid_to_table(self,grid):
+    def grid_to_table(self,grid): # convert the grid representation (1d array) to the table representation (2d array) of the game
         return grid.reshape((7,6)).T
 
-    def table_to_grid(self,table):
+    def table_to_grid(self,table): # reverses the operation made by grid_t_table so that table_to_grid(grid_to_table(grid))=grid
         table = table.T
         return np.array(table.reshape(1,table.size)).ravel()
 
-    def free_pos(self, grid):
+    def free_pos(self, grid): # tells authorized moves in a given grid
         table = self.grid_to_table(grid)
         L = []
         Lpos = []
@@ -99,7 +99,7 @@ class Connect4:
 
         return np.array(Lpos)
 
-    def avaible_pos_graphics(self,grid): # utilie pour graphics pour ajouter les widget i,j
+    def avaible_pos_graphics(self,grid):
         table = self.grid_to_table(grid)
         if grid.shape[0]==6:
             table = grid.copy()
@@ -112,7 +112,7 @@ class Connect4:
                 L.append([i, j])
         return L
 
-    def count_lines(self,table,Nlines,n): # renvoie le nombre de lignes ayant Npions consécutifs pour le jour n
+    def count_lines(self,table,Nlines,n): # returns the number of lines having N consecutive pieces for player n
 
         if Nlines == 2:
 
@@ -172,7 +172,7 @@ class Connect4:
                         S3 = S3 + 1
             return S3
 
-    def score(self,table):
+    def score(self,table): # returns the score of a given board (this is just a proposal to evaluate the board, a better one can surely be found)
         S1N3 = self.count_lines(table,Nlines=3,n=1)
         S1N2 = self.count_lines(table,Nlines=2,n=1) - 2*S1N3
         S2N3 = self.count_lines(table,Nlines=3,n=2)

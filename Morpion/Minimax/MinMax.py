@@ -1,13 +1,14 @@
 from Morpion.Morpion import *
 
+# Minimax algorithm is a tree searching algorithm that determines the best move to play
+
 class MinMax(Morpion):
 
     def __init__(self):
         super().__init__()
 
-    def minimax(self,table,player,depth):
-
-        #cas de base
+    def minimax(self,table,player,depth): # returns the value of a table when a givenplayer (maximiser or minimiser) plays until the depth of the exploration has been reached
+        # base case
         if self.win(table):
             return 1
         if self.lose(table):
@@ -16,7 +17,7 @@ class MinMax(Morpion):
             return 0
         if depth == 0:
             return 0
-        #récursion
+        # recursion
         if player=="maximiser":
             a=-2
             for i in range(table.shape[0]):
@@ -29,8 +30,6 @@ class MinMax(Morpion):
                         if val>= a:
                             a = val
             return a
-
-
         if player == "minimiser":
             b = 1000
             for i in range(table.shape[0]):
@@ -44,7 +43,7 @@ class MinMax(Morpion):
                             b=val
             return b
 
-    def best_pos(self,table,depth):
+    def best_pos(self,table,depth): # returns the best move to play among all possible moves
         a = -2
         Leqpos = []
         for i in range(table.shape[0]):
@@ -63,7 +62,3 @@ class MinMax(Morpion):
         POS = random.choice(Leqpos)
         return POS
 
-if __name__=='__main__':
-    table = np.array([[2,0,2],[0,1,0],[0,0,0]])
-    minmax = MinMax()
-    minmax.best_pos(table,7)

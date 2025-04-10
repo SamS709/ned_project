@@ -7,11 +7,8 @@ import numpy.random as rd
 
 class Morpion():
 
-    def __init__(self):
-        pass
 
-
-    def win(self, table):
+    def win(self, table): # tells if the state of the table a win for the robot
 
         a = table[0,0] == 1 and table[1,1] == 1 and table[2,2] == 1
         b = table[2,0] == 1 and table[1,1] == 1 and table[0,2] == 1
@@ -25,7 +22,7 @@ class Morpion():
             return True
         return False
 
-    def lose(self,table):
+    def lose(self,table): # tells if the state of the table a lose for the robot
 
         a = table[0,0] == 2 and table[1,1] == 2 and table[2,2] == 2
         b = table[2,0] == 2 and table[1,1] == 2 and table[0,2] == 2
@@ -40,7 +37,7 @@ class Morpion():
         return False
 
 
-    def tie(self,table):
+    def tie(self,table): # tells if the state of the table a tie
         a = True
         if self.win(table) or self.lose(table):
             return False
@@ -51,7 +48,7 @@ class Morpion():
                         a=False
         return a
 
-    def end(self,table):
+    def end(self,table): # tells if the state of the table an end
         if self.win(table) or self.lose(table) or self.tie(table):
             return True
         return False

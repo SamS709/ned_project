@@ -31,8 +31,6 @@ class ZoneDeTexte(BoxLayout):
         super().__init__(**kwargs)
         self.text = text
         self.titre = titre
-        coucou = 1
-
 
 class ChoiceGame(BoxLayout):
 
