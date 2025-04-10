@@ -1,5 +1,6 @@
 from kivy.uix.screenmanager import ScreenManager
 
+# Allows us to navigate between the different windows
 
 class NavigationScreenManager(ScreenManager):
     screen_stack = []

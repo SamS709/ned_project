@@ -7,41 +7,45 @@ from kivy.core.window import Window
 
 # WARNING : only works with pyniryo==1.1.2 (pip install pyniryo==1.1.2)
 
+# global variables that we can access in other files
+
+class var:
+    def __init__(self):
+        self.MODE = ""
+        self.LEVEL = ""
+        self.GAME = ""
+
+var1 = var()
+# creates a variable that we will access in other files
 
 
-GAME = 'morpion'
-MODE = 'IA'
-LEVEL = 'debutant'
-mode = 'coucou'
-level = 'hello'
+class TextArea(BoxLayout): # the text area giving informations that you see on the UI
 
-
-class ZoneDeTexte(BoxLayout):
-    text = StringProperty("")
-    titre = StringProperty("")
-    image_source = StringProperty('images/transparent.png')
-    image_height = NumericProperty(30)
-    couleurZoneTitre = ListProperty([219/256,195/265,151/256,1])
-    couleurDeFond = ListProperty([182/256,229/265,246/256,1])
-    couleurZdT = ListProperty([0,0,1,1])
-    couleurTexte = ListProperty([1,1,1,1])
-    couleurLigne = ListProperty([1,1,1,1])
+    # kivy properties you find in the graphics.kv file (TextArea class)
+    text = StringProperty("") # text displayed in the blue area
+    title = StringProperty("") # title displayed in the brown area
+    image_source = StringProperty('images/transparent.png') # source of the image displayed in the text area
+    image_height = NumericProperty(30) # height of the image displayed
+    TitleArea_color = ListProperty([219 / 256, 195 / 265, 151 / 256, 1]) # color of the title area
+    Background_color = ListProperty([182 / 256, 229 / 265, 246 / 256, 1]) # color of the background of the text area
+    TA_color = ListProperty([0, 0, 1, 1]) # color of the background of the text area
+    Text_Color = ListProperty([1, 1, 1, 1]) # color of the text
+    Line_color = ListProperty([1, 1, 1, 1]) # color of the line
 
     def __init__(self,text='Insérer texte',titre = 'insérer titre',**kwargs):
         super().__init__(**kwargs)
         self.text = text
-        self.titre = titre
+        self.title = titre
 
-class ChoiceGame(BoxLayout):
+class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
 
-    global GAME
+    # kivy properties you find in the graphics.kv file (ChoiceGame class)
     screen = StringProperty('ChoiceMode')
     B1text = StringProperty('Morpion')
     B2text = StringProperty('Puissance 4')
     B5text = StringProperty('Valider')
     image_morpion = StringProperty('images/morpion.png')
     image_connect4 = StringProperty('images/puissance4.png')
-
 
     colors1 = ListProperty([0, 0, 1, 1])
     colors2 = ListProperty([0, 0, 1, 1])
@@ -54,7 +58,9 @@ class ChoiceGame(BoxLayout):
         super().__init__(**kwargs)
 
     def pressB(self, instance):
-        global GAME
+
+        # Responsive design
+
         if instance.text == self.B1text:
             self.screen = 'ChoiceMode'
             self.colors1 = [1,1,1,1]
@@ -64,7 +70,7 @@ class ChoiceGame(BoxLayout):
             instance.color = [0,0,0,1]
             self.ids.B2.color = [1,1,1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
-            GAME = 'morpion'
+            var1.GAME = 'morpion'
             self.screen = 'ChoiceModeMorpion'
             self.image_morpion = 'images/morpionWhite.png'
             self.image_connect4 = 'images/puissance4.png'
@@ -78,7 +84,7 @@ class ChoiceGame(BoxLayout):
             instance.color = [0,0,0,1]
             self.ids.B1.color = [1, 1, 1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
-            GAME = 'connect4'
+            var1.GAME = 'connect4'
             self.screen = 'ChoiceModePuissance4'
             self.image_morpion = 'images/morpion.png'
             self.image_connect4 = 'images/puissance4White.png'
@@ -97,7 +103,7 @@ class ChoiceGame(BoxLayout):
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_morpion = 'images/morpion.png'
             self.image_connect4 = 'images/puissance4.png'
-            App.get_running_app().manager.push(self.screen)
+            App.get_running_app().manager.push(self.screen) # pushes the selected screen
 
 class ChoiceModeMorpion(BoxLayout):
 
@@ -112,19 +118,17 @@ class ChoiceModePuissance4(BoxLayout):
         self.add_widget(ChoiceMode(game='puissance4'))
 
 
-class ChoiceMode(BoxLayout):
+class ChoiceMode(BoxLayout): # Makes the user choose between AI and Minimax Algorithm
 
+    # kivy properties you find in the graphics.kv file (ChoiceGame class)
     B1text = StringProperty('MiniMax')
     B2text = StringProperty('IA')
     B5text = StringProperty('Valider')
     screen = StringProperty('ChoiceLevel')
-
     image_source = StringProperty('images/morpion.png')
-
     colors1 = ListProperty([0, 0, 1, 1])
     colors2 = ListProperty([0, 0, 1, 1])
     colors5 = ListProperty([169 / 256, 221 / 256, 175 / 256, 1])
-
     Ntrain = NumericProperty(0)
 
     def __init__(self,game='morpion',**kwargs):
@@ -133,14 +137,13 @@ class ChoiceMode(BoxLayout):
             self.image_source='images/puissance4.png'
 
     def on_kv_post(self, text='a'):
-        self.ZdT = ZoneDeTexte(text='coucou')
+        self.ZdT = TextArea(text='coucou')
         self.ids.zdt.add_widget(self.ZdT)
         self.ZdT.text = "L'algorithme Minimax a été pensé par des humains pour donner une stratégie gagnante à l'ordinateur\n\nL'IA a joué des milliers de parties pour apprendre, sans avoir besoin de l'aide d'un humain !"
-        self.ZdT.titre = '[u]Comment choisir ton adversaire ?[/u]'
+        self.ZdT.title = '[u]Comment choisir ton adversaire ?[/u]'
 
+    # displays information according to the level selected, to help the user to make his choice
     def pressB(self, instance):
-        global MODE
-        global GAME
         if instance.text == self.B1text:
             self.screen = 'ChoiceLevel'
             self.colors1 = [219 / 256, 195 / 265, 151 / 256, 1]
@@ -149,9 +152,9 @@ class ChoiceMode(BoxLayout):
             self.colors2 = [0, 0, 1, 1]
             self.ids.B2.color = [1, 1, 1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
-            MODE = 'minimax'
+            var1.MODE = 'minimax'
             self.ZdT.image_source='images/graph.png'
-            if GAME == 'morpion':
+            if var1.GAME == 'morpion':
                 self.image_source = 'images/morpionM.png'
             else:
                 self.image_source='images/puissance4M.png'
@@ -165,22 +168,20 @@ class ChoiceMode(BoxLayout):
             self.colors1 = [0, 0, 1, 1]
             self.ids.B1.color = [1, 1, 1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
-            MODE = 'IA'
+            var1.MODE = 'IA'
             self.ZdT.image_source='images/brain.png'
-            if GAME == 'morpion':
+            if var1.GAME == 'morpion':
                 self.image_source = 'images/morpionIA.png'
             else:
                 self.image_source='images/puissance4IA.png'
             self.ZdT.image_height = 50
-            self.screen += MODE
-
+            self.screen += var1.MODE
         if instance.text != self.B5text:
             instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
         if instance.text == self.B5text and self.colors5 == [62 / 256, 182 / 256, 75 / 256, 1]:
             self.colors5 = [16 / 256, 118 / 256, 0, 1]
 
     def releaseB(self, instance):
-        global GAME
         if instance.text == self.B5text and self.colors5 == [16 / 256, 118 / 256, 0, 1]:
             self.colors1 = [0, 0, 1, 1]
             self.colors2 = [0, 0, 1, 1]
@@ -189,14 +190,16 @@ class ChoiceMode(BoxLayout):
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.ZdT.image_source='images/transparent.png'
             self.ZdT.text = "L'algorithme Minimax a été pensé par des humains pour donner une stratégie gagnante à l'ordinateur\n\nL'IA a joué des milliers de parties pour apprendre, sans avoir besoin de l'aide d'un humain !"
-            if GAME == 'morpion':
+            if var1.GAME == 'morpion':
                 self.image_source = 'images/morpion.png'
             else:
                 self.image_source='images/puissance4.png'
-            App.get_running_app().manager.push(self.screen)
+            App.get_running_app().manager.push(self.screen) # pushes to the selected screen
 
 
-class ChoiceLevel(BoxLayout):
+class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of trains for AI and depth exploration for minimax algorithm)
+
+    # kivy properties you find in the graphics.kv file (ChoiceGame class)
     B1text = StringProperty('Novice')
     B2text = StringProperty('Debutant')
     B3text = StringProperty('Intermediaire')
@@ -217,8 +220,8 @@ class ChoiceLevel(BoxLayout):
     def __init__(self,mode = 'IA',**kwargs):
         super().__init__(**kwargs)
         self.mode = mode
-        self.ZdT = ZoneDeTexte(text='coucou')
-        self.ZdT.titre = "[u]Quel niveau choisir ?[/u]"
+        self.ZdT = TextArea(text='coucou')
+        self.ZdT.title = "[u]Quel niveau choisir ?[/u]"
         if self.mode == 'IA':
             self.titre = "Choisis le niveau d'entrainement de l'IA !"
             self.ZdT.text = "Plus le niveau sélectionné est élevé plus l'IA est forte.\n\nPour être plus forte, l'IA s'est entraînée en jouant plus de partie, tout simplement !"
@@ -229,10 +232,8 @@ class ChoiceLevel(BoxLayout):
 
 
     def pressB(self, instance):
-        global MODE
-        global LEVEL
         if instance.text == self.B1text:
-            LEVEL = self.B1text.lower()
+            var1.LEVEL = self.B1text.lower()
             self.colors1 = [219/256,195/265,151/256,1]
             self.Ntrain = 0
             self.colors2 = [0, 0, 1, 1]
@@ -243,14 +244,14 @@ class ChoiceLevel(BoxLayout):
             self.ids.B4.color = [1,1,1,1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
             self.image_source = 'images/level1.png'
-            if MODE == 'IA':
+            if var1.MODE == 'IA':
                 self.ZdT.text = "Dans ce mode, l'IA n'a jamais été entraînée : elle découvre le jeu ! "
             else:
                 self.ZdT.text = "Dans ce mode, l'algorithme n'explore pas de parties: il joue aléatoirement "
 
 
         if instance.text == self.B2text:
-            LEVEL = self.B2text.lower()
+            var1.LEVEL = self.B2text.lower()
             self.colors2 = [219/256,195/265,151/256,1]
             self.Ntrain = 1000
             self.colors1 = [0, 0, 1, 1]
@@ -261,14 +262,14 @@ class ChoiceLevel(BoxLayout):
             self.ids.B4.color = [1, 1, 1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
             self.image_source = 'images/level2.png'
-            if MODE == 'IA':
+            if var1.MODE == 'IA':
                 self.ZdT.text = "Dans ce mode, l'IA n'a joué que 1000 parties : son apprentissage a été très court ! "
             else:
                 self.ZdT.text = "Dans ce mode, l'algorithme ne prévoit qu'un coup à l'avance... pas très performant. "
 
 
         if instance.text == self.B3text:
-            LEVEL = self.B3text.lower()
+            var1.LEVEL = self.B3text.lower()
             self.colors3 = [219/256,195/265,151/256,1]
             self.Ntrain = 5000
             self.colors1 = [0, 0, 1, 1]
@@ -279,14 +280,14 @@ class ChoiceLevel(BoxLayout):
             self.ids.B4.color = [1, 1, 1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
             self.image_source = 'images/level3.png'
-            if MODE == 'IA':
+            if var1.MODE == 'IA':
                 self.ZdT.text = "Dans ce mode, l'IA a joué 5000 parties : 5 fois plus d'expérience qu'au mode débutant.\nA toi de découvrir son évolution ! "
             else:
                 self.ZdT.text = "Dans ce mode, l'Algorithme explore 3 coups à l'avance : il commence à voit ton coup venir ! "
 
 
         if instance.text == self.B4text:
-            LEVEL = self.B4text.lower()
+            var1.LEVEL = self.B4text.lower()
             self.colors4 = [219/256,195/265,151/256,1]
             self.Ntrain = 10000
             self.colors1 = [0, 0, 1, 1]
@@ -297,7 +298,7 @@ class ChoiceLevel(BoxLayout):
             self.ids.B3.color = [1, 1, 1, 1]
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
             self.image_source = 'images/level4.png'
-            if MODE == 'IA':
+            if var1.MODE == 'IA':
                 self.ZdT.text = "Attention... dans ce mode, l'IA s'est entraînée 10000 fois, elle est très puissante."
             else:
                 self.ZdT.text = "Attention... dans ce mode, l'algorithme joue toutes les parties possibles avec 5 coups d'avance, il lit très clair dans ton jeu..."
@@ -311,12 +312,6 @@ class ChoiceLevel(BoxLayout):
 
     def releaseB(self,instance):
         if instance.text == self.B5text and self.colors5 == [16/256,118/256,0,1]:
-            global GAME
-            global MODE
-            global LEVEL
-            var1.LEVEL = LEVEL
-            var1.MODE = MODE
-            var1.GAME = GAME
             self.colors1 = [0, 0, 1, 1]
             self.colors2 = [0, 0, 1, 1]
             self.colors3 = [0, 0, 1, 1]
@@ -327,8 +322,8 @@ class ChoiceLevel(BoxLayout):
             self.ids.B4.color = [1, 1, 1, 1]
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_source = 'images/level0.png'
-            if GAME == 'morpion':
-                App.get_running_app().manager.push('MorpionGame') #
+            if var1.GAME == 'morpion':
+                App.get_running_app().manager.push('MorpionGame')
             else:
                 App.get_running_app().manager.push('Connect4Game')
 
@@ -346,34 +341,22 @@ class ChoiceLevelMinimax(BoxLayout):
         self.add_widget(ChoiceLevel(mode='Minimax'))
 
 
-class var:
-    def __init__(self):
-        self.MODE = MODE
-        self.LEVEL = LEVEL
-        self.GAME = GAME
-
 class MyScreenManager(NavigationScreenManager): #hérite du screen manager qu'on a créé
     pass
 
 
-class graphicsApp(App): #Le fichier .kv doit avoir le même nom tronqué de app car il va chercher le nom de la classe sans 'App'
+class graphicsApp(App):
     manager = ObjectProperty(None)
-    #peut contenir des widget, des layout, des screenmanager..
     def build(self):
         self.width = Window.width
         self.height = Window.height
-        self.manager = MyScreenManager() #On accède aux fonctions de MyScreenManager qui hérite de NavigationSScreenManager et de ses méthodes
-        return self.manager #on retourne l'objet instancié et on appelle une méthode via app.manager.méthode() où méthode est définie dans MyScreenManager ou héritée par MyScreenManager
-        #return CanvasExemple7()
-        #ce qui est return est ce qui est affiché dans la fenêtre
+        self.manager = MyScreenManager() # We access the functions of MyScreenManager which inherits from NavigationSScreenManager and its methods
+        return self.manager # we return the instantiated object and call a method via app.manager.method() where method is defined in MyScreenManager or inherited by MyScreenManager
 
-var1 = var()
+
 
 if __name__=='__main__':
     graphicsApp().run()
-    print(GAME)
-    print(MODE)
-    print(LEVEL)
 
 
 

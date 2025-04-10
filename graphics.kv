@@ -4,29 +4,29 @@
 #:import Connect4 Connect4
 
 
-<ZoneDeTexte>:
+<TextArea>:
     orientation : 'vertical'
     canvas.before:
         Color:
-            rgba : root.couleurDeFond
+            rgba : root.Background_color
         Rectangle:
             pos : self.pos
             size : self.size
     canvas:
         Color:
-            rgba : root.couleurZdT
+            rgba : root.TA_color
         RoundedRectangle:
             size: self.size
             pos: self.pos
             radius: [30]
         Color:
-            rgba : root.couleurZoneTitre
+            rgba : root.TitleArea_color
         RoundedRectangle:
             size: self.width,0.25*self.height
             pos : self.pos[0], 0.75*self.height + self.pos[1]
             radius : [(30, 30), (30, 30), (0,0), (0,0)]
         Color:
-            rgba : root.couleurLigne
+            rgba : root.Line_color
         Line:
             rounded_rectangle : self.x+2, self.y+2, self.width-4, self.height-4, 28, 28, 28, 28, 100
             width : 2
@@ -40,7 +40,7 @@
             halign : 'center'
             valign : 'middle'
             color : 115/256,63/256,11/256,1
-            text : root.titre
+            text : root.title
             font_size : 0.07*self.width
             font_name: "fonts/pixel.TTF"
             markup : True
@@ -58,7 +58,7 @@
             font_size : 0.04*self.width
             font_name: "fonts/robotaur.ttf"
             line_height : 1.5
-            color : root.couleurTexte
+            color : root.Text_Color
             text_size: 0.8*self.size[0],0.8*self.size[1]
             halign:'left'
             valign:'top'
