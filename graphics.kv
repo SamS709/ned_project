@@ -1,7 +1,10 @@
 #:import navigation_screen_manager navigation_screen_manager
 #:import box_layout_with_action_bar box_layout_with_action_bar
+#:import ai_models_interface ai_models_interface
 #:import Morpion Morpion
 #:import Connect4 Connect4
+
+
 
 
 <TextArea>:
@@ -461,6 +464,8 @@
 
 <ChoiceModeMorpion>:
 
+<ChooseAiModelPuissance4>:
+
 <MyScreenManager>:
     Screen:
         name: "ChoiceGame"
@@ -483,6 +488,10 @@
     Screen:
         name: 'Connect4Game'
         Connect4Game:
+    Screen:
+        name: 'ChooseAIModel'
+        ChooseAIModel:
+
 
 
 

@@ -1,0 +1,198 @@
+#:import box_layout_with_action_bar box_layout_with_action_bar
+
+<CreateNewModel>:
+
+        
+
+<ChooseAIModel>:
+    BoxLayoutWithActionBar:
+        orientation:'vertical'
+        canvas.before:
+            Color:
+                rgba : root.Background_color
+            Rectangle:
+                pos : self.pos
+                size : self.size
+        BoxLayout:
+            size_hint: 1, 0.15
+            InfoLabel:
+                id : title_label
+                text: "Modele personnalise"
+                font_name: "fonts/pixel.TTF"
+                color: 0,0,0,0
+                font_size : 0.05*self.width
+        BoxLayout:
+            orientation:'horizontal'
+            size_hint: 1,0.6
+            padding:0,10,0,0
+            BoxLayout:
+                id: Scroll_box
+                padding:50,0,50,0
+            BoxLayout:
+                orientation: 'vertical'
+                padding:50,0,50,0
+                BoxLayout:
+                    size_hint: 1, 0.2
+                    InfoLabel:
+                        font_size : 0.06*self.width
+                        font_name: "fonts/pixel.TTF"
+                        text: "Infos sur le modele"
+                BoxLayout:
+                    size_hint: 1, 0.7
+                    InfoLabel:
+                        id: info_label
+                        font_name: "fonts/robotaur.ttf"
+                        font_size : 0.035*self.width
+                        text_size: 0.9*self.size[0],0.9*self.size[1]
+                        text : ""
+                        halign:'left'
+                        valign:'top'
+        BoxLayout:
+            id : bottom_box
+            padding: self.width/3,self.height/5,self.width/3,self.height/5
+            size_hint: 1, 0.2
+            TestButton:
+                text: "valider"
+                font_name : "fonts/pixel.TTF"
+                button_color: [1,0,0,1]
+                id: validate_button
+                size_hint : 0.5, 1
+    
+    
+
+
+<ScrollingMenu>:
+    orientation : 'vertical'
+    canvas.before:
+        Color:
+            rgba : root.Background_color
+        Rectangle:
+            pos : self.pos
+            size : self.size
+    canvas:
+        Color:
+            rgba : root.TA_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [30]
+        Color:
+            rgba : root.TitleArea_color
+        RoundedRectangle:
+            size: self.width,0.25*self.height
+            pos : self.pos[0], 0.75*self.height + self.pos[1]
+            radius : [(30, 30), (30, 30), (0,0), (0,0)]
+        Color:
+            rgba : root.Line_color
+        Line:
+            rounded_rectangle : self.x+2, self.y+2, self.width-4, self.height-4, 28, 28, 28, 28, 100
+            width : 2
+        Line:
+            points : self.x+2,self.y+0.75*self.height,self.x+self.width-2,self.y+0.75*self.height
+            width : 2
+    BoxLayout:
+        size_hint : 1,0.45
+        Label:
+            id: left_title
+            text_size : 0.8*self.width,self.height
+            halign : 'center'
+            valign : 'middle'
+            color : 115/256,63/256,11/256,1
+            text : root.title
+            font_size : 0.07*self.width
+            font_name: "fonts/pixel.TTF"
+            markup : True
+    BoxLayout:        
+        orientation:'vertical'
+        padding:self.width/15,2.7,self.width/15,4
+        ScrollView:
+            size_hint:1,1
+            id: scroll
+
+<ScrollableLabel>:
+    Label:
+        color: root.color
+        text: root.text
+        font_size: 0.02*self.width
+        text_size: self.width, None
+        size_hint_y: None
+        height: self.texture_size[1]
+
+<TestButton>:
+    button_color : root.button_color
+    font_size: 20
+    background_color: 0, 0, 0, 0
+    background_normal: ""
+    font_name: "fonts/pixel.TTF"
+    canvas.before:
+        Color:
+            rgba: self.button_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [22]  #---- This rounds the corners --- #
+        Color:
+            rgba: root.line_button_color
+        Line:
+            rounded_rectangle : self.x+2, self.y, self.width-4, self.height-2, 20, 20, 20, 20, 100
+            width : 2
+
+<MenuInput>:
+    orientation: "vertical"
+    BoxLayout:
+        size_hint : 1,0.3
+        padding: 0,0,0,0.1*self.height
+        InfoLabel:
+    GridLayout:
+        spacing: 0.01*self.height
+        cols: 1
+        rows: 3
+        InfoInput:
+        InfoInput:
+        InfoInput:
+    BoxLayout:
+        spacing : 0.03*self.width
+        padding: 0,.1*self.height,0,0
+        size_hint : 1,0.2
+        orientation: "horizontal"
+        TestButton:
+            text: "Annuler"
+            button_color: root.cancel_color
+            on_press: root.on_press_cancel()
+            on_release: root.on_release_cancel()
+        TestButton:
+            text: "Creer"
+            on_press: root.on_press_validate()
+            on_release: root.on_release_validate()
+            button_color: root.validate_color
+
+        
+
+<InfoLabel>:
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+        Color:
+            rgba: root.line_button_color
+        Line:
+            width : root.line_width
+            rectangle : self.x+root.line_width, self.y+root.line_width, self.width-2*root.line_width, self.height-2*root.line_width
+            
+        
+<InfoInput>:
+    orientation: 'vertical'
+    BoxLayout:
+        InfoLabel:
+            text : "coucou"
+    BoxLayout:
+        orientation: 'horizontal'
+        TextInput:
+            font_size : 0.1*self.width
+        Button:
+            size_hint: 0.2,1
+
+
+    

@@ -179,6 +179,11 @@ class Connect4:
         S2N2 = self.count_lines(table,Nlines=2,n=2) - 2*S2N3
         S = S1N3 + 0.3*S1N2 - (S2N3 + 0.3*S2N2)
         return S
+    
+    def posgrid_to_postable(self,pos):
+        j = pos//6
+        i = pos-6*j
+        return[i,j]
 
 if __name__=='__main__':
     connect4 = Connect4()

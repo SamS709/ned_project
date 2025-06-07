@@ -1,21 +1,28 @@
+
 from Morpion.morpionInterface import *
 from Connect4.connect4Interface import *
+from ai_models_interface import *
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty, ListProperty
 from navigation_screen_manager import NavigationScreenManager
 from kivy.core.window import Window
+
 
 
 # WARNING : only works with pyniryo==1.1.2 (pip install pyniryo==1.1.2)
 
 # global variables that we can access in other files
 
+ROBOT = False
+
 class var:
     def __init__(self):
         self.MODE = ""
         self.LEVEL = ""
         self.GAME = ""
+        self.AI_MODEL = ""
 
 var1 = var()
+
 # creates a variable that we will access in other files
 
 
@@ -103,6 +110,7 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_morpion = 'images/morpion.png'
             self.image_connect4 = 'images/puissance4.png'
+            #self.screen = "ChooseAIModel"
             App.get_running_app().manager.push(self.screen) # pushes the selected screen
 
 class ChoiceModeMorpion(BoxLayout):
@@ -116,6 +124,8 @@ class ChoiceModePuissance4(BoxLayout):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         self.add_widget(ChoiceMode(game='puissance4'))
+
+
 
 
 class ChoiceMode(BoxLayout): # Makes the user choose between AI and Minimax Algorithm
@@ -223,6 +233,10 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
         self.ZdT = TextArea(text='coucou')
         self.ZdT.title = "[u]Quel niveau choisir ?[/u]"
         if self.mode == 'IA':
+            self.B1text = 'Debutant'
+            self.B2text = 'Intermediaire'
+            self.B3text = 'Expert'
+            self.B4text = 'Personnalise'
             self.titre = "Choisis le niveau d'entrainement de l'IA !"
             self.ZdT.text = "Plus le niveau sélectionné est élevé plus l'IA est forte.\n\nPour être plus forte, l'IA s'est entraînée en jouant plus de partie, tout simplement !"
         else:
@@ -299,7 +313,7 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
             self.colors5 = [62 / 256, 182 / 256, 75 / 256, 1]
             self.image_source = 'images/level4.png'
             if var1.MODE == 'IA':
-                self.ZdT.text = "Attention... dans ce mode, l'IA s'est entraînée 10000 fois, elle est très puissante."
+                self.ZdT.text = "Tu peux choisir le modèle d'IA que tu souhaites utiliser. Pour en créer de nouveaux, tu peux aller sur la page d'accueil"
             else:
                 self.ZdT.text = "Attention... dans ce mode, l'algorithme joue toutes les parties possibles avec 5 coups d'avance, il lit très clair dans ton jeu..."
 
@@ -322,10 +336,13 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
             self.ids.B4.color = [1, 1, 1, 1]
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_source = 'images/level0.png'
-            if var1.GAME == 'morpion':
-                App.get_running_app().manager.push('MorpionGame')
+            if var1.LEVEL=='personnalise':
+                App.get_running_app().manager.push('ChooseAIModel')
             else:
-                App.get_running_app().manager.push('Connect4Game')
+                if var1.GAME == 'morpion':
+                    App.get_running_app().manager.push('MorpionGame')
+                else:
+                    App.get_running_app().manager.push('Connect4Game')
 
 
 
@@ -339,6 +356,7 @@ class ChoiceLevelMinimax(BoxLayout):
 
     def on_kv_post(self, base_widget):
         self.add_widget(ChoiceLevel(mode='Minimax'))
+
 
 
 class MyScreenManager(NavigationScreenManager): #hérite du screen manager qu'on a créé
