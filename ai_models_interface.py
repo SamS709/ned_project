@@ -6,6 +6,9 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from Connect4.AI.DQN import DQN
+from kivy.core.window import Window
+from kivy.uix.textinput import TextInput
+
 
 import shutil
 import os
@@ -60,7 +63,7 @@ class GetInfo:
 
 class InfoLabel(Label):
      
-     line_width = StringProperty(2)
+     line_width = NumericProperty(2)
      background_color = ListProperty([112 / 256, 159 / 265, 256 / 256, 1])
      line_button_color = ListProperty([1,1,1,1])
      
@@ -268,15 +271,44 @@ class CreateNewModel(ChooseAIModel):
         
 
     def add_on_press(self,instance):
-        pass
+        if instance.button_color == GREEN:
+            instance.button_color = DARK_GREEN
+
 
     def add_on_release(self,instance):
-        self.scroll_box.clear_widgets()
-        #self.scroll_box.padding = [0,0,0,0]
-        self.scroll_box.add_widget(self.info_input)
+        if instance.button_color == DARK_GREEN:
+            instance.button_color = GREEN
+            self.scroll_box.clear_widgets()
+            self.info_label.text = f"Nom du modèle: \n\n\n\nNombre de couches: \n\n\n\nNombre de neurones par couche: \n\n\n\nNombre total de neurones: \n\n"
+            #self.scroll_box.padding = [0,0,0,0]
+            self.scroll_box.add_widget(self.info_input)
 
+class IBeamTextInput(TextInput):
+    _instances = []
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        IBeamTextInput._instances.append(self)
+        if len(IBeamTextInput._instances) == 1:
+            Window.bind(mouse_pos=IBeamTextInput.on_mouse_pos_all)
+
+    def on_parent(self, *args):
+        if self.parent is None and self in IBeamTextInput._instances:
+            IBeamTextInput._instances.remove(self)
+            if not IBeamTextInput._instances:
+                Window.unbind(mouse_pos=IBeamTextInput.on_mouse_pos_all)
+
+    @staticmethod
+    def on_mouse_pos_all(window, pos):
+        for instance in IBeamTextInput._instances:
+            if instance.get_root_window() and instance.collide_point(*instance.to_widget(*pos)):
+                Window.set_system_cursor('ibeam')
+                return
+        Window.set_system_cursor('arrow')
 
 class InfoInput(BoxLayout):
+
+    button_set_color = ListProperty(GREEN)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -291,19 +323,29 @@ class MenuInput(BoxLayout):
     def __init__(self, on_release_cancel, **kwargs):
         self.on_release_cancel_ = on_release_cancel
         super().__init__(**kwargs)
+
+    def on_press_cancel(self,instance):
+        if instance.button_color == RED:
+            instance.button_color = DARK_RED
+        print("COUCOU")
+
     
-    def on_release_cancel(self):
+    def on_release_cancel(self,instance):
+        if instance.button_color == DARK_RED:
+            instance.button_color = RED
         print("4")
         self.on_release_cancel_()
 
-    def on_press_validate(self):
+    def on_press_validate(self,instance):
+        if instance.button_color == GREEN:
+            instance.button_color = DARK_GREEN
         print(99)
 
-    def on_release_validate(self):
+    def on_release_validate(self,instance):
+        if instance.button_color == DARK_GREEN:
+            instance.button_color = GREEN
         print(99)
 
-    def on_press_cancel(self):
-        print("COUCOU")
 
 class ai_models_interfaceApp(App):
       def build(self):

@@ -10,9 +10,7 @@ from Connect4.connect4Interface import var1
 from Morpion.Minimax.MinMax import *
 import time
 import threading
-ROBOT = False
-if ROBOT:
-    from Morpion.Robot import *
+from Morpion.Robot import *
 
 Builder.load_file('Morpion/morpionInterface.kv')
 
