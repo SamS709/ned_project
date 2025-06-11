@@ -95,6 +95,7 @@
             width : 2
     BoxLayout:
         size_hint : 1,0.45
+        padding : 0,0,0.02*self.width,0.2*self.height
         Label:
             id: left_title
             text_size : 0.8*self.width,self.height
@@ -105,6 +106,19 @@
             font_size : 0.07*self.width
             font_name: "fonts/pixel.TTF"
             markup : True
+        Button:
+            canvas.before:
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+                    source: "images/refresh.png"
+            size_hint: None,0.5
+            pos_hint: {"center_x": 0.5, "center_y": 0.6}
+            width: self.height
+            background_color : [1,1,1,0]
+            on_press : root.press_refresh(self)
+            on_release:  root.release_refresh(self)
+
     BoxLayout:        
         orientation:'vertical'
         padding:self.width/15,2.7,self.width/15,4

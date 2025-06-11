@@ -108,6 +108,13 @@ class ScrollingMenu(BoxLayout):
 
     def __init__(self, **kwargs):
             super().__init__(**kwargs)
+        
+    def press_refresh(self,instance):
+        pass
+
+    def release_refresh(self,instance):
+        pass
+
 
 class ChooseAIModel(BoxLayout):
 
@@ -121,12 +128,21 @@ class ChooseAIModel(BoxLayout):
     def on_kv_post(self, base_widget):
         self.getInfo = GetInfo(self.game)
         self.scroll_menu = ScrollingMenu()
+        self.scroll_menu.press_refresh = self.press_refresh
+        self.scroll_menu.release_refresh = self.release_refresh
         self.scroll = self.scroll_menu.ids.scroll 
         self.info_label = self.ids.info_label
         self.scroll_box = self.ids.Scroll_box
         self.init_buttons()
         self.setup_title()
 
+
+    def press_refresh(self,instance):
+        instance.background_color = [1,1,1,0.3]
+
+    def release_refresh(self,instance):
+        instance.background_color = [1,1,1,0]
+        self.load_button_list()
 
         
     

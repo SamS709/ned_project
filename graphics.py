@@ -4,8 +4,15 @@ from Connect4.connect4Interface import *
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty, ListProperty
 from navigation_screen_manager import NavigationScreenManager
 from kivy.core.window import Window
+from kivy.clock import Clock
 
-
+LIGHT_GREEN = [169 / 256, 221 / 256, 175 / 256, 1]
+GREEN = [62 / 256, 182 / 256, 75 / 256, 1]
+DARK_GREEN = [16 / 256, 118 / 256, 0, 1]
+LIGHT_RED = [256/256,187/256,187/256,1]
+RED = [237/256,79/256,79/256,1]
+DARK_RED = [170/256,14/256,14/256,1]
+SAND = [219/256,195/256,151/256,1]
 
 # WARNING : only works with pyniryo==1.1.2 (pip install pyniryo==1.1.2)
 
@@ -97,7 +104,7 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
             self.image_connect4 = 'images/puissance4White.png'
         
         if instance.text == "":
-            self.screen = 'CreateNewModelConnect4'
+            self.screen = 'MySettings'
             instance.background_color = [1, 1, 1, 0.3]
 
 
@@ -230,14 +237,17 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
     colors2 = ListProperty([0,0,1,1])
     colors3 = ListProperty([0,0,1,1])
     colors4 = ListProperty([0,0,1,1])
-    colors5 = ListProperty([169/256, 221/256, 175/256 ,1])
+    colors5 = ListProperty(LIGHT_GREEN)
     Ntrain = NumericProperty(0)
 
     titre = StringProperty("Choisis le niveau d'entrainement de ton adversaire !")
 
     def __init__(self,mode = 'IA',**kwargs):
-        super().__init__(**kwargs)
         self.mode = mode
+        super().__init__(**kwargs)
+    
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
         self.ZdT = TextArea(text='coucou')
         self.ZdT.title = "[u]Quel niveau choisir ?[/u]"
         if self.mode == 'IA':
@@ -327,9 +337,9 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
 
 
         if instance.text != self.B5text:
-            instance.color = [115/256,63/256,11/256,1]
-        if instance.text == self.B5text and self.colors5 == [62/256, 182/256, 75/256, 1]:
-            self.colors5 = [16/256,118/256,0,1]
+            instance.color = [115/256,63/256,11/256,1] # change button text color to maroon
+        if instance.text == self.B5text and self.colors5 == GREEN:
+            self.colors5 = DARK_GREEN
 
 
     def releaseB(self,instance):
@@ -357,21 +367,85 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
 
 
 
-class Settings(ChoiceLevel):
+class MySettings(ChoiceLevel):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.mode = 'IA'
+        
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
         self.ZdT.text = "Choisis le paramètre que tu veux modifier"
         self.titre = 'Paramètres'
         self.B1text = 'Langue'
         self.B2text = 'Morpion'
         self.B3text = 'Puissance 4'
+        self.B4text = 'Echecs'
+        #self.ids.get('B4').parent.remove_widget(self.ids.get('B4')) # remove the button B4 (AI Model) from the settings screen
 
-    def on_kv_post(self, base_widget):
-        super().on_kv_post(base_widget)
-        self.remove_widget(self.ids.B4)
-        self.remove_widget(self.ids.B5)
+    def pressB(self, instance):
+        if instance.text == self.B1text:
+            self.colors1 = SAND
+            self.colors2 = [0, 0, 1, 1]
+            self.colors3 = [0, 0, 1, 1]
+            self.colors4 = [0, 0, 1, 1]
+            self.ids.B2.color = [1,1,1,1]
+            self.ids.B3.color = [1,1,1,1]
+            self.ids.B4.color = [1,1,1,1]
+            self.colors5 = LIGHT_GREEN
+            self.image_source = 'images/developpement.png'
+            self.ZdT.text = "Pour le moment, seul le français est disponible"
+
+
+        if instance.text == self.B2text:
+            self.colors2 = SAND
+            self.colors1 = [0, 0, 1, 1]
+            self.colors3 = [0, 0, 1, 1]
+            self.colors4 = [0, 0, 1, 1]
+            self.ids.B1.color = [1, 1, 1, 1]
+            self.ids.B3.color = [1, 1, 1, 1]
+            self.ids.B4.color = [1, 1, 1, 1]
+            self.colors5 = GREEN
+            self.image_source = 'images/morpion.png'
+            self.ZdT.text = "Modifier les paramètres du Morpion "
+            self.screen = "CreateNewModelMorpion"
+
+
+        if instance.text == self.B3text:
+            self.colors3 = SAND
+            self.colors1 = [0, 0, 1, 1]
+            self.colors2 = [0, 0, 1, 1]
+            self.colors4 = [0, 0, 1, 1]
+            self.ids.B1.color = [1, 1, 1, 1]
+            self.ids.B2.color = [1, 1, 1, 1]
+            self.ids.B4.color = [1, 1, 1, 1]
+            self.colors5 = GREEN
+            self.image_source = 'images/puissance4.png'
+            self.ZdT.text = "Modifier les paramètres du Puissance 4 ! "
+            self.screen = "CreateNewModelConnect4"
+
+
+
+        if instance.text == self.B4text:
+            self.colors4 = SAND
+            self.colors1 = [0, 0, 1, 1]
+            self.colors2 = [0, 0, 1, 1]
+            self.colors3 = [0, 0, 1, 1]
+            self.ids.B1.color = [1, 1, 1, 1]
+            self.ids.B2.color = [1, 1, 1, 1]
+            self.ids.B3.color = [1, 1, 1, 1]
+            self.colors5 = LIGHT_GREEN
+            self.image_source = 'images/developpement.png'
+            self.ZdT.text = "En cours de développement..."
+
+
+        if instance.text != self.B5text:
+            instance.color = [115/256,63/256,11/256,1]
+        if instance.text == self.B5text and self.colors5 == GREEN:
+            self.colors5 = DARK_GREEN
+            App.get_running_app().manager.push(self.screen) # pushes to the self.screen screen
+
+
     
     
 
