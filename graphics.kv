@@ -343,29 +343,44 @@
             pos : root.pos
     orientation: 'vertical'
     BoxLayout:
-        canvas.before:
-            Color:
-                rgba : 1,1,1,1
-            Rectangle:
-                pos: self.pos
-                size : self.size
-            Color:
-                rgba : 0,0,0,1
-            Line:
-                points:(2,self.pos[1],2,self.height+self.pos[1]-2,self.width-2,self.height+self.pos[1]-2,self.width-2,self.pos[1],2,self.pos[1])
-                width:2
         size_hint:1,0.3
-        background_color:1,1,0,1
-        orientation:'horizontal'
-        Label:
-            padding: 0.03*self.width
-            font_name: "fonts/robotaur.TTF"
-            font_size : 0.04*self.width
-            text:"Choisis le jeu auquel tu veux affronter Ned"
-            text_size: self.size
-            valign:'middle'
-            color: 0,0,0,1
-            halign:'center'
+        orientation : "horizontal"
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba : 1,1,1,1
+                Rectangle:
+                    pos: self.pos
+                    size : self.size
+                Color:
+                    rgba : 0,0,0,1
+                Line:
+                    points:(2,self.pos[1],2,self.height+self.pos[1]-2,self.width-2,self.height+self.pos[1]-2,self.width-2,self.pos[1],2,self.pos[1])
+                    width:2
+            background_color:1,1,0,1
+            orientation:'horizontal'
+            Label:
+                padding: 0.03*self.width
+                font_name: "fonts/robotaur.TTF"
+                font_size : 0.04*self.width
+                text:"Choisis le jeu auquel tu veux affronter Ned"
+                text_size: self.size
+                valign:'middle'
+                color: 0,0,0,1
+                halign:'center'
+        Button:
+            id : Bsettings
+            canvas.before:
+                Rectangle:
+                    pos : self.pos
+                    size : self.size
+                    source : "images/settings.png"
+            background_color : [0,0,0,0]
+            size_hint: None,1
+            width: self.height
+            text : ""
+            on_press : root.pressB(self)
+            on_release : root.releaseB(self)
     BoxLayout:
         BoxLayout:
             padding: 0.08*self.width
@@ -461,6 +476,7 @@
             size_hint : 1,1
 
 
+<Settings>:
 
 <ChoiceModeMorpion>:
 
@@ -489,8 +505,21 @@
         name: 'Connect4Game'
         Connect4Game:
     Screen:
-        name: 'ChooseAIModel'
+        name: 'ChooseAIModelConnect4'
         ChooseAIModel:
+            game: "Connect4"
+    Screen:
+        name : "CreateNewModelConnect4"
+        CreateNewModel:
+            game: "Connect4"
+    Screen:
+        name: 'ChooseAIModelMorpion'
+        ChooseAIModel:
+            game: "Morpion"
+    Screen:
+        name : "CreateNewModelConnect4"
+        CreateNewModel:
+            game: "Morpion"
 
 
 

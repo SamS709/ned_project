@@ -12,9 +12,11 @@ import tensorflow as tf
 
 class DQN(Connect4):
 
-    def __init__(self,model_name,softmax_,learning_rate=1e-2,gamma=1e-1,eps = 0.9,P1="1",reset = False):
+    def __init__(self,model_name,softmax_,n_layers=2,n_neurons=32,learning_rate=1e-2,gamma=1e-1,eps = 0.9,P1="1",reset = False):
 
         super().__init__()
+        self.n_layers = n_layers
+        self.n_neurons = n_neurons
         self.eps = eps
         self.gamma = gamma
         self.learning_rate = learning_rate
@@ -31,20 +33,20 @@ class DQN(Connect4):
         if softmax_:
             self.end_score = [1,0,0.5]
 
-    def create_model(self,n_layers=2,n_neurons=32):
+    def create_model(self):
         input_ = keras.layers.Input(shape=(42))
         one_hot = keras.layers.Lambda(lambda x : K.one_hot(K.cast(x, 'int64'), 3))(input_)
         flatten = keras.layers.Flatten(input_shape=(42, 3))(one_hot)
-        hidden1 = keras.layers.Dense(n_neurons,kernel_initializer="he_normal", use_bias=False)(flatten)
+        hidden1 = keras.layers.Dense(self.n_neurons,kernel_initializer="he_normal", use_bias=False)(flatten)
         BN1 = tf.keras.layers.BatchNormalization()(hidden1)
         relu1 = tf.keras.layers.Activation("relu")(BN1)
         dropout =keras.layers.Dropout(rate=0.2)(relu1)
-        for i in range(n_layers-2):
-            hidden = keras.layers.Dense(n_neurons,kernel_initializer="he_normal", use_bias=False)(dropout)
+        for i in range(self.n_layers-2):
+            hidden = keras.layers.Dense(self.n_neurons,kernel_initializer="he_normal", use_bias=False)(dropout)
             BN = tf.keras.layers.BatchNormalization()(hidden)
             relu = tf.keras.layers.Activation("relu")(BN)
             dropout =keras.layers.Dropout(rate=0.2)(relu)
-        hidden2 = keras.layers.Dense(n_neurons,kernel_initializer="he_normal", use_bias=False)(dropout)
+        hidden2 = keras.layers.Dense(self.n_neurons,kernel_initializer="he_normal", use_bias=False)(dropout)
         BN2 = tf.keras.layers.BatchNormalization()(hidden2)
         relu2 = tf.keras.layers.Activation("relu")(BN2)
         output_ = keras.layers.Dense(1, activation="linear")(relu2)

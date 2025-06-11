@@ -1,7 +1,6 @@
 
 from Morpion.morpionInterface import *
 from Connect4.connect4Interface import *
-from ai_models_interface import *
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty, ListProperty
 from navigation_screen_manager import NavigationScreenManager
 from kivy.core.window import Window
@@ -19,7 +18,10 @@ class var:
         self.MODE = ""
         self.LEVEL = ""
         self.GAME = ""
-        self.AI_MODEL = ""
+        self.model_name = ""
+
+    def __str__(self):
+        return f"Mode: {self.MODE}, Level: {self.LEVEL}, Game: {self.GAME}, AI Model: {self.model_name}"
 
 var1 = var()
 
@@ -69,7 +71,6 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
         # Responsive design
 
         if instance.text == self.B1text:
-            self.screen = 'ChoiceMode'
             self.colors1 = [1,1,1,1]
             self.colors2 = [0, 0, 1, 1]
             self.color_line1 = [0, 0, 0, 1]
@@ -83,7 +84,6 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
             self.image_connect4 = 'images/puissance4.png'
 
         if instance.text == self.B2text:
-            self.screen = 'ChoiceMode'
             self.colors2 = [1,1,1, 1]
             self.colors1 = [0, 0, 1, 1]
             self.color_line1 = [1, 1, 1, 1]
@@ -95,12 +95,17 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
             self.screen = 'ChoiceModePuissance4'
             self.image_morpion = 'images/morpion.png'
             self.image_connect4 = 'images/puissance4White.png'
+        
+        if instance.text == "":
+            self.screen = 'CreateNewModelConnect4'
+            instance.background_color = [1, 1, 1, 0.3]
+
 
         if instance.text == self.B5text and self.colors5 == [62 / 256, 182 / 256, 75 / 256, 1]:
             self.colors5 = [16 / 256, 118 / 256, 0, 1]
 
     def releaseB(self, instance):
-        if instance.text == self.B5text and self.colors5 == [16 / 256, 118 / 256, 0, 1]:
+        if instance.text == self.B5text and self.colors5 == [16 / 256, 118 / 256, 0, 1] or self.ids.Bsettings.background_color==[1, 1, 1, 0.3]:
             self.color_line1 = [1, 1, 1, 1]
             self.color_line2 = [1, 1, 1, 1]
             self.ids.B1.color = [1, 1, 1, 1]
@@ -110,6 +115,7 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_morpion = 'images/morpion.png'
             self.image_connect4 = 'images/puissance4.png'
+            self.ids.Bsettings.background_color = [1, 1, 1, 0]
             #self.screen = "ChooseAIModel"
             App.get_running_app().manager.push(self.screen) # pushes the selected screen
 
@@ -205,6 +211,8 @@ class ChoiceMode(BoxLayout): # Makes the user choose between AI and Minimax Algo
             else:
                 self.image_source='images/puissance4.png'
             App.get_running_app().manager.push(self.screen) # pushes to the selected screen
+
+
 
 
 class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of trains for AI and depth exploration for minimax algorithm)
@@ -337,7 +345,10 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_source = 'images/level0.png'
             if var1.LEVEL=='personnalise':
-                App.get_running_app().manager.push('ChooseAIModel')
+                if var1.GAME == 'connect4':
+                    App.get_running_app().manager.push('ChooseAIModelConnect4')
+                else:
+                    App.get_running_app().manager.push('ChooseAIModelMorpion')
             else:
                 if var1.GAME == 'morpion':
                     App.get_running_app().manager.push('MorpionGame')
@@ -345,6 +356,24 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
                     App.get_running_app().manager.push('Connect4Game')
 
 
+
+class Settings(ChoiceLevel):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.mode = 'IA'
+        self.ZdT.text = "Choisis le paramètre que tu veux modifier"
+        self.titre = 'Paramètres'
+        self.B1text = 'Langue'
+        self.B2text = 'Morpion'
+        self.B3text = 'Puissance 4'
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        self.remove_widget(self.ids.B4)
+        self.remove_widget(self.ids.B5)
+    
+    
 
 class ChoiceLevelIA(BoxLayout):
 

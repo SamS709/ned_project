@@ -191,7 +191,7 @@ class Connect4Game(BoxLayout):
 
 
     def det_pos(self,mode,level):
-        self.ai = DQN(reset=False,model_name="my_linear_model",softmax_=False,P1=self.P1)
+        self.ai = DQN(model_name=var1.model_name,softmax_=False,P1=self.P1)
         if mode == 'minimax':
             if level == 'novice':
                 self.depth = 1

@@ -1,10 +1,12 @@
 #:import box_layout_with_action_bar box_layout_with_action_bar
 
 <CreateNewModel>:
+    game: "Connect4"
 
         
 
 <ChooseAIModel>:
+    game : "Connect4"
     BoxLayoutWithActionBar:
         orientation:'vertical'
         canvas.before:
@@ -42,6 +44,7 @@
                     InfoLabel:
                         id: info_label
                         font_name: "fonts/robotaur.ttf"
+                        markup : True
                         font_size : 0.035*self.width
                         text_size: 0.9*self.size[0],0.9*self.size[1]
                         text : ""
@@ -111,6 +114,7 @@
 
 <ScrollableLabel>:
     Label:
+        markup : True
         color: root.color
         text: root.text
         font_size: 0.02*self.width
@@ -138,26 +142,35 @@
             width : 2
 
 <MenuInput>:
-    text_input1 : "a"
-    text_input2 : "z"
-    text_input3 : "e"
     orientation: "vertical"
     BoxLayout:
         size_hint : 1,0.3
         padding: 0,0,0,0.1*self.height
         InfoLabel:
+            text : "Créé ton modele"
     GridLayout:
         spacing: 0.01*self.height
         cols: 1
         rows: 3
         InfoInput:
-            text_input : root.text_input1
+            button_set_color : root.button_set_color0
+            press : root.set_on_press0
+            release : root.set_on_release0
+            text_input : root.text_input0
             text: "Nom du modele"
         InfoInput:
-            text_input : root.text_input2
+            filter : "int"
+            button_set_color : root.button_set_color1
+            press : root.set_on_press1
+            release : root.set_on_release1
+            text_input : root.text_input1
             text : "Nombre de couches de neurones"
         InfoInput:
-            text_input : root.text_input3
+            filter : "int"
+            button_set_color : root.button_set_color2
+            press : root.set_on_press2
+            release : root.set_on_release2
+            text_input : root.text_input2
             text : "Nombre de neurones par couche"
     BoxLayout:
         spacing : 0.03*self.width
@@ -178,6 +191,7 @@
         
 
 <InfoLabel>:
+    font_name : "fonts/pixel.TTF"
     canvas.before:
         Color:
             rgba: root.background_color
@@ -195,22 +209,26 @@
 <InfoInput>:
     text : "coucou"
     orientation: 'vertical'
-    spacing : 0.02*self.height
+    spacing : 0.0*self.height
     text_input: ""
+    filter : None
     BoxLayout:
         InfoLabel:
             line_width : 1.2 
-            font_size : 0.05* self.width
+            font_size : 0.04* self.width
+            font_name : "fonts/pixel.TTF"
             text_size : 0.9*self.size[0], 0.9*self.size[1]
             valign: "middle"
             halign: "left"
             text : root.text
     BoxLayout:
-        spacing : 0.02*self.width
+        spacing : 0.015*self.width
         orientation: 'horizontal'
         IBeamTextInput:
+            input_filter : root.filter
             text : root.text_input
-            font_size : 0.1*self.width
+            font_size : 0.5*self.height
+            font_name : "fonts/pixel.TTF"
         Button:
             canvas.before:
                 
@@ -232,6 +250,9 @@
                     source: "images/validate.png"
             size_hint: 0.2,1
             background_color : [0,0,0,0]
+            on_press : root.press()
+            on_release : root.release()
+            
 
 
     
