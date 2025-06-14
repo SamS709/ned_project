@@ -69,7 +69,12 @@ Removed sections:
 
 - [About the Project](#about-the-project)
   * [Introduction](#introduction)
-  * [Project Structure](#introduction)
+  * [Project Structure](#project-structure)
+    * [1. Robotics](#1-robotics)
+    * [2. Image Processing](#2-image-processing)
+    * [3. Strategies](#3-strategies)
+    * [4. Graphics](#4-graphics)
+
   * [Tech Stack](#tech-stack)
 
 
@@ -108,18 +113,17 @@ Removed sections:
 
 <div>
 <p>The project is devided in 3 main parts that interact with each other :</p>
-<ol>
-    <li><p>Robotics</p></li>
-    <li><p>Image processing</p></li>
-    <li><p>Strategies</p></li>
-    <li><p>Graphics</p></li>
-  </ol>
+
+1. [Robotics](#1-robotics)
+2. [Image Processing](#2-image-processing)
+3. [Strategies](#3-strategies)
+4. [Graphics](#4-graphics)
 </div>
 
 #### 1. Robotics
 
 <div>
-<img src="images/ned2.gif" height="300"/>
+<img src="images/readme/ned2.gif" height="300"></img>
 <p></p>
 <p>The Robot used is Ned2 a six-axis collaborative robot, based on open-source technologies.</p>
 <p>I controll is with python pyniryo module, provided by the manufacturer, which is very convenient to start robotics.</p>
@@ -142,9 +146,9 @@ Removed sections:
 
 <div>
 <p>To determine the next move, the robot can either send the current game grid to a minimax algorithm or to an AI model that will decide the best move to play.</p>
-<p>The minimax algorithm will explore all possible outcomes of the game to determine the best move.</p>
+<p>The <a href = "https://en.wikipedia.org/wiki/Minimax">minimax algorithm</a> will explore all possible outcomes of the game to determine the best move.</p>
 <img src = "images/readme/minimax"/>
-<p>The AI ​​will rely on prior training (during which it has played many games) to determine the best move.</p>
+<p>The AI ​​will rely on prior training (during which it has played many games) to determine the best move. This is <a href = "https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a></p>
 <p>Note that the user can create its own custom AI model and train it.</p>
 
 <img src = "images/readme/AI"/>
@@ -154,14 +158,14 @@ Removed sections:
 
 #### 4. Graphics
 
-<p>I used kivy to make the GUI.</p>
+<p>I used <a href = "https://kivy.org">kivy</a> to make the GUI.</p>
 <p>Several files are used to manage the interface:</p>
 <ul>
-<li>graphics.py : Game, strategy, and level selection menues will be found here</li>
-<li>ai_models_interface.py : All the graphics related to AI, such as model edit, training or selection will be here</li>
-<li>morpion(resp. connect4)Interface.py : Gui for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
-
-
+<li><b>graphics.py</b> : Game, strategy, and level selection menues will be found here</li>
+<li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection will be here</li>
+<li><b>morpion(resp. connect4)Interface.py</b> : Gui for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
+<li><b>box_layout_with_action_bar.py</b> : The actionbar which allows you to connect to the robot and to go to previous page. </li>
+<li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menues. </li>
 </ul>
 
 <!-- TechStack -->
