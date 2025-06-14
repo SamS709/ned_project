@@ -381,6 +381,8 @@ class MySettings(ChoiceLevel):
         self.B2text = 'Morpion'
         self.B3text = 'Puissance 4'
         self.B4text = 'Echecs'
+        self.image_source = 'images/settings.png'
+        self.children[0].children[1].size_hint = 1,0.18 # reduce the "parameters" text area
         #self.ids.get('B4').parent.remove_widget(self.ids.get('B4')) # remove the button B4 (AI Model) from the settings screen
 
     def pressB(self, instance):

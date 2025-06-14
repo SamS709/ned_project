@@ -9,7 +9,8 @@ from Connect4.AI.DQN import DQN
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 from kivy.clock import mainthread
-from graphics import var1, App
+if __name__!=                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "__main__":
+    from graphics import var1, App
 
 import shutil
 import os
@@ -25,8 +26,10 @@ DARK_GREEN = [16 / 256, 118 / 256, 0, 1]
 LIGHT_RED = [256/256,187/256,187/256,1]
 RED = [237/256,79/256,79/256,1]
 DARK_RED = [170/256,14/256,14/256,1]
-
-
+LIGHT_BLUE = [182 / 256, 229 / 265, 246 / 256, 1]
+BLUE = [112 / 256, 159 / 265, 256 / 256, 1]
+DARK_BLUE = [82 / 256, 129 / 265, 256 / 256, 1]
+MODEL_NAME = ""
 class GetInfo:
      
      def __init__(self,game="Connect4"):
@@ -73,7 +76,7 @@ class InfoLabel(Label):
     
 
 class TestButton(Button):
-    button_color = ListProperty([182 / 256, 229 / 265, 246 / 256, 1])
+    button_color = ListProperty(LIGHT_BLUE)
     line_button_color = ListProperty([1, 1, 1, 1])
 
     def __init__(self, **kwargs):
@@ -190,7 +193,7 @@ class ChooseAIModel(BoxLayout):
          
 
     def on_release(self,instance):
-        instance.button_color = [112 / 256, 159 / 265, 256 / 256, 1]
+        instance.button_color = BLUE
         try:
             thread1 = threading.Thread(target=self.get_info, args=(instance, ))
             thread1.start()
@@ -200,10 +203,13 @@ class ChooseAIModel(BoxLayout):
     
 
     def on_press(self,instance):
+        global MODEL_NAME
         for btn in self.L_buttons:
-             btn.button_color = [182 / 256, 229 / 265, 246 / 256, 1]
-        instance.button_color = [82 / 256, 129 / 265, 256 / 256, 1]
+             btn.button_color = LIGHT_BLUE
+        instance.button_color = DARK_BLUE
         self.model_name = instance.text
+        MODEL_NAME = instance.text
+        print(MODEL_NAME)
         
 
     def get_info(self,instance):
@@ -221,10 +227,17 @@ class CreateNewModel(ChooseAIModel):
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
+        self.log_label = ScrollableLabel()
         self.getInfo = GetInfo(self.game)
         self.model_name = ""
         self.bottom_box =  self.ids.bottom_box
-        self.info_input = MenuInput(self.on_release_cancel_new, self.on_release_validate_new, self.info_label)
+        self.info_input = MenuInput(
+    self.on_release_cancel_new,
+    self.on_release_validate_new,
+    self.info_label,
+    self.log_label,
+    bottom_box=self.bottom_box  # <-- add this
+)
         self.update_texts_and_buttons()
     
     def on_release_validate_new(self,instance):
@@ -245,19 +258,19 @@ class CreateNewModel(ChooseAIModel):
             print(f"Model name: {self.model_name}, Number of layers: {n_layers}, Neurons per layer: {n_neurons_per_layer}, Total neurons: {n_neurons_tot}")
             self.log_label.text = ""
             if self.model_name == "":
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nDonne un nom valide à ton modele"
             if n_neurons_per_layer == 0:
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir 0 neurone !"
             if n_layers == 0:
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir 0 couche de neurones !"
             if n_neurons_per_layer > 512:
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir plus de 512 neurones par couche !"
             if n_layers > 10:
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir plus de 10 couches !"
             else:
                 t1 = threading.Thread(target=self.create_model, args=(n_layers, n_neurons_per_layer))
@@ -271,16 +284,16 @@ class CreateNewModel(ChooseAIModel):
         print(self.model_list)
         for model in self.model_list:
             if self.model_name.upper() == model[:-1].upper():
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text = "\n[ERREUR] Le modele n'a pas pu etre créé \nCe nom est deja pris !"
         if self.log_label.text == "":
-            self.bottom_box.padding = [0,0,0,0]
+            self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
             try:
                 DQN(reset=False,model_name=self.model_name,n_neurons=n_neurons_per_layer,n_layers=n_layers,softmax_=False,P1="1")
                 DQN(reset=False,model_name=self.model_name,n_neurons=n_neurons_per_layer,n_layers=n_layers,softmax_=False,P1="2")
                 self.log_label.text = f"\n[color=3EB64B][INFO] Le modele {self.model_name} a été créé avec succès.[/color]"
             except:
-                self.bottom_box.padding = [0,0,0,0]
+                self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                 self.log_label.text = "\n[ERREUR] Le modele n'a pas pu etre créé \nErreur inconnue !"
             self.load_button_list()
 
@@ -295,20 +308,27 @@ class CreateNewModel(ChooseAIModel):
         
     
     def update_texts_and_buttons(self):
-        self.bottom_box.padding = [0,0,0,0]
+        self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
+        self.bottom_box.size_hint = [1,0.1]
         self.bottom_box.clear_widgets()
-        self.log_label = ScrollableLabel()
         self.bottom_box.add_widget(self.log_label)
         self.left_title = self.scroll_menu.ids.left_title
         self.left_title.text = "Coucou"
         self.actions = BoxLayout(size_hint=(1,0.3),orientation="horizontal",padding = [0.1*self.width,0,0.1*self.width,0.1*self.height], spacing = 10)
+        self.actions2 = BoxLayout(size_hint=(1,0.3),orientation="horizontal",padding = [0.1*self.width,0,0.1*self.width,0.1*self.height], spacing = 10)
+
         self.add = TestButton(text="New", on_press=self.add_on_press, on_release = self.add_on_release)
         self.delete = TestButton(text="Delete", on_press=self.delete_on_press, on_release = self.delete_on_release)
+        self.train = TestButton(text="Train", on_press=self.train_on_press, on_release = self.train_on_release)
         self.add.button_color=GREEN
         self.delete.button_color=LIGHT_RED
+        self.train.button_color=LIGHT_BLUE
         self.actions.add_widget(self.delete)
-        self.actions.add_widget(self.add)
+        self.actions.add_widget(self.train)
+        self.actions2.add_widget(self.add)
         self.scroll_menu.add_widget(self.actions)
+        self.scroll_menu.add_widget(self.actions2)
+
 
     def log_error(self,i):
         if i == 1:
@@ -324,7 +344,22 @@ class CreateNewModel(ChooseAIModel):
              btn.button_color = [182 / 256, 229 / 265, 246 / 256, 1]
         instance.button_color = [82 / 256, 129 / 265, 256 / 256, 1]
         self.model_name = instance.text
+        self.train.button_color = BLUE
         self.delete.button_color = RED
+    
+    def train_on_press(self,instance):
+        if instance.button_color == BLUE:
+            instance.button_color = DARK_BLUE
+
+    def train_on_release(self,instance):
+        if instance.button_color == DARK_BLUE:
+            instance.button_color = BLUE
+            self.scroll_box.clear_widgets()
+            self.info_label.text = f"Nom du modèle: \n\n\n\nNombre de couches: \n\n\n\nNombre de neurones par couche: \n\n\n\nNombre total de neurones: \n\n"
+            #self.scroll_box.padding = [0,0,0,0]
+            self.menu_train = MenuTrain(self.on_release_cancel_new, self.on_release_validate_new, self.info_label,self.log_label,self.bottom_box)
+            self.scroll_box.add_widget(self.menu_train)
+        
     
     def delete_on_release(self,instance):
         instance.button_color = LIGHT_RED      
@@ -341,7 +376,7 @@ class CreateNewModel(ChooseAIModel):
             else:
                 try:
                     shutil.rmtree(path+"1")
-                    self.bottom_box.padding = [0,0,0,0]
+                    self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
                     self.log_label.text = f"\n[color=3EB64B][INFO] Le modèle {self.model_name} a été supprimé avec succès.[/color]"
                 except:
                     self.log_error(1)
@@ -416,11 +451,22 @@ class MenuInput(BoxLayout):
 
 
 
-    def __init__(self, on_release_cancel,on_release_validate,info_label, **kwargs):
+    def __init__(self, on_release_cancel,on_release_validate,info_label,log_label,bottom_box, **kwargs):
         self.on_release_cancel_ = on_release_cancel
         self.on_release_validate = on_release_validate
         self.info_label = info_label
+        self.log_label = log_label
+        self.bottom_box = bottom_box
         super().__init__(**kwargs)
+    
+    def log_error(self,i):
+        self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
+        if i== 0:
+            self.log_label.text="\n[ERREUR] Le nom du modele ne peut pas etre vide."+self.log_label.text
+        if i == 1:
+            self.log_label.text="\n[ERREUR] Le nombre de neurones doit être compris entre 1 et 512."+self.log_label.text
+        if i == 2:
+            self.log_label.text="\n[ERREUR] Le nombre de couches doit être compris entre 1 et 10."+self.log_label.text
 
     def on_press_cancel(self,instance):
         if instance.button_color == RED:
@@ -428,27 +474,48 @@ class MenuInput(BoxLayout):
         print("COUCOU")
 
     def set_on_press0(self):
-        self.button_set_color0 = DARK_GREEN
-        self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
+        if self.children[1].children[2].children[0].children[1].text == "":
+            self.log_error(0)
+            self.button_set_color0 = LIGHT_RED
+        else:
+            self.button_set_color0 = DARK_GREEN
+            self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
 
     def set_on_press1(self):
-        self.button_set_color1 = DARK_GREEN
-        self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
+        if self.children[1].children[1].children[0].children[1].text == "" or int(self.children[1].children[1].children[0].children[1].text) < 1 or int(self.children[1].children[1].children[0].children[1].text) > 512:
+            self.log_error(1)
+            self.button_set_color1 = LIGHT_RED
+        else:
+            self.button_set_color1 = DARK_GREEN
+            self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
 
 
     def set_on_press2(self):
-        self.button_set_color2 = DARK_GREEN
-        self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
+        if self.children[1].children[1].children[0].children[1].text == "" or int(self.children[1].children[0].children[0].children[1].text) < 1 or int(self.children[1].children[0].children[0].children[1].text) > 10:
+            self.log_error(2)
+            self.button_set_color2 = LIGHT_RED
+        else:
+            self.button_set_color2 = DARK_GREEN
+            self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
 
     
     def set_on_release0(self):
-        self.button_set_color0 = GREEN
+        if self.button_set_color0 == LIGHT_RED:
+            self.button_set_color0 = LIGHT_GREEN
+        else:
+            self.button_set_color0 = GREEN
 
     def set_on_release1(self):
-        self.button_set_color1 = GREEN
+        if self.button_set_color1 == LIGHT_RED:
+            self.button_set_color1 = LIGHT_GREEN
+        else:
+            self.button_set_color1 = GREEN
 
     def set_on_release2(self):
-        self.button_set_color2 = GREEN
+        if self.button_set_color2 == LIGHT_RED:
+            self.button_set_color2 = LIGHT_GREEN
+        else:
+            self.button_set_color2 = GREEN
 
         
 
@@ -462,17 +529,72 @@ class MenuInput(BoxLayout):
         if instance.button_color == GREEN:
             instance.button_color = DARK_GREEN
 
+class MenuTrain(MenuInput):
+    def __init__(self,on_release_cancel,on_release_validate,info_label,log_label,bottom_box, **kwargs):
+        super().__init__(on_release_cancel,on_release_validate,info_label,log_label,bottom_box,**kwargs)
+        self.button_set_color0 = LIGHT_GREEN
+        self.button_set_color1 = LIGHT_GREEN
+        self.button_set_color2 = LIGHT_GREEN
+    
+    def on_kv_post(self, base_widget):
+        global MODEL_NAME
+        super().on_kv_post(base_widget)
+        self.text1 = "Nombre d'epoques"
+        self.text2 = "Taux d'apprentissage"
+        self.text3 = "Facteur de reduction"
+        self.filter = "int"
+        self.titre = "Entraîne le modèle" + MODEL_NAME
+        self.green_text = "Entraîner"
+        self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}: \n\n"
+        
+    def log_error(self,i):
+        self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
+        if i == 0:
+            self.log_label.text = "\n[ERREUR] Le nombre d'epoques doit être compris entre 1 et 10000."+self.log_label.text
+        if i == 1:
+            self.log_label.text = "\n[ERREUR] Le taux d'apprentissage doit être compris entre 0.00001 et 0.1"+self.log_label.text
+        if i == 2:
+            self.log_label.text = "\n[ERREUR] Le facteur de réduction doit être compris entre 0.1 et 0.999"+self.log_label.text
+    
+    def set_on_press0(self):
+        if self.children[1].children[2].children[0].children[1].text == "" or int(self.children[1].children[2].children[0].children[1].text) < 1 or int(self.children[1].children[2].children[0].children[1].text) > 10000:
+            self.log_error(0)
+            self.button_set_color0 = LIGHT_RED
+        else:
+            super().set_on_press0()
+            self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
 
+    def set_on_press1(self):
+        if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 0.00001 or float(self.children[1].children[1].children[0].children[1].text) > 0.1:
+            self.log_error(1)
+            self.button_set_color1 = LIGHT_RED
+        else:
+            super().set_on_press1()
+            self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
+
+    def set_on_press2(self):
+        if self.children[1].children[0].children[0].children[1].text == "" or float(self.children[1].children[0].children[0].children[1].text) < 0.1 or float(self.children[1].children[0].children[0].children[1].text) > 0.999:
+            self.log_error(2)
+            self.button_set_color2 = LIGHT_RED
+        else:
+            super().set_on_press2()
+            self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
+
+    def on_press_validate(self,instance):
+        if instance.button_color == LIGHT_GREEN:
+            instance.button_color = DARK_GREEN
 
 
 class ai_models_interfaceApp(App):
       def build(self):
-            return ChooseAIModel()
+            return CreateNewModel()
       
 
 if __name__!="__main__":
     Builder.load_file('ai_models_interface.kv')
 
 if __name__=="__main__":
+      var1 = 1
       #model = keras.models.load_model(filepath="C:\Dev\ned_project\Connect4\AI\models\my_linear_model1")
       ai_models_interfaceApp().run()
+

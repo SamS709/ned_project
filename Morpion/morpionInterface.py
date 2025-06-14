@@ -8,6 +8,7 @@ from kivy.animation import Animation
 from kivy.uix.widget import Widget
 from Connect4.connect4Interface import var1
 from Morpion.Minimax.MinMax import *
+from kivy.clock import mainthread
 import time
 import threading
 from Morpion.Robot import *
@@ -90,18 +91,21 @@ class MorpionGame(BoxLayout):
 
     feu_image = StringProperty('Morpion/image/feu0.png')
     delay = NumericProperty(1/33)
+    anim_loop = NumericProperty(0)
     colors = ListProperty([219/256,195/265,151/256,1])
     color1 = ListProperty([219/256,195/265,151/256,1])
     color2 = ListProperty([0,0,1,1])
     colorsLine = ListProperty([168/256,114/256,60/256,1])
     colorLine1 = ListProperty([168/256,114/256,60/256,1])
     colorLine2 = ListProperty([1,1,1,1])
+    
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.first_end = False # tells if the robot has already detected the end of the game. If this is the case, first_end = True, else: first_end = False
         self.P1 = 'robot' # tells who plays first
         self.size_hint = 1,1
+        self.t1 : threading.Thread = threading.Thread() # thread that will be used to run the robot's actions
         self.table = np.array([[0 for j in range(3)] for i in range(3)]) # create a table of tic tac toe
         self.morpion = Morpion()
         self.minimax = MinMax()
@@ -160,27 +164,65 @@ class MorpionGame(BoxLayout):
             if color == "red":
                 self.ids.feuLose.source = "Morpion/image/feuLose/feu3.png"
 
+    def thread_robot(self,instance):
+        try:
+            self.robot1 = Robot() # useful toaccess to ned's actions
+            self.action_bar.animate_wifi("green")
+            self.table = self.robot1.modif_table() # the robot look at the game and change the table according to the detected piece
+            self.fire("red") # change traffic light to red
+            self.first_end = False # if a game is restarted we want first_end to be false
+            self.modifUI(instance,0)# update the displayed game according to the table
+            self.robot_connected = True # True if the robot is connected
+        except:
+            self.robot_connected = False
+            t = threading.Thread(target=self.action_bar.animate_wifi,args=("red",))
+            t.start()
+        self.feu_image = 'Morpion/image/feuLose/feu1.png'
+        mode = var1.MODE # mode selected in the menu (see graphics.py)
+        level = var1.LEVEL # level selected in the menu (see graphics.py)
+        instance.text = ' Press when you \nfinished your move'
+        instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
+        self.colors = self.color1
+        self.colorsLine = self.colorLine1      
+        self.anim_loop = 1  
+        if self.robot_connected:
+            if not self.morpion.end(self.table): # if the game is not finished after the user played
+                self.P1 = self.firstPlayer(self.table) # determines who started to play
+                pos = self.detPos(mode, level) # determines the position of the piece that the robot should play
+                p,q = pos[0],pos[1]
+                self.table[p,q]=1 # change the current table to the one modified by the robot
+                self.robot1.place(p,q) # robot pick and place the piece to the position determined above
+                self.modifUI(instance,1,p,q)  # add the piece on UI and change text / color ....
+                if self.morpion.end(self.table): # if the robot won after its play
+                    instance.text= self.releaseText
+                    self.modifUI(instance,2) # animation to tell the user the robot won
+                else:
+                    instance.text = self.pressText # then, the user will be able to play
+                    self.fire("green")
+            else: # if the user won after he played (or he tries to play after an end has been detected)
+                instance.text = self.restartText
+                if self.first_end==False:
+                    # self.robot1.say_no()
+                    self.modifUI(instance,3) # traffic light blinks red
+                else:
+                    self.modifUI(instance,2)
+            self.robot1.robot.move_pose(self.robot1.home_pos)
+            self.robot1.robot.close_connection() # close the connection of the robot in order not to connect multiple times to the robot.
+            self.robot_connected = False
+            # Morever, we don't want the robot to be connected too long because it creates bugs
+        else :
+            pass
+        self.delay = 1/10000
+        time.sleep(5)
+        self.modifUI(instance,5) # update the disp
+    
+    
+
 
     def pressB(self,instance): # when the button ispressed
-        if instance.text == self.pressText or instance.text == self.restartText:
-            instance.text = self.releaseText # change text's button
-            instance.text = "Ned is playing..."
-            self.colors = self.color2 # change the color of the button
-            self.colorsLine = self.colorLine2 # change the color of the line
-            instance.color = [1, 1, 1, 1] # change the color of the text
-            
-            try:
-                self.robot1 = Robot() # useful toaccess to ned's actions
-                self.action_bar.animate_wifi("green")
-                self.table = self.robot1.modif_table() # the robot look at the game and change the table according to the detected piece
-                self.fire("red") # change traffic light to red
-                self.first_end = False # if a game is restarted we want first_end to be false
-                self.modifUI(instance,0)# update the displayed game according to the table
-                self.robot_connected = True # True if the robot is connected
-            except:
-                self.robot_connected = False
-                t = threading.Thread(target=self.action_bar.animate_wifi,args=("red",))
-                t.start()
+        cond = instance.text == self.pressText or instance.text == self.restartText
+        if cond and self.t1.is_alive() == False: # if the button is pressed when the user has finished his move or if the game is restarted
+            self.modifUI(instance,4)
             
 
 
@@ -208,6 +250,8 @@ class MorpionGame(BoxLayout):
             self.minimax.best_pos(self.table,self.depth)
             # return self.ai.best_pos(self.table,self.P1) not ready for the moment
 
+
+    @mainthread
     def modifUI(self,instance,i,p=0,q=0): # change the UI according to the parameter
         if i == 0:
             for h in range(self.table.shape[0]):
@@ -236,44 +280,26 @@ class MorpionGame(BoxLayout):
             self.animationFire('redFire')
             instance.color = [1,1,1,1]
             self.colors = [1,0,0,1]
+        if i==4:
+            instance.text = self.releaseText # change text's button
+            instance.text = "Ned is playing..."
+            self.colors = self.color2 # change the color of the button
+            self.colorsLine = self.colorLine2 # change the color of the line
+            instance.color = [1, 1, 1, 1] # change the color of the text
+            self.delay = 1/33
+            self.anim_loop = 0
+        if i ==5:
+            self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
+            self.ids.G1.reload()
+            self.delay = 10000
 
 
 
     def releaseB(self,instance): # when the button is released
-        self.feu_image = 'Morpion/image/feuLose/feu1.png'
-        mode = var1.MODE # mode selected in the menu (see graphics.py)
-        level = var1.LEVEL # level selected in the menu (see graphics.py)
-        instance.text = ' Press when you \nfinished your move'
-        instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
-        self.colors = self.color1
-        self.colorsLine = self.colorLine1
-        if self.robot_connected:
-            if not self.morpion.end(self.table): # if the game is not finished after the user played
-                self.P1 = self.firstPlayer(self.table) # determines who started to play
-                pos = self.detPos(mode, level) # determines the position of the piece that the robot should play
-                p,q = pos[0],pos[1]
-                self.table[p,q]=1 # change the current table to the one modified by the robot
-                self.robot1.place(p,q) # robot pick and place the piece to the position determined above
-                self.modifUI(instance,1,p,q)  # add the piece on UI and change text / color ....
-                if self.morpion.end(self.table): # if the robot won after its play
-                    instance.text= self.releaseText
-                    self.modifUI(instance,2) # animation to tell the user the robot won
-                else:
-                    instance.text = self.pressText # then, the user will be able to play
-                    self.fire("green")
-            else: # if the user won after he played (or he tries to play after an end has been detected)
-                instance.text = self.restartText
-                if self.first_end==False:
-                    # self.robot1.say_no()
-                    self.modifUI(instance,3) # traffic light blinks red
-                else:
-                    self.modifiUI(instance,2)
-            self.robot1.robot.move_pose(self.robot1.home_pos)
-            self.robot1.robot.close_connection() # close the connection of the robot in order not to connect multiple times to the robot.
-            self.robot_connected = False
-            # Morever, we don't want the robot to be connected too long because it creates bugs
-        else :
-            pass
+        if instance.text == self.releaseText and self.t1.is_alive() == False: # if the button is released when the robot is playing
+            self.t1 = threading.Thread(target=self.thread_robot, args=(instance,))
+            self.t1.start()
+        
 
 
 class morpionInterfaceApp(App):
