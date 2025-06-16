@@ -49,7 +49,7 @@ class BoxLayoutWithActionBar(BoxLayout):
                 self.set_wifi_r("w")
             self.set_wifi_r("r")
         if color == "green":
-            self.icon = "images/wifi/wifi_r.png"
+            self.set_wifi_r("g")
 
     
     

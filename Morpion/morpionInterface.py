@@ -90,7 +90,7 @@ class MorpionItems(Widget): # creates the circles and the squares that will be a
 class MorpionGame(BoxLayout):
 
     feu_image = StringProperty('Morpion/image/feu0.png')
-    delay = NumericProperty(1/33)
+    delay = NumericProperty(1000)
     anim_loop = NumericProperty(0)
     colors = ListProperty([219/256,195/265,151/256,1])
     color1 = ListProperty([219/256,195/265,151/256,1])
@@ -130,6 +130,7 @@ class MorpionGame(BoxLayout):
             t = threading.Thread(target=self.action_bar.animate_wifi,args=("red",))
             t.start()
 
+    @mainthread
     def animationFire(self, state): # animate the traffic lights
         self.ids.feuLose.source = "Morpion/image/feu%d.png" % int(self.ids.feuLose.image_num)
         if state == 'end':
@@ -157,7 +158,7 @@ class MorpionGame(BoxLayout):
             animate.start(self.ids.feuLose)
 
 
-
+    @mainthread
     def fire(self,color): # change the color of the traffic light
             if color == "green":
                 self.ids.feuLose.source = "Morpion/image/feuLose/feu1.png"
@@ -177,14 +178,9 @@ class MorpionGame(BoxLayout):
             self.robot_connected = False
             t = threading.Thread(target=self.action_bar.animate_wifi,args=("red",))
             t.start()
-        self.feu_image = 'Morpion/image/feuLose/feu1.png'
         mode = var1.MODE # mode selected in the menu (see graphics.py)
         level = var1.LEVEL # level selected in the menu (see graphics.py)
-        instance.text = ' Press when you \nfinished your move'
-        instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
-        self.colors = self.color1
-        self.colorsLine = self.colorLine1      
-        self.anim_loop = 1  
+        self.anim_loop = 1 
         if self.robot_connected:
             if not self.morpion.end(self.table): # if the game is not finished after the user played
                 self.P1 = self.firstPlayer(self.table) # determines who started to play
@@ -212,9 +208,11 @@ class MorpionGame(BoxLayout):
             # Morever, we don't want the robot to be connected too long because it creates bugs
         else :
             pass
-        self.delay = 1/10000
-        time.sleep(5)
-        self.modifUI(instance,5) # update the disp
+        self.modifUI(instance,6)
+        self.anim_loop=1
+        self.delay = 1/1000
+        time.sleep(0.5) # wait 2 seconds before allowing the user to play again until the animation is finished
+        self.modifUI(instance,5) # update the displayed game according to the table
     
     
 
@@ -292,13 +290,20 @@ class MorpionGame(BoxLayout):
             self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
             self.ids.G1.reload()
             self.delay = 10000
-
+        if i == 6:
+            instance.text = ' Press when you \nfinished your move'
+            instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
+            self.colors = self.color1
+            self.colorsLine = self.colorLine1      
+            self.feu_image = 'Morpion/image/feuLose/feu1.png'
 
 
     def releaseB(self,instance): # when the button is released
         if instance.text == self.releaseText and self.t1.is_alive() == False: # if the button is released when the robot is playing
             self.t1 = threading.Thread(target=self.thread_robot, args=(instance,))
             self.t1.start()
+            
+        
         
 
 

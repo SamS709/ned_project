@@ -10,6 +10,7 @@ from kivy.uix.widget import Widget
 from Connect4.AI.DQN import *
 import threading
 from Connect4.Robot import *
+from kivy.clock import mainthread
 
 
 
@@ -94,7 +95,8 @@ class Connect4Items(BoxLayout):
 
 class Connect4Game(BoxLayout):
 
-    delay = NumericProperty(1/33)
+    delay = NumericProperty(1000)
+    anim_loop = NumericProperty(0)
     colors = ListProperty([100/256,100/256,100/256,1])
     color1 = ListProperty([100/256,100/256,100/256,1])
     color2 = ListProperty([0,0,1,1])
@@ -106,8 +108,9 @@ class Connect4Game(BoxLayout):
     def __init__(self,depth=3, **kwargs):
         self.first_end = False #indique si le robot détecte la fin ou pas: utile pour le feu de fin : si self.end == True et self.first_end == False alors on célèbre le fin. Si self.end == False : on indique q'il faut retirer les pieces
         super().__init__(**kwargs)
-        self.minmax = MinMax()
+        self.minimax = MinMax()
         self.connect4 = Connect4()
+        self.t1 : threading.Thread = threading.Thread() # thread that will be used to run the robot's actions
         self.table = np.array([[0 for j in range(7)] for i in range(6)])
         self.pressText = ' Press when you \nfinished your move' # the text on the button before it is pressed
         self.restartText = 'Enleve les pieces\npour recommencer' # the text on the button when pieces should be removed
@@ -119,6 +122,9 @@ class Connect4Game(BoxLayout):
         self.game = self.ids.G
         self.action_bar = self.ids.action_bar
 
+
+
+    @mainthread
     def animationFire(self, state):
         if state == 'end':
             animate = Animation(image_num=3, duration=0)
@@ -144,53 +150,126 @@ class Connect4Game(BoxLayout):
                 animate += Animation(image_num=0, duration=0.2)
             animate.start(self.ids.feuLose)
 
-    def feu(self,i):
-            animate = Animation(image_num=i,d=0)
-            animate.start(self.ids.feuLose)
+    @mainthread
+    def fire(self,color): # change the color of the traffic light
+            if color == "green":
+                self.ids.feuLose.source = "Morpion/image/feuLose/feu1.png"
+            if color == "red":
+                self.ids.feuLose.source = "Morpion/image/feuLose/feu3.png"
 
-    def modifUI(self,i):
-        if i == 1:
-            for i in range(self.table.shape[0]):
-                    for j in range(self.table.shape[1]):
-                        self.game.remove_widget(self.game.LwCR[i][j])
-                        self.game.remove_widget(self.game.LwCJ[i][j])
-                        if self.table[i, j] == 1:
-                            self.game.add_widget(self.game.LwCR[i][j])
-                        if self.table[i, j] == 2:
-                            self.game.add_widget(self.game.LwCJ[i][j])
+    def firstPlayer(self,table): # tells who played the first move
+        n1 = np.count_nonzero(table == 1)
+        n2 = np.count_nonzero(table == 2)
+        if n1 >= n2:
+            P1 = '1'
+        else:
+            P1 = '2'
+        return P1
 
-
-    def pressB(self,instance):
-        if instance.text == self.pressText  or instance.text == self.restartText:
-            instance.text = "Ned is playing..."
-            self.colors = self.color2
-            self.colorsLine = self.colorLine2
-            instance.color = [1, 1, 1, 1]
-            self.delay = 1 / 30
-            try:
-                self.robot1 = Robot() # useful toaccess to ned's actions
-                self.action_bar.animate_wifi("green")
-                self.table = self.robot1.modif_table() # the robot look at the game and change the table according to the detected piece
-                grid = self.connect4.table_to_grid(self.table)
-                self.robot_connected = True
-                if not self.connect4.end(grid):
-                    self.first_end = False
-                    self.modifUI(instance,0)# update the displayed game according to the table
-                    self.ids.feuLose.source = "Connect4/image/feu3.png"
+    def thread_robot(self,instance):
+        try:
+            self.robot1 = Robot() # useful toaccess to ned's actions
+            self.action_bar.animate_wifi("green")
+            self.table = self.robot1.modif_table() # the robot look at the game and change the table according to the detected piece
+            self.fire("red") # change traffic light to red
+            self.first_end = False # if a game is restarted we want first_end to be false
+            self.modifUI(instance,0)# update the displayed game according to the table
+            self.robot_connected = True # True if the robot is connected
+        except:
+            self.robot_connected = False
+            t = threading.Thread(target=self.action_bar.animate_wifi,args=("red",))
+            t.start()
+        mode = var1.MODE # mode selected in the menu (see graphics.py)
+        level = var1.LEVEL # level selected in the menu (see graphics.py)
+        self.grid = self.connect4.table_to_grid(self.table)
+        if self.robot_connected:
+            if not self.connect4.end(self.grid): # if the game is not finished after the user played
+                self.P1 = self.firstPlayer(self.table) # determines who started to play
+                pos = self.detPos(mode, level) # determines the position of the piece that the robot should play
+                p,q = pos[0],pos[1]
+                self.table[p,q]=1 # change the current table to the one modified by the robot
+                self.robot1.place(q) # robot pick and place the piece to the position determined above
+                self.modifUI(instance,1,p,q)  # add the piece on UI and change text / color ....
+                if self.connect4.end(self.grid): # if the robot won after its play
+                    instance.text= self.releaseText
+                    self.modifUI(instance,2) # animation to tell the user the robot won
                 else:
-                    self.modifUI(instance,0)# update the displayed game according to the table
-                    self.colors = [185/256,0,0,1]
-                    self.ids.G1.anim_loop = 1
-                    instance.text = 'Enleve les pieces\npour recommencer'
-                    instance.color = [1,1,1,1]
-                    self.colorsLine = [1,1,1,1]
-            except:
-                self.robot_connected = False
-                t = threading.Thread(target=self.action_bar.animate_wifi,args=("red",))
-                t.start()
+                    instance.text = self.pressText # then, the user will be able to play
+                    self.fire("green")
+            else: # if the user won after he played (or he tries to play after an end has been detected)
+                instance.text = self.restartText
+                if self.first_end==False:
+                    # self.robot1.say_no()
+                    self.modifUI(instance,3) # traffic light blinks red
+                else:
+                    self.modifUI(instance,2)
+            self.robot1.robot.move_pose(self.robot1.home_pos)
+            self.robot1.robot.close_connection() # close the connection of the robot in order not to connect multiple times to the robot.
+            self.robot_connected = False
+            # Morever, we don't want the robot to be connected too long because it creates bugs
+        else :
+            pass
+        self.anim_loop = 1 # the animation of the robot is not looping
+        self.delay = 1/1000
+        time.sleep(0.5)
+        self.modifUI(instance,5) # update the displayed game according to the table
+        self.modifUI(instance,6) # change the text of the button to indicate that the user can play again
+
+    @mainthread
+    def modifUI(self,instance,i,p=0,q=0): # change the UI according to the parameter
+        if i == 0:
+            for h in range(self.table.shape[0]):
+                for j in range(self.table.shape[1]):
+                    self.game.remove_widget(self.game.LwCJ[h][j])
+                    self.game.remove_widget(self.game.LwCR[h][j])
+                    if self.table[h, j] == 1:
+                        self.game.add_widget(self.game.LwCR[h][j])
+                    if self.table[h, j] == 2:
+                        self.game.add_widget(self.game.LwCJ[h][j])
+        if i == 1:
+            self.game.add_widget(self.game.LwCR[p][q])
+        if i == 2:
+            self.animationFire('end')
+            instance.text = 'Enleve les pieces\npour recommencer'
+            self.ids.G1.anim_loop = 1
+            instance.color = [1, 1, 1, 1]
+            self.colorsLine = [1, 1, 1, 1]
+            self.colors = [240 / 256, 0, 0, 1]
+            self.first_end = True  # indicates that the end game has already been signaled to te user
+        if i == 3:
+            self.ids.G1._coreimage.anim_reset(True)
+            self.ids.G1.anim_loop = 1
+            self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
+            self.delay = 1 / 40
+            self.animationFire('redFire')
+            instance.color = [1,1,1,1]
+            self.colors = [1,0,0,1]
+        if i==4:
+            instance.text = self.releaseText # change text's button
+            instance.text = "Ned is playing..."
+            self.colors = self.color2 # change the color of the button
+            self.colorsLine = self.colorLine2 # change the color of the line
+            instance.color = [1, 1, 1, 1] # change the color of the text
+            self.delay = 1/33
+            self.anim_loop = 0
+        if i ==5:
+            self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
+            self.ids.G1.reload()
+            self.delay = 10000
+        if i == 6:
+            instance.text = ' Press when you \nfinished your move'
+            instance.color = [1,1,1, 1]
+            self.colors = self.color1
+            self.colorsLine = self.colorLine1
 
 
-    def det_pos(self,mode,level):
+    def pressB(self,instance): # when the button ispressed
+        cond = instance.text == self.pressText or instance.text == self.restartText
+        if cond and self.t1.is_alive() == False: # if the button is pressed when the user has finished his move or if the game is restarted
+            self.modifUI(instance,4)
+
+
+    def detPos(self,mode,level):
         self.ai = DQN(model_name=var1.model_name,softmax_=False,P1=self.P1)
         if mode == 'minimax':
             if level == 'novice':
@@ -201,7 +280,7 @@ class Connect4Game(BoxLayout):
                 self.depth = 3
             if level == 'expert':
                 self.depth = 4
-            pos = self.minmax.best_pos(self.table,self.depth)
+            pos = self.minimax.best_pos(self.table,self.depth)
         else:
             #return pos = self.ai.best_pos(self.table,self.P1) not ready for the moment
             pos = self.ai.best_pos(self.table)
@@ -211,78 +290,10 @@ class Connect4Game(BoxLayout):
 
 
     def releaseB(self,instance):
-        instance.text = ' Press when you \nfinished your move'
-        self.colors = self.color1
-        self.colorsLine = self.colorLine1
-        instance.color = [1,1,1,1]
-        if self.robot_connected:
-            self.ids.feuLose.source = "Connect4/image/feu%d.png" % int(self.ids.feuLose.image_num)
-            mode = var1.MODE
-            level = var1.LEVEL
-            grid = self.connect4.table_to_grid(self.table)
-            n1 = np.count_nonzero(self.table == 1)
-            n2 = np.count_nonzero(self.table == 2)
-            if n1>= n2: # On détermine quel réseau de neurone utiliser
-                self.P1 = '1'
-            else:
-                self.P1 = '2'
-            if instance.text == 'Ned is playing...':
-                if not self.connect4.end(grid):
-                    pos = self.det_pos(mode,level)
-                    p,q = pos[0],pos[1]
-                    self.table[p,q]=1
-                    self.robot1.place(pos[1])
-                    self.game.add_widget(self.game.LwCR[p][q])
-                    grid = self.connect4.table_to_grid(self.table)
-                    if self.connect4.end(grid):
-                        self.animationFire('end')
-                        instance.text = 'Enleve les pieces\npour recommencer'
-                        self.ids.G1.anim_loop = 1
-                        instance.color = [1, 1, 1, 1]
-                        self.colorsLine = [1, 1, 1, 1]
-                        self.colors = [240 / 256, 0, 0, 1]
-                        self.first_end = True
-                        if self.connect4.win(grid):
-                            #self.robot1.celebrate(1)
-                            pass
-                        if self.connect4.lose(grid):
-                            #self.robot1.celebrate(2)
-                            pass
-                    else:
-                        self.feu(1)
-                '''    if self.connect4.win(grid):
-                        self.robot1.celebrate(1)
-                    if self.connect4.lose(grid):
-                        self.robot1.celebrate(2)
-                else:
-                    if self.connect4.lose(grid):
-                        self.robot.celebration(2)
-                    else:
-                        self.robot.celebration(1)'''
-            else: # si la fin de la partie est détectée après le coup du joeur
-                print('ok')
-                self.colors = [240/256,0,0,1]
-                if self.first_end==False: # s'il appuie pour la première fois sur le bouton après avoir gagné
-                    print('firstend')
-                    self.animationFire('end')
-                    if self.connect4.win(grid):
-                        #self.robot1.celebration(1)
-                        pass
-                    if self.connect4.lose(grid):
-                        #self.robot1.celebration(2)
-                        pass
-                    if self.connect4.tie(grid):
-                        # self.robot1.celebration(3)
-                        pass
-                else:
-                    self.animationFire('redFire')
-                    self.ids.G1._coreimage.anim_reset(True)
-                    self.ids.G1.anim_loop = 1
-                    self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
-                    self.delay = 1/40
-                    self.robot1.say_no() #le robot dit non de la tête
-                self.first_end = True
-            self.robot1.robot.close_connection()
+        if instance.text == self.releaseText and self.t1.is_alive() == False: # if the button is released when the robot is playing
+            self.t1 = threading.Thread(target=self.thread_robot, args=(instance,))
+            self.feu_image = 'Morpion/image/feuLose/feu1.png'
+            self.t1.start()                  
 
 
 

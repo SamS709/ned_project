@@ -1,5 +1,4 @@
 from Connect4.AI.DQN import *
-from tqdm import tqdm
 import numpy as np
 import multiprocessing
 from kivy.clock import mainthread
