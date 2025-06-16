@@ -6,8 +6,10 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from Connect4.AI.DQN import DQN
+from Connect4.AI.Train import Train
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
+from kivy.graphics import Color, Rectangle, Line
 from kivy.clock import mainthread
 if __name__!=                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "__main__":
     from graphics import var1, App
@@ -47,7 +49,6 @@ class GetInfo:
         print(filepath)
         model = keras.models.load_model(filepath=filepath)
         cfg = model.get_config()
-        print(cfg)
         layers = cfg['layers']
         n_layers = len(layers)
         n_dense = 0
@@ -64,6 +65,7 @@ class GetInfo:
         info += f"Les {n_layers-n_dense} couches restantes sont là pour assurer que le modèle ait un fonctionnement optimal. "
         return info
 
+
 class InfoLabel(Label):
      
      line_width = NumericProperty(2)
@@ -72,6 +74,13 @@ class InfoLabel(Label):
      
      def __init__(self, **kwargs):
           super().__init__(**kwargs)
+
+
+class InfoLabelTrain(InfoLabel):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
         
     
 
@@ -87,13 +96,20 @@ class TestButton(Button):
          print(1)
 
 
-
+class ScrollableLabelTrain(ScrollView):
+    text = StringProperty('')
+    color = ListProperty([1,0,0,1])
 
 
 class ScrollableLabel(ScrollView):
 
+    font_size1 = NumericProperty(20)
     text = StringProperty('')
     color = ListProperty([1,0,0,1])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.font_size1 = 0.2*self.width
 
 
 class ScrollingMenu(BoxLayout):
@@ -119,6 +135,29 @@ class ScrollingMenu(BoxLayout):
         pass
 
 
+class ScrollableBoxes(BoxLayout):
+
+    line_width = NumericProperty(2)
+    background_color = ListProperty([112 / 256, 159 / 265, 256 / 256, 1])
+    line_button_color = ListProperty([1,1,1,1])
+
+    def __init__(self,D_models={}, **kwargs):
+        super().__init__(**kwargs)
+        self.D_models = D_models
+        self.scroll = ScrollView(size_hint=(1,1))
+        self.layout = BoxLayout(padding = [0,10,0,10], orientation="vertical",spacing=5, size_hint_y=None )
+        self.layout.bind(minimum_height=self.layout.setter('height'))
+        box=BoxLayout(size_hint_y=None, height=20)
+        lbl = Label(size_hint_y=None, height=20, text = "Modeles en cours d'entraînement:")
+        box.add_widget(lbl)
+        self.layout.add_widget(box)
+        self.scroll.add_widget(self.layout)
+        self.add_widget(self.scroll)
+        
+
+
+
+
 class ChooseAIModel(BoxLayout):
 
     Background_color = ListProperty([182 / 256, 229 / 265, 246 / 256, 1])
@@ -131,6 +170,7 @@ class ChooseAIModel(BoxLayout):
     def on_kv_post(self, base_widget):
         self.getInfo = GetInfo(self.game)
         self.scroll_menu = ScrollingMenu()
+        self.info_box = self.ids.info_box
         self.scroll_menu.press_refresh = self.press_refresh
         self.scroll_menu.release_refresh = self.release_refresh
         self.scroll = self.scroll_menu.ids.scroll 
@@ -218,11 +258,11 @@ class ChooseAIModel(BoxLayout):
         except:
              info = "Erreur de chargement des informations"
         self.info_label.text = info
-        print(info)
 
 class CreateNewModel(ChooseAIModel):
     def __init__(self, **kwargs):
           super().__init__(**kwargs)
+
     
 
     def on_kv_post(self, base_widget):
@@ -231,12 +271,12 @@ class CreateNewModel(ChooseAIModel):
         self.getInfo = GetInfo(self.game)
         self.model_name = ""
         self.bottom_box =  self.ids.bottom_box
+        self.menu_train = MenuTrain(self.on_release_cancel_new, self.info_label,self.log_label,self.bottom_box,self.info_box)
         self.info_input = MenuInput(
     self.on_release_cancel_new,
-    self.on_release_validate_new,
     self.info_label,
     self.log_label,
-    bottom_box=self.bottom_box  # <-- add this
+    bottom_box=self.bottom_box 
 )
         self.update_texts_and_buttons()
     
@@ -297,8 +337,6 @@ class CreateNewModel(ChooseAIModel):
                 self.log_label.text = "\n[ERREUR] Le modele n'a pas pu etre créé \nErreur inconnue !"
             self.load_button_list()
 
-
-
     def on_release_cancel_new(self):
         self.scroll_box.clear_widgets()
         self.scroll_box.add_widget(self.scroll_menu)
@@ -333,17 +371,20 @@ class CreateNewModel(ChooseAIModel):
     def log_error(self,i):
         if i == 1:
             self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-            self.log_label.text+="\n[ERREUR] Impossible de supprimer le modele "+str(self.model_name)
+            self.log_label.text+"\n[ERREUR] Impossible de supprimer le modele "+str(self.model_name) + self.log_label.text
         if i == 2:
             self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-            self.log_label.text+="\n[ERREUR] Impossible de supprimer les modeles presents par defaut"
+            self.log_label.text="\n[ERREUR] Impossible de supprimer les modeles presents par defaut" + self.log_label.text
 
 
     def on_press(self, instance):
+        global MODEL_NAME
         for btn in self.L_buttons:
              btn.button_color = [182 / 256, 229 / 265, 246 / 256, 1]
         instance.button_color = [82 / 256, 129 / 265, 256 / 256, 1]
         self.model_name = instance.text
+        MODEL_NAME = instance.text
+        print(MODEL_NAME)
         self.train.button_color = BLUE
         self.delete.button_color = RED
     
@@ -357,7 +398,6 @@ class CreateNewModel(ChooseAIModel):
             self.scroll_box.clear_widgets()
             self.info_label.text = f"Nom du modèle: \n\n\n\nNombre de couches: \n\n\n\nNombre de neurones par couche: \n\n\n\nNombre total de neurones: \n\n"
             #self.scroll_box.padding = [0,0,0,0]
-            self.menu_train = MenuTrain(self.on_release_cancel_new, self.on_release_validate_new, self.info_label,self.log_label,self.bottom_box)
             self.scroll_box.add_widget(self.menu_train)
         
     
@@ -451,15 +491,16 @@ class MenuInput(BoxLayout):
 
 
 
-    def __init__(self, on_release_cancel,on_release_validate,info_label,log_label,bottom_box, **kwargs):
+    def __init__(self, on_release_cancel,info_label,log_label,bottom_box,on_release_validate=None, **kwargs):
         self.on_release_cancel_ = on_release_cancel
-        self.on_release_validate = on_release_validate
+        if on_release_validate is not None:
+            self.on_release_validate = on_release_validate
         self.info_label = info_label
         self.log_label = log_label
         self.bottom_box = bottom_box
         super().__init__(**kwargs)
     
-    def log_error(self,i):
+    def log_info(self,i):
         self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
         if i== 0:
             self.log_label.text="\n[ERREUR] Le nom du modele ne peut pas etre vide."+self.log_label.text
@@ -475,15 +516,15 @@ class MenuInput(BoxLayout):
 
     def set_on_press0(self):
         if self.children[1].children[2].children[0].children[1].text == "":
-            self.log_error(0)
+            self.log_info(0)
             self.button_set_color0 = LIGHT_RED
         else:
             self.button_set_color0 = DARK_GREEN
             self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
 
     def set_on_press1(self):
-        if self.children[1].children[1].children[0].children[1].text == "" or int(self.children[1].children[1].children[0].children[1].text) < 1 or int(self.children[1].children[1].children[0].children[1].text) > 512:
-            self.log_error(1)
+        if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 1 or float(self.children[1].children[1].children[0].children[1].text) > 512:
+            self.log_info(1)
             self.button_set_color1 = LIGHT_RED
         else:
             self.button_set_color1 = DARK_GREEN
@@ -491,8 +532,8 @@ class MenuInput(BoxLayout):
 
 
     def set_on_press2(self):
-        if self.children[1].children[1].children[0].children[1].text == "" or int(self.children[1].children[0].children[0].children[1].text) < 1 or int(self.children[1].children[0].children[0].children[1].text) > 10:
-            self.log_error(2)
+        if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[0].children[0].children[1].text) < 1 or float(self.children[1].children[0].children[0].children[1].text) > 10:
+            self.log_info(2)
             self.button_set_color2 = LIGHT_RED
         else:
             self.button_set_color2 = DARK_GREEN
@@ -529,25 +570,46 @@ class MenuInput(BoxLayout):
         if instance.button_color == GREEN:
             instance.button_color = DARK_GREEN
 
+class InfoBoxLayout(BoxLayout):
+    line_width = NumericProperty(2)
+    background_color = ListProperty([112 / 256, 159 / 265, 256 / 256, 1])
+    line_button_color = ListProperty([1,1,1,1])
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
 class MenuTrain(MenuInput):
-    def __init__(self,on_release_cancel,on_release_validate,info_label,log_label,bottom_box, **kwargs):
-        super().__init__(on_release_cancel,on_release_validate,info_label,log_label,bottom_box,**kwargs)
+
+    def __init__(self,on_release_cancel,info_label,log_label,bottom_box,info_box, **kwargs):
+        super().__init__(on_release_cancel,info_label,log_label,bottom_box,**kwargs)
         self.button_set_color0 = LIGHT_GREEN
         self.button_set_color1 = LIGHT_GREEN
         self.button_set_color2 = LIGHT_GREEN
+        self.info_box = info_box
+        infoboxlayout = InfoBoxLayout(padding = [4,4,4,4])
+        infoboxlayout.add_widget(self.scrollable_label)
+        self.info_box.add_widget(infoboxlayout)
+        self.L_training = [] # dict of the models currently training {model_name: n_epochs}
     
     def on_kv_post(self, base_widget):
         global MODEL_NAME
+        self.scrollable_label = ScrollableBoxes()
+        self.scrollable_label.font_size1 = 0.1*self.width
         super().on_kv_post(base_widget)
         self.text1 = "Nombre d'epoques"
         self.text2 = "Taux d'apprentissage"
         self.text3 = "Facteur de reduction"
-        self.filter = "int"
+        self.filter1 = "int"
+        self.filter2 = "float"
         self.titre = "Entraîne le modèle" + MODEL_NAME
         self.green_text = "Entraîner"
+        self.epochs = None
+        self.learning_rate = None
+        self.discount_factor = None
+        self.validate_color = LIGHT_GREEN
         self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}: \n\n"
-        
-    def log_error(self,i):
+
+    @mainthread
+    def log_info(self,i,model_name = ""):
         self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
         if i == 0:
             self.log_label.text = "\n[ERREUR] Le nombre d'epoques doit être compris entre 1 et 10000."+self.log_label.text
@@ -555,35 +617,106 @@ class MenuTrain(MenuInput):
             self.log_label.text = "\n[ERREUR] Le taux d'apprentissage doit être compris entre 0.00001 et 0.1"+self.log_label.text
         if i == 2:
             self.log_label.text = "\n[ERREUR] Le facteur de réduction doit être compris entre 0.1 et 0.999"+self.log_label.text
+        if i == 3:
+            self.log_label.text = "\n[ERREUR] Tu dois remplir tous les champs avec une valeur valide avant de lancer l'entraînement."+self.log_label.text
+        if i == 4:
+            self.log_label.text = "\n[ERREUR] Ce modèle est déjà en cours d'entraînement."+self.log_label.text
+        if i == 5:
+            self.log_label.text = "\n[color=3EB64B][INFO] L'entraînement du modèle "+model_name+" a été lancé avec succès.[/color]"+self.log_label.text
+        if i == 6:
+            self.log_label.text = "\n[color=3EB64B][INFO] L'entraînement du modèle "+model_name+" est terminé.[/color]"+self.log_label.text
+        if i == 7:
+            self.log_label.text = "\n[ERREUR] Tu ne peux pas entraîner plus de 3 modeles a la fois."+self.log_label.text
+
     
     def set_on_press0(self):
         if self.children[1].children[2].children[0].children[1].text == "" or int(self.children[1].children[2].children[0].children[1].text) < 1 or int(self.children[1].children[2].children[0].children[1].text) > 10000:
-            self.log_error(0)
+            self.log_info(0)
             self.button_set_color0 = LIGHT_RED
+            self.epochs = None
         else:
-            super().set_on_press0()
+            if self.button_set_color1 == GREEN and self.button_set_color2 == GREEN:
+                self.validate_color = GREEN
+            self.epochs = int(self.children[1].children[2].children[0].children[1].text)
             self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
 
     def set_on_press1(self):
         if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 0.00001 or float(self.children[1].children[1].children[0].children[1].text) > 0.1:
-            self.log_error(1)
+            self.log_info(1)
             self.button_set_color1 = LIGHT_RED
+            self.learning_rate = None
         else:
-            super().set_on_press1()
+            if self.button_set_color0 == GREEN and self.button_set_color2== GREEN:
+                self.validate_color = GREEN
+            self.learning_rate = float(self.children[1].children[1].children[0].children[1].text)
             self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
 
     def set_on_press2(self):
         if self.children[1].children[0].children[0].children[1].text == "" or float(self.children[1].children[0].children[0].children[1].text) < 0.1 or float(self.children[1].children[0].children[0].children[1].text) > 0.999:
-            self.log_error(2)
+            self.log_info(2)
             self.button_set_color2 = LIGHT_RED
+            self.discount_factor = None
         else:
-            super().set_on_press2()
+            if self.button_set_color1 == GREEN and self.button_set_color0 == GREEN:
+                self.validate_color = GREEN
+            self.discount_factor = float(self.children[1].children[0].children[0].children[1].text)
             self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
 
     def on_press_validate(self,instance):
         if instance.button_color == LIGHT_GREEN:
+            if self.children[1].children[2].children[0].children[1].text == "" or int(self.children[1].children[2].children[0].children[1].text) < 1 or int(self.children[1].children[2].children[0].children[1].text) > 10000:
+                pass
+            else:
+                self.epochs = int(self.children[1].children[2].children[0].children[1].text)
+            if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 0.00001 or float(self.children[1].children[1].children[0].children[1].text) > 0.1:
+                pass
+            else:
+                self.learning_rate = float(self.children[1].children[1].children[0].children[1].text)
+            if self.children[1].children[0].children[0].children[1].text == "" or float(self.children[1].children[0].children[0].children[1].text) < 0.1 or float(self.children[1].children[0].children[0].children[1].text) > 0.999:    
+                pass
+            else:    
+                self.discount_factor = float(self.children[1].children[0].children[0].children[1].text)
             instance.button_color = DARK_GREEN
+        if instance.button_color == GREEN:
+            instance.button_color = DARK_GREEN
+    
+    def on_release_validate(self,instance):
+        if instance.button_color == DARK_GREEN:
+            if self.epochs is not None and self.learning_rate is not None and self.discount_factor is not None and MODEL_NAME not in self.L_training and len(self.L_training) < 3:
+                lbl = Label(size_hint_y=None, height=50, text = "Nom du modèle: "+str(MODEL_NAME) + "\n\nNombre d'epoques: 0")
+                box = BoxLayoutWithLine(size_hint_y=None, height=60)
+                box.add_widget(lbl)
+                self.L_training.append(MODEL_NAME)
+                self.scrollable_label.layout.add_widget(box)                
+                t = threading.Thread(target=self.train, args=(self.epochs, self.learning_rate, self.discount_factor,lbl,box))
+                t.start()
+                self.log_info(5, MODEL_NAME)
+            elif MODEL_NAME in self.L_training:
+                self.log_info(4)     
+            elif len(self.L_training) >= 3:
+                self.log_info(7)
+            else:
+                self.log_info(3)
+            instance.button_color = LIGHT_GREEN
 
+    def train(self, epochs, learning_rate, discount_factor,lbl,box):
+        global MODEL_NAME
+        if True:
+            print(MODEL_NAME)
+            print(lbl.text)
+            model_name = MODEL_NAME
+            trainer = Train(model_name=MODEL_NAME,learning_rate=learning_rate,discount_factor=discount_factor,info_label=lbl,scrollable_lablel=self.scrollable_label,box = box)
+            trainer.P1vsP2(epochs)
+            self.log_info(6, model_name)
+            self.L_training.remove(model_name)
+    
+class BoxLayoutWithLine(BoxLayout):
+    line_width = NumericProperty(2)
+    background_color = ListProperty([112 / 256, 159 / 265, 256 / 256, 1])
+    line_button_color = ListProperty([1,1,1,1])
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
 class ai_models_interfaceApp(App):
       def build(self):
@@ -594,7 +727,9 @@ if __name__!="__main__":
     Builder.load_file('ai_models_interface.kv')
 
 if __name__=="__main__":
-      var1 = 1
-      #model = keras.models.load_model(filepath="C:\Dev\ned_project\Connect4\AI\models\my_linear_model1")
-      ai_models_interfaceApp().run()
+    var1 = 1
+    #model = keras.models.load_model(filepath="C:\Dev\ned_project\Connect4\AI\models\my_linear_model1")
+    ai_models_interfaceApp().run()
+    """train = Train(reset=False, model_name="ELO", softmax_=False, eps=0.5)
+    train.P1vsP2(100)"""
 

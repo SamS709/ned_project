@@ -40,6 +40,8 @@
                         font_name: "fonts/pixel.TTF"
                         text: "Infos sur le modele"
                 BoxLayout:
+                    id: info_box
+                    orientation: "vertical"
                     size_hint: 1, 0.7
                     InfoLabel:
                         id: info_label
@@ -62,69 +64,6 @@
                 size_hint : 0.5, 1
     
     
-
-
-<ScrollingMenu2@BoxLayout>:
-    orientation : 'vertical'
-    canvas.before:
-        Color:
-            rgba : root.Background_color
-        Rectangle:
-            pos : self.pos
-            size : self.size
-    canvas:
-        Color:
-            rgba : root.TA_color
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [30]
-        Color:
-            rgba : root.TitleArea_color
-        RoundedRectangle:
-            size: self.width,0.25*self.height
-            pos : self.pos[0], 0.75*self.height + self.pos[1]
-            radius : [(30, 30), (30, 30), (0,0), (0,0)]
-        Color:
-            rgba : root.Line_color
-        Line:
-            rounded_rectangle : self.x+2, self.y+2, self.width-4, self.height-4, 28, 28, 28, 28, 100
-            width : 2
-        Line:
-            points : self.x+2,self.y+0.75*self.height,self.x+self.width-2,self.y+0.75*self.height
-            width : 2
-    BoxLayout:
-        size_hint : 1,0.45
-        padding : 0,0,0.02*self.width,0.2*self.height
-        Label:
-            id: left_title
-            text_size : 0.8*self.width,self.height
-            halign : 'center'
-            valign : 'middle'
-            color : 115/256,63/256,11/256,1
-            text : root.title
-            font_size : 0.07*self.width
-            font_name: "fonts/pixel.TTF"
-            markup : True
-        Button:
-            canvas.before:
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-                    source: "images/refresh.png"
-            size_hint: None,0.5
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
-            width: self.height
-            background_color : [1,1,1,0]
-            on_press : root.press_refresh(self)
-            on_release:  root.release_refresh(self)
-
-    BoxLayout:        
-        orientation:'vertical'
-        padding:self.width/15,2.7,self.width/15,4
-        ScrollView:
-            size_hint:1,1
-            id: scroll
 
 <ScrollingMenu>:
     orientation : 'vertical'
@@ -192,12 +131,50 @@
             size_hint:1,1
             id: scroll
 
+<BoxLayoutWithLine>:
+    canvas.before:
+        Color:
+            rgba : root.background_color
+        Rectangle:
+            size: self.size
+            pos : self.pos
+        Color:
+            rgba: root.line_button_color
+        Line:
+            points: self.x+self.width/5,self.y,self.width*4/5,self.y
+
+<InfoBoxLayout>:
+    canvas.before:
+        Color:
+            rgba: root.background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+        Color:
+            rgba: root.line_button_color
+        Line:
+            width : root.line_width
+            rectangle : self.x+root.line_width, self.y+root.line_width, self.width-2*root.line_width, self.height-2*root.line_width
+
+
+
+<ScrollableLabelTrain>:
+    InfoLabel:
+        markup : True
+        color: root.color
+        text: root.text
+        font_size: 0.02*self.width
+        text_size: self.width, None
+        size_hint_y: None
+        height: self.height
+
+
 <ScrollableLabel>:
     Label:
         markup : True
         color: root.color
         text: root.text
-        font_size: 0.02*self.width
+        font_size: root.font_size1
         text_size: self.width, None
         size_hint_y: None
         height: self.texture_size[1]
@@ -228,7 +205,8 @@
     text3 : "Nombre de neurones par couche"
     green_text : "Creer"
     titre : "Créé ton modele"
-    filter : None
+    filter1 : None
+    filter2 : 'int'
     BoxLayout:
         size_hint : 1,0.3
         padding: 0,0,0,0.1*self.height
@@ -239,21 +217,21 @@
         cols: 1
         rows: 3
         InfoInput:
-            filter : root.filter
+            filter : root.filter1
             button_set_color : root.button_set_color0
             press : root.set_on_press0
             release : root.set_on_release0
             text_input : root.text_input0
             text: root.text1
         InfoInput:
-            filter : "int"
+            filter : root.filter2
             button_set_color : root.button_set_color1
             press : root.set_on_press1
             release : root.set_on_release1
             text_input : root.text_input1
             text : root.text2
         InfoInput:
-            filter : "int"
+            filter : root.filter2
             button_set_color : root.button_set_color2
             press : root.set_on_press2
             release : root.set_on_release2
@@ -290,6 +268,15 @@
         Line:
             width : root.line_width
             rectangle : self.x+root.line_width, self.y+root.line_width, self.width-2*root.line_width, self.height-2*root.line_width
+
+<InfoLabelTrain>:
+    markup : True
+    color: root.color
+    text: root.text
+    font_size: 0.02*self.width
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[1]
 
 <IBeamTextInput>:   
         
@@ -342,4 +329,4 @@
             
 
 
-    
+<ScrollableBoxes>:

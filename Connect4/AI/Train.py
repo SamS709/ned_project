@@ -2,18 +2,33 @@ from Connect4.AI.DQN import *
 from tqdm import tqdm
 import numpy as np
 import multiprocessing
+from kivy.clock import mainthread
 
 N_LEARNING = 0
 
-class TF_Play(Connect4):
+class Train(Connect4):
 
-    def __init__(self,reset,model_name,softmax_,eps = 0.5):
+    def __init__(self,model_name,info_label,scrollable_lablel,box,reset=False,learning_rate=0.5e-3,discount_factor=0.98,softmax_=False,eps = 0.5):
         super().__init__()
-        self.dqnP1 = TF_DQN(reset = reset, eps = eps, P1='1',learning_rate=0.5e-3,gamma=0.8,model_name=model_name,softmax_=softmax_)
-        self.dqnP2 = TF_DQN(reset = reset, eps = eps, P1='2',learning_rate=0.5e-3,gamma=0.8,model_name=model_name,softmax_=softmax_)
+        self.dqnP1 = DQN(reset = reset, eps = eps, P1='1',learning_rate=learning_rate,gamma=discount_factor,model_name=model_name,softmax_=softmax_)
+        self.dqnP2 = DQN(reset = reset, eps = eps, P1='2',learning_rate=learning_rate,gamma=discount_factor,model_name=model_name,softmax_=softmax_)
+        self.info_label = info_label
+        self.model_name = model_name
+        self.scrollable_lablel = scrollable_lablel
+        self.box = box
+
+    @mainthread
+    def modif_label(self,i,N=1):
+        if N==1:
+            self.info_label.text = "Nom du modèle: " + str(self.model_name) + "\n\nNombre d'epoques: " + str(i+1) + " / "+str(self.N)
+        if N==2:
+            self.scrollable_lablel.layout.remove_widget(self.box)
+
 
     def P1vsP2(self,N):
-        for i in tqdm(range(N)):
+        self.N=N
+        for i in range(N):
+            self.modif_label(i,N=1)
             grid = np.array([0 for i in range(42)])
             new_grid = grid.copy()
             DX1 = np.array([])
@@ -54,7 +69,7 @@ class TF_Play(Connect4):
                 self.dqnP2.target.set_weights(self.dqnP2.model.get_weights())
                 self.dqnP1.model.save(self.dqnP1.model_name+"1",overwrite=True) # par sécurité, on enregistre lemodel une fois toutes les 10 paries
                 self.dqnP2.model.save(self.dqnP2.model_name+"2",overwrite=True)
-
+        self.modif_label(i=N,N=2)
 
 
 
@@ -86,7 +101,7 @@ class TF_Play(Connect4):
 
 if __name__=='__main__':
     #play1 = TF_Play(reset = False, eps=0.5, model_name="my_simple_model",softmax_=True)
-    play2 = TF_Play(reset = False, eps=0.5, model_name="my_linear_model",softmax_=False)
+    play2 = Train(reset = False, eps=0.5, model_name="my_linear_model",softmax_=False)
     play = play2
     """for i in range(1):
         play.learn_multiple(10)"""

@@ -28,4 +28,7 @@ if __name__!="__main__":
 
 if __name__=="__main__":
       #model = keras.models.load_model(filepath="C:\Dev\ned_project\Connect4\AI\models\my_linear_model1")
-      testApp().run()
+      #testApp().run()
+      L = ["a"]
+      L.remove("a")
+      print(L)

@@ -1,3 +1,5 @@
+from silence_tensorflow import silence_tensorflow
+silence_tensorflow("ERROR")
 import random
 import os
 from tensorflow import keras
@@ -265,11 +267,11 @@ class DQN(Connect4):
         reward = np.tanh(S/2)/2
         return reward
 
-"""for i in range(10):
+for i in range(10):
     DQN(reset=False,model_name="model"+str(i),softmax_=False,P1="1")
     DQN(reset=False,model_name="model"+str(i),softmax_=False,P1="2")
 
-DQN(reset=False,model_name="Expert",softmax_=False,P1="1")"""
+DQN(reset=False,model_name="Expert",softmax_=False,P1="1")
 
 """    table = np.array([[0,0,0,0,0,0,0],
                         [0,0,0,0,0,0,0],
