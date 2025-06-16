@@ -22,10 +22,10 @@ Removed sections:
 <div align="center">
 
   <img src="images/readme/logo.png" alt="logo" width="200" height="auto" />
-  <h1>Rroject: Robotic Arm playing games </h1>
+  <h1>Project: Robotic Arm playing games </h1>
   
   <p>
-    An awesome README template for your projects! 
+    A way to have fun with your Ned2 Nyrio Robot !
   </p>
 
   
