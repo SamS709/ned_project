@@ -7,7 +7,7 @@ N_LEARNING = 0
 
 class Train(Connect4):
 
-    def __init__(self,model_name,info_label,scrollable_lablel,box,reset=False,learning_rate=0.5e-3,discount_factor=0.98,softmax_=False,eps = 0.5):
+    def __init__(self,model_name,info_label,scrollable_lablel,box,pb,reset=False,learning_rate=0.5e-3,discount_factor=0.98,softmax_=False,eps = 0.5):
         super().__init__()
         self.dqnP1 = DQN(reset = reset, eps = eps, P1='1',learning_rate=learning_rate,gamma=discount_factor,model_name=model_name,softmax_=softmax_)
         self.dqnP2 = DQN(reset = reset, eps = eps, P1='2',learning_rate=learning_rate,gamma=discount_factor,model_name=model_name,softmax_=softmax_)
@@ -15,11 +15,13 @@ class Train(Connect4):
         self.model_name = model_name
         self.scrollable_lablel = scrollable_lablel
         self.box = box
+        self.pb = pb
 
     @mainthread
     def modif_label(self,i,N=1):
         if N==1:
-            self.info_label.text = "Nom du modèle: " + str(self.model_name) + "\n\nNombre d'epoques: " + str(i+1) + " / "+str(self.N)
+            self.info_label.text = "Nom du modèle: " + str(self.model_name) + "\nNombre d'epoques: " + str(i+1) + " / "+str(self.N)
+            self.pb.value = (i+1)/self.N*self.pb.max
         if N==2:
             self.scrollable_lablel.layout.remove_widget(self.box)
 
@@ -66,8 +68,8 @@ class Train(Connect4):
                 print(1)
                 self.dqnP1.target.set_weights(self.dqnP1.model.get_weights()) # Le model target s'acualise seulement tous les 10 parties
                 self.dqnP2.target.set_weights(self.dqnP2.model.get_weights())
-                self.dqnP1.model.save(self.dqnP1.model_name+"1",overwrite=True) # par sécurité, on enregistre lemodel une fois toutes les 10 paries
-                self.dqnP2.model.save(self.dqnP2.model_name+"2",overwrite=True)
+                self.dqnP1.model.save(self.dqnP1.dir_path,overwrite=True) # par sécurité, on enregistre lemodel une fois toutes les 10 paries
+                self.dqnP2.model.save(self.dqnP2.dir_path,overwrite=True)
         self.modif_label(i=N,N=2)
 
 

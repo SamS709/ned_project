@@ -9,6 +9,7 @@ from Connect4.AI.DQN import DQN
 from Connect4.AI.Train import Train
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
+from kivy.uix.progressbar import ProgressBar
 from kivy.graphics import Color, Rectangle, Line
 from kivy.clock import mainthread
 if __name__!=                                                                                                                                                                                                                                                                                                                                                                                                                                                                               "__main__":
@@ -32,6 +33,13 @@ LIGHT_BLUE = [182 / 256, 229 / 265, 246 / 256, 1]
 BLUE = [112 / 256, 159 / 265, 256 / 256, 1]
 DARK_BLUE = [82 / 256, 129 / 265, 256 / 256, 1]
 MODEL_NAME = ""
+
+class ThemedProgressBar(ProgressBar):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+
 class GetInfo:
      
      def __init__(self,game="Connect4"):
@@ -91,14 +99,7 @@ class TestButton(Button):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.getInfo = GetInfo()
-    
-    def on_press(self):
-         print(1)
 
-
-class ScrollableLabelTrain(ScrollView):
-    text = StringProperty('')
-    color = ListProperty([1,0,0,1])
 
 
 class ScrollableLabel(ScrollView):
@@ -145,7 +146,7 @@ class ScrollableBoxes(BoxLayout):
         super().__init__(**kwargs)
         self.D_models = D_models
         self.scroll = ScrollView(size_hint=(1,1))
-        self.layout = BoxLayout(padding = [0,10,0,10], orientation="vertical",spacing=5, size_hint_y=None )
+        self.layout = BoxLayout(padding = [5,10,5,10], orientation="vertical",spacing=5, size_hint_y=None )
         self.layout.bind(minimum_height=self.layout.setter('height'))
         box=BoxLayout(size_hint_y=None, height=20)
         lbl = Label(size_hint_y=None, height=20, text = "Modeles en cours d'entraînement:")
@@ -276,7 +277,8 @@ class CreateNewModel(ChooseAIModel):
     self.on_release_cancel_new,
     self.info_label,
     self.log_label,
-    bottom_box=self.bottom_box 
+    bottom_box=self.bottom_box,
+    on_release_validate=self.on_release_validate_new, 
 )
         self.update_texts_and_buttons()
     
@@ -523,7 +525,7 @@ class MenuInput(BoxLayout):
             self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
 
     def set_on_press1(self):
-        if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 1 or float(self.children[1].children[1].children[0].children[1].text) > 512:
+        if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 1 or float(self.children[1].children[1].children[0].children[1].text) > 10:
             self.log_info(1)
             self.button_set_color1 = LIGHT_RED
         else:
@@ -532,7 +534,7 @@ class MenuInput(BoxLayout):
 
 
     def set_on_press2(self):
-        if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[0].children[0].children[1].text) < 1 or float(self.children[1].children[0].children[0].children[1].text) > 10:
+        if self.children[1].children[0].children[0].children[1].text == "" or float(self.children[1].children[0].children[0].children[1].text) < 1 or float(self.children[1].children[0].children[0].children[1].text) > 512:
             self.log_info(2)
             self.button_set_color2 = LIGHT_RED
         else:
@@ -683,12 +685,14 @@ class MenuTrain(MenuInput):
     def on_release_validate(self,instance):
         if instance.button_color == DARK_GREEN:
             if self.epochs is not None and self.learning_rate is not None and self.discount_factor is not None and MODEL_NAME not in self.L_training and len(self.L_training) < 3:
-                lbl = Label(size_hint_y=None, height=50, text = "Nom du modèle: "+str(MODEL_NAME) + "\n\nNombre d'epoques: 0")
-                box = BoxLayoutWithLine(size_hint_y=None, height=60)
+                lbl = Label(size_hint_y=0.7, text = "Nom du modèle: "+str(MODEL_NAME) + "\nNombre d'epoques: 0 / "+str(self.epochs), font_size=0.05*self.width)
+                pb = ThemedProgressBar(size_hint_y=0.3, max=self.epochs, value=0)
+                box = InfoBoxLayout(orientation = "vertical",size_hint_y=None, height=80)
                 box.add_widget(lbl)
+                box.add_widget(pb)
                 self.L_training.append(MODEL_NAME)
                 self.scrollable_label.layout.add_widget(box)                
-                t = threading.Thread(target=self.train, args=(self.epochs, self.learning_rate, self.discount_factor,lbl,box))
+                t = threading.Thread(target=self.train, args=(self.epochs, self.learning_rate, self.discount_factor,lbl,box,pb))
                 t.start()
                 self.log_info(5, MODEL_NAME)
             elif MODEL_NAME in self.L_training:
@@ -699,13 +703,13 @@ class MenuTrain(MenuInput):
                 self.log_info(3)
             instance.button_color = LIGHT_GREEN
 
-    def train(self, epochs, learning_rate, discount_factor,lbl,box):
+    def train(self, epochs, learning_rate, discount_factor,lbl,box,pb):
         global MODEL_NAME
         if True:
             print(MODEL_NAME)
             print(lbl.text)
             model_name = MODEL_NAME
-            trainer = Train(model_name=MODEL_NAME,learning_rate=learning_rate,discount_factor=discount_factor,info_label=lbl,scrollable_lablel=self.scrollable_label,box = box)
+            trainer = Train(model_name=MODEL_NAME,learning_rate=learning_rate,discount_factor=discount_factor,info_label=lbl,scrollable_lablel=self.scrollable_label,box = box,pb = pb)
             trainer.P1vsP2(epochs)
             self.log_info(6, model_name)
             self.L_training.remove(model_name)

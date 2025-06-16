@@ -1,34 +1,29 @@
-from kivy.uix.button import Button
 from kivy.app import App
 from kivy.lang import Builder
 
-class test(Button):
-      
-        def __init__(self, **kwargs):
-                super(test, self).__init__(**kwargs)
-                self.text = "Test Button"
-                self.size_hint = (None, None)
-                self.size = (200, 50)
-        
-        def on_press(self):
-            print(self.state)
+KV = '''
+BoxLayout:
+    orientation: 'vertical'
+    padding: 40
+    spacing: 20
 
-        def on_release(self):
-            print(self.state)
-            
+    ThemedProgressBar:
+        id: pb
+        bar_color: 0.3, 0.7, 0.4, 0  # Example color
+        border_color: 1, 1, 1, 0
 
+    Button:
+        text: "Increase"
+        size_hint_y: None
+        height: 40
+        on_press: pb.value = min(pb.value + 10, pb.max)
+'''
 
-class testApp(App):
-      def build(self):
-            return test()
-      
+Builder.load_file('test.kv')
 
-if __name__!="__main__":
-    Builder.load_file('ai_models_interface.kv')
+class DemoApp(App):
+    def build(self):
+        return Builder.load_string(KV)
 
-if __name__=="__main__":
-      #model = keras.models.load_model(filepath="C:\Dev\ned_project\Connect4\AI\models\my_linear_model1")
-      #testApp().run()
-      L = ["a"]
-      L.remove("a")
-      print(L)
+if __name__ == '__main__':
+    DemoApp().run()

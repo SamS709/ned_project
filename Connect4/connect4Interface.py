@@ -211,8 +211,8 @@ class Connect4Game(BoxLayout):
             pass
         self.anim_loop = 1 # the animation of the robot is not looping
         self.delay = 1/1000
-        time.sleep(0.5)
-        self.modifUI(instance,5) # update the displayed game according to the table
+        time.sleep(2)
+        #self.modifUI(instance,5) # update the displayed game according to the table
         self.modifUI(instance,6) # change the text of the button to indicate that the user can play again
 
     @mainthread
@@ -252,10 +252,6 @@ class Connect4Game(BoxLayout):
             instance.color = [1, 1, 1, 1] # change the color of the text
             self.delay = 1/33
             self.anim_loop = 0
-        if i ==5:
-            self.ids.G1.source = 'Morpion/gifs/bras-robotique-gros.gif'
-            self.ids.G1.reload()
-            self.delay = 10000
         if i == 6:
             instance.text = ' Press when you \nfinished your move'
             instance.color = [1,1,1, 1]

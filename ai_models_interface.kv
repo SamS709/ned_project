@@ -1,5 +1,42 @@
 #:import box_layout_with_action_bar box_layout_with_action_bar
 
+#:set LIGHT_GREEN  [169 / 256, 221 / 256, 175 / 256, 1]
+#:set GREEN  [62 / 256, 182 / 256, 75 / 256, 1]
+#:set DARK_GREEN  [16 / 256, 118 / 256, 0, 1]
+#:set LIGHT_RED  [256/256,187/256,187/256,1]
+#:set RED  [237/256,79/256,79/256,1]
+#:set DARK_RED  [170/256,14/256,14/256,1]
+#:set LIGHT_BLUE  [182 / 256, 229 / 265, 246 / 256, 1]
+#:set BLUE  [112 / 256, 159 / 265, 256 / 256, 1]
+#:set DARK_BLUE  [82 / 256, 129 / 265, 256 / 256, 1]
+
+
+<ThemedProgressBar>:
+    bar_color: 0,0,0,0  # Change to your preferred fill color
+    border_color: 0,0,0,0  # Change to your preferred border color
+    background_normal: ""
+    max: self.width
+    height: 30
+    size_hint_y: None
+    canvas:
+        Color:
+            rgba: BLUE
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [22]
+        Color:
+            rgba: LIGHT_BLUE
+        RoundedRectangle:
+            size: (self.width * (self.value / float(self.max)), self.height)
+            pos: self.pos
+            radius: [22]
+        Color:
+            rgba: 1, 1, 1, 1
+        Line:
+            rounded_rectangle: self.x+2, self.y+2, self.width-4, self.height-4, 20, 20, 20, 20, 100
+            width: 2
+
 <CreateNewModel>:
     game: "Connect4"
 
@@ -144,6 +181,9 @@
             points: self.x+self.width/5,self.y,self.width*4/5,self.y
 
 <InfoBoxLayout>:
+    spacing : 5
+    padding : [5,5,5,5]
+    orientation: "vertical"
     canvas.before:
         Color:
             rgba: root.background_color
