@@ -141,25 +141,28 @@
         Label:
             id: left_title
             text_size : 0.8*self.width,self.height
-            halign : 'center'
+            halign : 'left'
             valign : 'middle'
             color : 115/256,63/256,11/256,1
             text : root.title
             font_size : 0.07*self.width
             font_name: "fonts/pixel.TTF"
             markup : True
-        Button:
-            canvas.before:
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-                    source: "images/refresh.png"
-            size_hint: None,0.5
-            pos_hint: {"center_x": 0.5, "center_y": 0.6}
-            width: self.height
-            background_color : [1,1,1,0]
-            on_press : root.press_refresh(self)
-            on_release:  root.release_refresh(self)
+        BoxLayout:
+            size_hint : 0.2,1
+            padding : 0,0,0,0
+            Button:
+                canvas.before:
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                        source: "images/refresh.png"
+                size_hint: None,0.5
+                width : self.height
+                pos_hint: {"center_x": 0.5, "center_y": 0.6}
+                background_color : [1,1,1,0]
+                on_press : root.press_refresh(self)
+                on_release:  root.release_refresh(self)
 
     BoxLayout:        
         orientation:'vertical'
@@ -182,7 +185,7 @@
 
 <InfoBoxLayout>:
     spacing : 5
-    padding : [5,5,5,5]
+    padding : [10,10,10,10]
     orientation: "vertical"
     canvas.before:
         Color:

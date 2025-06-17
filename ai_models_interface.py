@@ -67,11 +67,7 @@ class GetInfo:
                     n_neurons_per_layer = cfg['layers'][i]['config']['units']
                     n_dense += 1
         n_neurons_tot = n_dense*n_neurons_per_layer
-        info = f"  - Nom du modele: {str(model_name)}\n\n"
-        info += f"  - Nombre total de couches: {str(n_layers)}\n\n  - Une couche d'entrée spécifiant la taille de la grille: ici 6x7 = 42.\n\n"
-        info += f"  - Nombre de couches denses: {n_dense}.\n\n  - Nombre de neurones par couche dense: {str(n_neurons_per_layer)}.\n\n  - Nombre total de neurones: {str(n_neurons_tot)}\n\n"
-        info += f"Les {n_layers-n_dense} couches restantes sont là pour assurer que le modèle ait un fonctionnement optimal. "
-        return info
+        return model_name, n_dense, n_neurons_per_layer
 
 
 class InfoLabel(Label):
@@ -116,7 +112,7 @@ class ScrollableLabel(ScrollView):
 class ScrollingMenu(BoxLayout):
 
     # kivy properties you find in the graphics.kv file (TextArea class)
-    text = StringProperty("coucou") # text displayed in the blue area
+    text = StringProperty("Liste des modeles") # text displayed in the blue area
     title = StringProperty("Selectionne le modele d'IA de Ned") # title displayed in the brown area
     image_source = StringProperty('images/transparent.png') # source of the image displayed in the text area
     image_height = NumericProperty(30) # height of the image displayed
@@ -144,18 +140,24 @@ class ScrollableBoxes(BoxLayout):
 
     def __init__(self,D_models={}, **kwargs):
         super().__init__(**kwargs)
+        self.orientation = "vertical"
         self.D_models = D_models
         self.scroll = ScrollView(size_hint=(1,1))
         self.layout = BoxLayout(padding = [5,10,5,10], orientation="vertical",spacing=5, size_hint_y=None )
         self.layout.bind(minimum_height=self.layout.setter('height'))
-        box=BoxLayout(size_hint_y=None, height=20)
-        lbl = Label(size_hint_y=None, height=20, text = "Modeles en cours d'entraînement:")
+        box=BoxLayout(size_hint_y=None, height=40)
+        lbl = Label(font_name = "fonts/pixel.ttf",size_hint_y=None, height=40, text = "Modeles en cours d'entrainement:",valign="middle", halign="center", color=[1,1,1,1])
+        lbl.bind(
+                    size=lambda instance, value: (
+                        setattr(instance, 'text_size', value),
+                        setattr(instance, 'font_size', 0.04 * value[0])  # value[0] is width
+                    )
+                )
         box.add_widget(lbl)
-        self.layout.add_widget(box)
+        self.add_widget(box)
         self.scroll.add_widget(self.layout)
         self.add_widget(self.scroll)
         
-
 
 
 
@@ -165,6 +167,7 @@ class ChooseAIModel(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        
         
 
 
@@ -177,15 +180,19 @@ class ChooseAIModel(BoxLayout):
         self.scroll = self.scroll_menu.ids.scroll 
         self.info_label = self.ids.info_label
         self.scroll_box = self.ids.Scroll_box
+        self.text1 = "Nom du modèle"
+        self.text2 = "Nombre de couches"
+        self.text3 = "Nombre de neurones par couche"
+        self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
         self.init_buttons()
         self.setup_title()
 
 
     def press_refresh(self,instance):
-        instance.background_color = [1,1,1,0.3]
+        instance.size_hint = (None,0.4)
 
     def release_refresh(self,instance):
-        instance.background_color = [1,1,1,0]
+        instance.size_hint = (None,0.5)
         self.load_button_list()
 
         
@@ -255,7 +262,8 @@ class ChooseAIModel(BoxLayout):
 
     def get_info(self,instance):
         try:
-            info = self.getInfo.get_info_model(instance.text)
+            model_name,  n_layers, n_neurons= self.getInfo.get_info_model(instance.text)
+            info = f"{self.text1}: {model_name}\n\n\n{self.text2}: {n_layers}\n\n\n{self.text3}: {n_neurons}"
         except:
              info = "Erreur de chargement des informations"
         self.info_label.text = info
@@ -353,7 +361,7 @@ class CreateNewModel(ChooseAIModel):
         self.bottom_box.clear_widgets()
         self.bottom_box.add_widget(self.log_label)
         self.left_title = self.scroll_menu.ids.left_title
-        self.left_title.text = "Coucou"
+        self.left_title.text = "Liste des modeles"
         self.actions = BoxLayout(size_hint=(1,0.3),orientation="horizontal",padding = [0.1*self.width,0,0.1*self.width,0.1*self.height], spacing = 10)
         self.actions2 = BoxLayout(size_hint=(1,0.3),orientation="horizontal",padding = [0.1*self.width,0,0.1*self.width,0.1*self.height], spacing = 10)
 
@@ -398,7 +406,7 @@ class CreateNewModel(ChooseAIModel):
         if instance.button_color == DARK_BLUE:
             instance.button_color = BLUE
             self.scroll_box.clear_widgets()
-            self.info_label.text = f"Nom du modèle: \n\n\n\nNombre de couches: \n\n\n\nNombre de neurones par couche: \n\n\n\nNombre total de neurones: \n\n"
+            self.info_label.text = f"Nombre d'epoques: \n\n\nTaux d'apprentissage: \n\n\nFacteur de reduction:"
             #self.scroll_box.padding = [0,0,0,0]
             self.scroll_box.add_widget(self.menu_train)
         
@@ -439,7 +447,7 @@ class CreateNewModel(ChooseAIModel):
         if instance.button_color == DARK_GREEN:
             instance.button_color = GREEN
             self.scroll_box.clear_widgets()
-            self.info_label.text = f"Nom du modèle: \n\n\n\nNombre de couches: \n\n\n\nNombre de neurones par couche: \n\n\n\nNombre total de neurones: \n\n"
+            self.info_label.text = f"Nom du modèle: \n\n\nNombre de couches: \n\n\nNombre de neurones par couche: \n\n\nNombre total de neurones: \n\n"
             #self.scroll_box.padding = [0,0,0,0]
             self.scroll_box.add_widget(self.info_input)
 
@@ -501,6 +509,13 @@ class MenuInput(BoxLayout):
         self.log_label = log_label
         self.bottom_box = bottom_box
         super().__init__(**kwargs)
+
+    def on_kv_post(self, base_widget):
+        super().on_kv_post(base_widget)
+        self.text1 = "Nom du modèle"
+        self.text2 = "Nombre de couches"
+        self.text3 = "Nombre de neurones par couche"
+        self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
     
     def log_info(self,i):
         self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
@@ -522,7 +537,7 @@ class MenuInput(BoxLayout):
             self.button_set_color0 = LIGHT_RED
         else:
             self.button_set_color0 = DARK_GREEN
-            self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
+            self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text}"
 
     def set_on_press1(self):
         if self.children[1].children[1].children[0].children[1].text == "" or float(self.children[1].children[1].children[0].children[1].text) < 1 or float(self.children[1].children[1].children[0].children[1].text) > 10:
@@ -530,7 +545,7 @@ class MenuInput(BoxLayout):
             self.button_set_color1 = LIGHT_RED
         else:
             self.button_set_color1 = DARK_GREEN
-            self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
+            self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
 
 
     def set_on_press2(self):
@@ -539,8 +554,7 @@ class MenuInput(BoxLayout):
             self.button_set_color2 = LIGHT_RED
         else:
             self.button_set_color2 = DARK_GREEN
-            self.info_label.text = f"Nom du modèle: {self.children[1].children[2].children[0].children[1].text} \n\n\n\nNombre de couches: {self.children[1].children[1].children[0].children[1].text} \n\n\n\nNombre de neurones par couche: {self.children[1].children[0].children[0].children[1].text} \n\n\n\nNombre total de neurones: \n\n"
-
+            self.info_label.text = f"{self.text1}: {self.children[1].children[2].children[0].children[1].text} \n\n\n{self.text2}: {self.children[1].children[1].children[0].children[1].text} \n\n\n{self.text3}: {self.children[1].children[0].children[0].children[1].text} "
     
     def set_on_release0(self):
         if self.button_set_color0 == LIGHT_RED:
@@ -594,6 +608,9 @@ class MenuTrain(MenuInput):
     
     def on_kv_post(self, base_widget):
         global MODEL_NAME
+        self.children[1].children[2].children[0].children[1].text = "10"
+        self.children[1].children[1].children[0].children[1].text = "0.01"
+        self.children[1].children[0].children[0].children[1].text = "0.9"
         self.scrollable_label = ScrollableBoxes()
         self.scrollable_label.font_size1 = 0.1*self.width
         super().on_kv_post(base_widget)
@@ -602,13 +619,13 @@ class MenuTrain(MenuInput):
         self.text3 = "Facteur de reduction"
         self.filter1 = "int"
         self.filter2 = "float"
-        self.titre = "Entraîne le modèle" + MODEL_NAME
-        self.green_text = "Entraîner"
+        self.titre = "Entraine le modele" + MODEL_NAME
+        self.green_text = "Entrainer"
         self.epochs = None
         self.learning_rate = None
         self.discount_factor = None
         self.validate_color = LIGHT_GREEN
-        self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}: \n\n"
+        self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
 
     @mainthread
     def log_info(self,i,model_name = ""):
@@ -620,15 +637,15 @@ class MenuTrain(MenuInput):
         if i == 2:
             self.log_label.text = "\n[ERREUR] Le facteur de réduction doit être compris entre 0.1 et 0.999"+self.log_label.text
         if i == 3:
-            self.log_label.text = "\n[ERREUR] Tu dois remplir tous les champs avec une valeur valide avant de lancer l'entraînement."+self.log_label.text
+            self.log_label.text = "\n[ERREUR] Tu dois remplir tous les champs avec une valeur valide avant de lancer l'entrainement."+self.log_label.text
         if i == 4:
-            self.log_label.text = "\n[ERREUR] Ce modèle est déjà en cours d'entraînement."+self.log_label.text
+            self.log_label.text = "\n[ERREUR] Ce modèle est déjà en cours d'entrainement."+self.log_label.text
         if i == 5:
-            self.log_label.text = "\n[color=3EB64B][INFO] L'entraînement du modèle "+model_name+" a été lancé avec succès.[/color]"+self.log_label.text
+            self.log_label.text = "\n[color=3EB64B][INFO] L'entrainement du modèle "+model_name+" a été lancé avec succès.[/color]"+self.log_label.text
         if i == 6:
-            self.log_label.text = "\n[color=3EB64B][INFO] L'entraînement du modèle "+model_name+" est terminé.[/color]"+self.log_label.text
+            self.log_label.text = "\n[color=3EB64B][INFO] L'entrainement du modèle "+model_name+" est terminé.[/color]"+self.log_label.text
         if i == 7:
-            self.log_label.text = "\n[ERREUR] Tu ne peux pas entraîner plus de 3 modeles a la fois."+self.log_label.text
+            self.log_label.text = "\n[ERREUR] Tu ne peux pas entrainer plus de 3 modeles a la fois."+self.log_label.text
 
     
     def set_on_press0(self):
@@ -685,9 +702,15 @@ class MenuTrain(MenuInput):
     def on_release_validate(self,instance):
         if instance.button_color == DARK_GREEN:
             if self.epochs is not None and self.learning_rate is not None and self.discount_factor is not None and MODEL_NAME not in self.L_training and len(self.L_training) < 3:
-                lbl = Label(size_hint_y=0.7, text = "Nom du modèle: "+str(MODEL_NAME) + "\nNombre d'epoques: 0 / "+str(self.epochs), font_size=0.05*self.width)
+                lbl = Label(font_name = "fonts/pixel.TTF",halign= 'left',size_hint_y=0.7, text = "Nom du modèle: "+str(MODEL_NAME) + "\nNombre d'epoques: 0 / "+str(self.epochs))
+                lbl.bind(
+                            size=lambda instance, value: (
+                                setattr(instance, 'text_size', value),
+                                setattr(instance, 'font_size', 0.04 * value[0])  # value[0] is width
+                            )
+                        )
                 pb = ThemedProgressBar(size_hint_y=0.3, max=self.epochs, value=0)
-                box = InfoBoxLayout(orientation = "vertical",size_hint_y=None, height=80)
+                box = InfoBoxLayout(orientation = "vertical",size_hint_y=None, height=90,spacing=10, padding=[10,10,10,10])
                 box.add_widget(lbl)
                 box.add_widget(pb)
                 self.L_training.append(MODEL_NAME)
@@ -702,6 +725,13 @@ class MenuTrain(MenuInput):
             else:
                 self.log_info(3)
             instance.button_color = LIGHT_GREEN
+
+    def on_release_cancel(self, instance):
+        self.button_set_color0 = LIGHT_GREEN
+        self.button_set_color1 = LIGHT_GREEN    
+        self.button_set_color2 = LIGHT_GREEN
+        self.validate_color = LIGHT_GREEN
+        super().on_release_cancel(instance)
 
     def train(self, epochs, learning_rate, discount_factor,lbl,box,pb):
         global MODEL_NAME
