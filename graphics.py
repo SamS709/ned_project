@@ -62,6 +62,7 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
     B5text = StringProperty('Valider')
     image_morpion = StringProperty('images/morpion.png')
     image_connect4 = StringProperty('images/puissance4.png')
+    source_settings = StringProperty("images/setting2.png")
 
     colors1 = ListProperty([0, 0, 1, 1])
     colors2 = ListProperty([0, 0, 1, 1])
@@ -105,18 +106,19 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
         
         if instance.text == "":
             self.screen = 'MySettings'
-            instance.background_color = [1, 1, 1, 0.3]
+            self.source_settings = "images/setting1.png"
 
 
         if instance.text == self.B5text and self.colors5 == [62 / 256, 182 / 256, 75 / 256, 1]:
             self.colors5 = [16 / 256, 118 / 256, 0, 1]
 
     def releaseB(self, instance):
-        if instance.text == self.B5text and self.colors5 == [16 / 256, 118 / 256, 0, 1] or self.ids.Bsettings.background_color==[1, 1, 1, 0.3]:
+        if instance.text == self.B5text and self.colors5 == [16 / 256, 118 / 256, 0, 1] or self.ids.Bsettings.background_color==[1, 1, 1, 0.3] or instance.text == "":
             self.color_line1 = [1, 1, 1, 1]
             self.color_line2 = [1, 1, 1, 1]
             self.ids.B1.color = [1, 1, 1, 1]
             self.ids.B2.color = [1, 1, 1, 1]
+            self.source_settings = "images/setting2.png"
             self.colors1 = [0, 0, 1, 1]
             self.colors2 = [0, 0, 1, 1]
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
@@ -125,6 +127,7 @@ class ChoiceGame(BoxLayout): # First menu to choose the game you want to play
             self.ids.Bsettings.background_color = [1, 1, 1, 0]
             #self.screen = "ChooseAIModel"
             App.get_running_app().manager.push(self.screen) # pushes the selected screen
+        
 
 class ChoiceModeMorpion(BoxLayout):
 
@@ -381,7 +384,7 @@ class MySettings(ChoiceLevel):
         self.B2text = 'Morpion'
         self.B3text = 'Puissance 4'
         self.B4text = 'Echecs'
-        self.image_source = 'images/settings.png'
+        self.image_source = 'images/setting1.png'
         self.children[0].children[1].size_hint = 1,0.18 # reduce the "parameters" text area
         #self.ids.get('B4').parent.remove_widget(self.ids.get('B4')) # remove the button B4 (AI Model) from the settings screen
 

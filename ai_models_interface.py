@@ -180,7 +180,7 @@ class ChooseAIModel(BoxLayout):
         self.scroll = self.scroll_menu.ids.scroll 
         self.info_label = self.ids.info_label
         self.scroll_box = self.ids.Scroll_box
-        self.text1 = "Nom du modèle"
+        self.text1 = "Nom du modele"
         self.text2 = "Nombre de couches"
         self.text3 = "Nombre de neurones par couche"
         self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
@@ -447,7 +447,7 @@ class CreateNewModel(ChooseAIModel):
         if instance.button_color == DARK_GREEN:
             instance.button_color = GREEN
             self.scroll_box.clear_widgets()
-            self.info_label.text = f"Nom du modèle: \n\n\nNombre de couches: \n\n\nNombre de neurones par couche: \n\n\nNombre total de neurones: \n\n"
+            self.info_label.text = f"Nom du modele: \n\n\nNombre de couches: \n\n\nNombre de neurones par couche:"
             #self.scroll_box.padding = [0,0,0,0]
             self.scroll_box.add_widget(self.info_input)
 
@@ -512,7 +512,7 @@ class MenuInput(BoxLayout):
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
-        self.text1 = "Nom du modèle"
+        self.text1 = "Nom du modele"
         self.text2 = "Nombre de couches"
         self.text3 = "Nombre de neurones par couche"
         self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
@@ -702,7 +702,7 @@ class MenuTrain(MenuInput):
     def on_release_validate(self,instance):
         if instance.button_color == DARK_GREEN:
             if self.epochs is not None and self.learning_rate is not None and self.discount_factor is not None and MODEL_NAME not in self.L_training and len(self.L_training) < 3:
-                lbl = Label(font_name = "fonts/pixel.TTF",halign= 'left',size_hint_y=0.7, text = "Nom du modèle: "+str(MODEL_NAME) + "\nNombre d'epoques: 0 / "+str(self.epochs))
+                lbl = Label(font_name = "fonts/pixel.TTF",halign= 'left',size_hint_y=0.7, text = "Nom du medele: "+str(MODEL_NAME) + "\nNombre d'epoques: 0 / "+str(self.epochs))
                 lbl.bind(
                             size=lambda instance, value: (
                                 setattr(instance, 'text_size', value),
@@ -710,7 +710,7 @@ class MenuTrain(MenuInput):
                             )
                         )
                 pb = ThemedProgressBar(size_hint_y=0.3, max=self.epochs, value=0)
-                box = InfoBoxLayout(orientation = "vertical",size_hint_y=None, height=90,spacing=10, padding=[10,10,10,10])
+                box = InfoBoxLayout(orientation = "vertical",size_hint_y=None, height=70,spacing=10, padding=[10,0,10,10])
                 box.add_widget(lbl)
                 box.add_widget(pb)
                 self.L_training.append(MODEL_NAME)
