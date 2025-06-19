@@ -1,28 +1,4 @@
 #:set BLUE 0,0,1,1
 
-<ThemedProgressBar@ProgressBar>:
-    bar_color: 0.2, 0.6, 0.8, 0  # Change to your preferred fill color
-    border_color: 0.8, 0.8, 0.8, 0  # Change to your preferred border color
-    background_color: 0, 0, 0, 1
-    background_normal: ""
-    max: 100
-    height: 30
-    size_hint_y: None
-    canvas:
-        Color:
-            rgba: self.background_color
-        RoundedRectangle:
-            size: self.size
-            pos: self.pos
-            radius: [22]
-        Color:
-            rgba: BLUE
-        RoundedRectangle:
-            size: (self.width * (self.value / float(self.max)), self.height)
-            pos: self.pos
-            radius: [22]
-        Color:
-            rgba: 1, 1, 1, 1
-        Line:
-            rounded_rectangle: self.x+2, self.y+2, self.width-4, self.height-4, 20, 20, 20, 20, 100
-            width: 2
+<MyPopup>:
+    background_color: BLUE

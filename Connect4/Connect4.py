@@ -98,6 +98,7 @@ class Connect4:
             Lpos.append(L[i][0]+6*L[i][1])
 
         return np.array(Lpos)
+    
 
     def avaible_pos_graphics(self,grid):
         table = self.grid_to_table(grid)

@@ -266,7 +266,6 @@ class Connect4Game(BoxLayout):
 
 
     def detPos(self,mode,level):
-        self.ai = DQN(model_name=var1.model_name,softmax_=False,P1=self.P1)
         if mode == 'minimax':
             if level == 'novice':
                 self.depth = 1
@@ -278,6 +277,7 @@ class Connect4Game(BoxLayout):
                 self.depth = 4
             pos = self.minimax.best_pos(self.table,self.depth)
         else:
+            self.ai = DQN(model_name=var1.model_name,softmax_=False,P1=self.P1)
             #return pos = self.ai.best_pos(self.table,self.P1) not ready for the moment
             pos = self.ai.best_pos(self.table)
         print(pos)

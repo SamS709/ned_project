@@ -1,22 +1,32 @@
+from Connect4.AI.connect4InterfaceNoRobot import *
 
 from Morpion.morpionInterface import *
+
 from Connect4.connect4Interface import *
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty, ListProperty
 from navigation_screen_manager import NavigationScreenManager
 from kivy.core.window import Window
 from kivy.clock import Clock
+from kivy.uix.popup import Popup
+from kivy.uix.button import Button
+from kivy.uix.label import Label
 
+
+
+# WARNING : only works with pyniryo==1.1.2 (pip install pyniryo==1.1.2)
+
+# global variables that we can access in other files
 LIGHT_GREEN = [169 / 256, 221 / 256, 175 / 256, 1]
 GREEN = [62 / 256, 182 / 256, 75 / 256, 1]
 DARK_GREEN = [16 / 256, 118 / 256, 0, 1]
 LIGHT_RED = [256/256,187/256,187/256,1]
 RED = [237/256,79/256,79/256,1]
 DARK_RED = [170/256,14/256,14/256,1]
+LIGHT_BLUE = [182 / 256, 229 / 265, 246 / 256, 1]
+BLUE = [112 / 256, 159 / 265, 256 / 256, 1]
+DARK_BLUE = [82 / 256, 129 / 265, 256 / 256, 1]
 SAND = [219/256,195/256,151/256,1]
 
-# WARNING : only works with pyniryo==1.1.2 (pip install pyniryo==1.1.2)
-
-# global variables that we can access in other files
 
 ROBOT = False
 
@@ -32,8 +42,66 @@ class var:
 
 var1 = var()
 
+from ai_models_interface import TestButton, InfoLabel, InfoBoxLayout
+
+
 # creates a variable that we will access in other files
 
+
+class MyPopup(Popup):
+    def __init__(self, **kwargs):
+        super(MyPopup, self).__init__(**kwargs)
+        self.title = kwargs.get('title', 'Popup Title')
+        self.content = kwargs.get('content', None)
+        self.size_hint = kwargs.get('size_hint', (0.4, 0.4))
+        self.auto_dismiss = kwargs.get('auto_dismiss', True)
+
+
+class MainPoPup(BoxLayout):
+        
+    def show_popup(self, *args):
+        content = InfoBoxLayout(orientation='vertical', spacing=10, padding=10, line_width = 1.5)
+        lbl = InfoLabel(text="Do you want to play with ned2 or versus the computer ?", line_width = 1,halign='center',valign='middle')
+        lbl.bind(
+            size=lambda instance, value: setattr(instance, 'text_size', value)
+        )        
+        content.add_widget(lbl)
+        btn_layout = InfoBoxLayout(orientation = "horizontal", size_hint_y=None, height=60, spacing=10, line_width = 1.5)
+        btn_yes = TestButton(text="Robot", button_color=GREEN, line_width = 1.5)
+        btn_no = TestButton(text="Computer", button_color=RED, line_width = 1.5)
+        btn_layout.add_widget(btn_yes)
+        btn_layout.add_widget(btn_no)
+        content.add_widget(btn_layout)
+
+        popup = MyPopup(title="Choose your opponent", content=content, title_font='fonts/pixel.TTF',title_size = 0.12 * self.width,background = 'atlas://data/images/defaulttheme/button_pressed')
+
+        def on_press_yes(instance):
+            instance.button_color = DARK_GREEN # change button color to dark green when pressed
+
+        def on_release_yes(instance):
+            if var1.GAME == 'morpion':
+                App.get_running_app().manager.push('MorpionGame')
+            else:
+                App.get_running_app().manager.push('Connect4Game')
+            instance.button_color = GREEN # change button color to dark green when pressed
+            popup.dismiss()
+        
+        def on_press_no(instance):
+            instance.button_color = DARK_RED
+        
+        def on_release_no(instance):
+            if var1.GAME == 'morpion':
+                pass
+            else:
+                App.get_running_app().manager.push('Connect4GameNoRobot')
+            instance.button_color = RED
+            popup.dismiss()
+
+        btn_yes.bind(on_press=on_press_yes) 
+        btn_yes.bind(on_release=on_release_yes)
+        btn_no.bind(on_release=on_release_no)
+        btn_no.bind(on_press=on_press_no)
+        popup.open()
 
 class TextArea(BoxLayout): # the text area giving informations that you see on the UI
 
@@ -357,16 +425,15 @@ class ChoiceLevel(BoxLayout): # Makes the user choose the level (number of train
             self.ids.B4.color = [1, 1, 1, 1]
             self.colors5 = [169 / 256, 221 / 256, 175 / 256, 1]
             self.image_source = 'images/level0.png'
+            self.popup = MainPoPup()
             if var1.LEVEL=='personnalise':
                 if var1.GAME == 'connect4':
                     App.get_running_app().manager.push('ChooseAIModelConnect4')
                 else:
                     App.get_running_app().manager.push('ChooseAIModelMorpion')
             else:
-                if var1.GAME == 'morpion':
-                    App.get_running_app().manager.push('MorpionGame')
-                else:
-                    App.get_running_app().manager.push('Connect4Game')
+                self.popup.show_popup()
+
 
 
 

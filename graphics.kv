@@ -3,8 +3,25 @@
 #:import ai_models_interface ai_models_interface
 #:import Morpion Morpion
 #:import Connect4 Connect4
+#:set BLUE 0,0,1,1
+
+#:set LIGHT_BLUE [182 / 256, 229 / 265, 246 / 256, 1]
+#:set BLUE [112 / 256, 159 / 265, 256 / 256, 1]
 
 
+<MyPopup>:
+    background_color: [0,0,0,0]
+    canvas.before:
+        Color:
+            rgba: BLUE
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: LIGHT_BLUE
+        Line:
+            rectangle: self.x+2, self.y+2, self.width-4, self.height-4
+            width: 2
 
 
 <TextArea>:
@@ -523,6 +540,10 @@
     Screen:
         name: "MySettings"
         MySettings:
+    Screen: 
+        name: "Connect4GameNoRobot"
+        BoxLayoutWithActionBar:
+            Connect4GameNoRobot:
 
 
 

@@ -91,6 +91,7 @@ class InfoLabelTrain(InfoLabel):
 class TestButton(Button):
     button_color = ListProperty(LIGHT_BLUE)
     line_button_color = ListProperty([1, 1, 1, 1])
+    line_width = NumericProperty(2)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -608,9 +609,9 @@ class MenuTrain(MenuInput):
     
     def on_kv_post(self, base_widget):
         global MODEL_NAME
-        self.children[1].children[2].children[0].children[1].text = "10"
-        self.children[1].children[1].children[0].children[1].text = "0.01"
-        self.children[1].children[0].children[0].children[1].text = "0.9"
+        self.children[1].children[2].children[0].children[1].text = ""
+        self.children[1].children[1].children[0].children[1].text = ""
+        self.children[1].children[0].children[0].children[1].text = ""
         self.scrollable_label = ScrollableBoxes()
         self.scrollable_label.font_size1 = 0.1*self.width
         super().on_kv_post(base_widget)

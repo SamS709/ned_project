@@ -245,6 +245,7 @@ class MorpionGame(BoxLayout):
                 self.depth = 7
             return self.minimax.best_pos(self.table,self.depth)
         else:
+            # self.ai = 
             self.minimax.best_pos(self.table,self.depth)
             # return self.ai.best_pos(self.table,self.P1) not ready for the moment
 
