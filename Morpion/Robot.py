@@ -20,8 +20,10 @@ class Robot:
         self.robot = robot
         self.stock = PoseObject(x = -0.0220, y = -0.1308, z = 0.0989,
                                 roll = -0.248, pitch = 1.259, yaw = 2.945)  # position of the stock of circles (pieces played by the robot)
-        self.observation_pose = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
-                                           roll = -3.046, pitch = 1.204, yaw = 1.689) # position adapted to analyse the board
+        self.observation_pose2 = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
+                                           roll = -3.046, pitch = 1.204, yaw = 1.689) # DON'T USE THIS, prefer the next one which matches with the original camera
+        self.observation_pose = PoseObject(x = -0.0039, y = -0.2469, z = 0.3117,
+                                           roll = -2.849, pitch = 1.375, yaw = 1.852) # position adapted to analyse the board
         self.home_pos = PoseObject(x = -0.0003, y = -0.1231, z = 0.1630,
                                    roll = -0.014, pitch = 1.053, yaw = -1.560)
 
@@ -84,7 +86,7 @@ class Robot:
         img_undis = undistort_image(img_resize, mtx, dist)
         img_gray = cv.cvtColor(img_undis, cv.COLOR_BGR2GRAY) # convert image to greyscale
         img_gblur = cv.GaussianBlur(img_gray, (5, 5), 0) # apply blur
-        ret, img_thres = cv.threshold(img_gblur, 150, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C)  # apply otsu's binary
+        ret, img_thres = cv.threshold(img_gblur, 130, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C)  # apply otsu's binary
         image_copy = img_gray.copy()
         return image_copy,img_thres
 
@@ -99,7 +101,7 @@ class Robot:
         x,y,w,h = 0,0,0,0
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            if 7000 > area > 2000: # pieces have an area between 5200 and 2000
+            if 8000 > area > 2000: # pieces have an area between 8000 and 2000
                 cv2.drawContours(image=image_copy, contours=cnt, contourIdx=-1, color=(0, 0, 0), thickness=2,
                                  lineType=cv2.LINE_4)
                 peri = cv2.arcLength(cnt, True)
@@ -111,7 +113,7 @@ class Robot:
                 else: # squares have an area<3000
                     Ncircle +=1
         image_copy[int(y-10+h/2):int(y+10+h/2),int(x-10+w/2):int(x+10+w/2)]=255
-        key = cv2.imshow('coucou',image_copy)
+        key = cv2.imshow('MorpionDetection',img_thres)
         cv2.waitKey(0)
         # Destroys all the windows created
 
@@ -128,7 +130,7 @@ class Robot:
         shape = None
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            if 7000 > area > 2000: # pieces have an area between 7000 and 2000
+            if 8000 > area > 2000: # pieces have an area between 7000 and 2000
                 cv2.drawContours(image=image_copy, contours=cnt, contourIdx=-1, color=(0, 0, 0), thickness=2,
                                  lineType=cv2.LINE_4)
                 peri = cv2.arcLength(cnt, True)
@@ -139,7 +141,7 @@ class Robot:
                     LSpos.append([int(y + h / 2), int(x + w/ 2)])
                     Nsquare += 1
                     shape = 'square'
-                elif area<=4000 and 6<=len(approx)<=10 : # detect circles
+                elif area<=5000 and 6<=len(approx)<=10 : # detect circles
                     LCpos.append([int(y + h / 2), int(x + w/ 2)])
                     shape = 'circle'
                     Ncircle += 1
@@ -193,8 +195,7 @@ class Robot:
             table[L2[0],L2[1]] = 2
         return table
 
-
-    def pos_grid(self, i, j): # returns the position in the real space (x,y) of table[i,j]
+    def pos_grid2(self,i,j): # BE CAREFUL, THIS FUNCTION IS MADE FOR ME BECAUSE I DONT HAVE THE ORIGINAL CAMERA
         x,x,y,y = 0,0,0,0
         if i==0 :
             if j == 0:
@@ -217,6 +218,32 @@ class Robot:
                 x, y = 358 , 323
             if j == 2:
                 x, y = 482 , 327
+        eps = 35
+        return [y-eps,y+eps,x-eps,x+eps]
+
+    def pos_grid(self, i, j): # returns the position in the real space (x,y) of table[i,j] for the original camera
+        x,x,y,y = 0,0,0,0
+        if i==0 :
+            if j == 0:
+                x,y =  193 , 139
+            if j == 1:
+                x,y = 326 , 137
+            if j == 2:
+                x,y = 454 , 134
+        if i == 1:
+            if j == 0:
+                x, y = 210 , 261
+            if j == 1:
+                x, y = 325 , 258
+            if j == 2:
+                x, y = 457 , 261
+        if i == 2:
+            if j == 0:
+                x, y = 199 , 387
+            if j == 1:
+                x, y = 330 , 392
+            if j == 2:
+                x, y = 464 , 393
         eps = 35
         return [y-eps,y+eps,x-eps,x+eps]
 
@@ -314,4 +341,8 @@ class Robot:
 
 if __name__ == '__main__':
     robot1 = Robot()
+    robot1.affiche_contours()
+    #robot1.get_HSV_and_mousePos()
+    print(robot1.modif_table())
     print(robot1.robot.get_pose())
+    #robot1.place(0,0)

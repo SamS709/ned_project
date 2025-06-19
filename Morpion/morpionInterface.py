@@ -173,6 +173,7 @@ class MorpionGame(BoxLayout):
             self.fire("red") # change traffic light to red
             self.first_end = False # if a game is restarted we want first_end to be false
             self.modifUI(instance,0)# update the displayed game according to the table
+            time.sleep(0.1) # ensure that the UI has been modified before continuing to play
             self.robot_connected = True # True if the robot is connected
         except:
             self.robot_connected = False

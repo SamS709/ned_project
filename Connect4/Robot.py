@@ -19,10 +19,13 @@ class Robot:
                                      roll = 0.077, pitch = 1.028, yaw = 0.042) # middle position when the robot plays in order to avoid collisions with the board
         self.home_pos = PoseObject(x = 0.1344, y = -0.0001, z = 0.1652,
                                    roll = 0.000, pitch = 1.011, yaw = -0.001)
+        self.observationPose2 = PoseObject(x = 0.1314, y = 0.0054, z = 0.2100,
+                                           roll = 0.031, pitch = 0.337, yaw = 0.034)
+        self.observationPose = PoseObject(x = 0.1320, y = 0.0052, z = 0.2225,
+                                            roll = -0.040, pitch = 0.273, yaw = 0.034)
 
     def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
-        self.robot.move_pose(PoseObject(x = 0.1320, y = 0.0052, z = 0.2225,
-                                            roll = -0.040, pitch = 0.273, yaw = 0.034))
+        self.robot.move_pose(self.observationPose2)
 
 
     def red_yellow_pos(self): # returns the image frame, a list of red pieces positions and a list of yellow pieces positions
@@ -109,6 +112,187 @@ class Robot:
         cv2.waitKey(0)
 
     def pos_grid(self,i,j): # returns the position in the real space (x,y) of table[i,j]
+        x0,x1,y0,y1 = 0,0,0,0
+        eps = 30
+        if i == 0:
+            if j == 0:
+                x,y=  65 , 31 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x,y= 148 , 30
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x,y=233 , 31
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x, y =316 , 29
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x, y =391 , 28
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x, y = 471 , 24
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x, y = 548 , 27 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+        if i == 1:
+            if j == 0:
+                x,y=77 , 103
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x,y=163 , 101
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x,y= 238 , 101
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x, y = 318 , 104
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x, y = 397 , 102 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x, y = 471 , 97 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x, y = 548 , 98
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+        if i == 2:
+            if j == 0:
+                x,y= 91 , 173
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x,y= 166 , 173
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x,y= 249 , 173
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x, y = 318 , 174
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x, y = 398 , 173 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x, y = 467 , 171
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x, y = 540 , 170
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+        if i == 3:
+            if j == 0:
+                x,y= 93 , 241 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x,y= 172 , 239
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x,y= 246 , 240
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x, y = 320 , 241
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x, y = 394 , 236
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x, y = 472 , 234 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x, y = 536 , 233 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+        if i == 4:
+            if j == 0:
+                x,y= 106 , 306
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x,y= 180 , 304
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x,y= 249 , 301
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x, y = 326 , 299 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x, y = 392 , 299
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x, y = 461 , 301
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x, y = 534 , 290
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+        if i == 5:
+            if j == 0:
+                x,y= 106 , 365 
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 1:
+                x,y= 187 , 356
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 2:
+                x,y= 253 , 362
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 3:
+                x, y = 320 , 362
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 4:
+                x, y = 392 , 352
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 5:
+                x, y = 458 , 351
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+            if j == 6:
+                x, y = 528 , 346
+                x0,x1 = x-eps,x+eps
+                y0,y1 = y-eps,y+eps
+
+        return [x0,x1,y0,y1 ]
+
+
+    def pos_grid2(self,i,j): # returns the position in the real space (x,y) of table[i,j]
         x0,x1,y0,y1 = 0,0,0,0
         eps = 30
         if i == 0:
@@ -353,6 +537,30 @@ class Robot:
     def place(self, j): # robot moves to puta piece in the j-th column
 
         if j == 0:
+            pos = [0.3864,0.1156, 0.3892, 0.007, 0.284, 0.222]
+        if j == 1:
+            pos = [0.3825,0.0815, 0.3982, -0.037,  0.388, 0.099]
+        if j == 2:
+            pos = [0.3828,0.0394, 0.3959, -0.073,  0.297, 0.045]
+        if j == 3:
+            pos = [0.3826,-0.0004, 0.3963, -0.081, 0.298, -0.062]
+        if j == 4:
+            pos = [0.3807,-0.0371, 0.3900, -0.098, 0.313, -0.164]
+        if j == 5:
+            pos = [0.3725,-0.0758, 0.3903, -0.059, 0.320, -0.213]
+        if j == 6:
+            pos = [0.3830,-0.1179, 0.3955, -0.051, 0.380, -0.294]
+
+        pos1 = [0.1344, -0.0001, 0.1652, 0.000, 1.011, -0.001] # home positionn
+        pos2 = [0.1041, 0.0009, 0.4700, 0.077, 1.028, 0.042] # middle position in order to avoid colisions with the physical board
+        self.robot.pick_from_pose(self.stock)
+        self.robot.execute_trajectory_from_poses([pos2, pos])
+        self.robot.open_gripper()
+        self.robot.execute_trajectory_from_poses([pos, pos2, pos1])
+
+    def place2(self, j): # robot moves to puta piece in the j-th column
+
+        if j == 0:
             pos = [0.3748, 0.1351, 0.4255,-0.055, 0.536, 0.344]
         if j == 1:
             pos = [0.3798, 0.0909, 0.4297,-0.077, 0.579, 0.215]
@@ -386,5 +594,9 @@ class Robot:
 if __name__=='__main__':
 
     robot1 = Robot()
-    for j in range(7):
-        robot1.place(j)
+    #robot1.place(0)
+    print(robot1.robot.get_pose())
+    print(robot1.modif_table())
+    #robot1.get_HSV_and_mousePos()
+    """for j in range(7):
+        robot1.place(j)"""

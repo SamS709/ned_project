@@ -40,7 +40,7 @@ class Connect4Grille(BoxLayout):
 class Connect4Items(BoxLayout):
 
     def __init__(self, gameMode='1P', **kwargs):
-        super(Connect4Items, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.minimax = MinMax()
         self.depth = 3 #niveau de jeu
         self.P1 = '1' #joueur qui commence
