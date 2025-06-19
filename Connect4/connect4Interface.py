@@ -14,7 +14,6 @@ from kivy.clock import mainthread
 
 
 
-Builder.load_file('Connect4/connect4Interface.kv')
 
 
 
@@ -26,7 +25,7 @@ class Connect4Grille(BoxLayout):
         self.LR = []
         self.LC = [[]for j in range(7)]
         with self.canvas.before:
-            Color(0, 0, 1, 0.9)
+            Color(0.1, 0.1, 0.1, 1)
             for i in range(7): #création d'un fond blau pour chaque bouton => grand rectangle bleu qui fait toute la page
                 self.LR.append(Rectangle())
             Color(182/256,229/265,246/256,1)

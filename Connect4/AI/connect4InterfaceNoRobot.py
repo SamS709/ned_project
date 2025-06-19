@@ -65,8 +65,7 @@ class Grille(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.size_hint =1,1 #taille de la grille
-        self.pos_hint= {'x': 0, 'y': 0}
+        
         #self.add_widget(Button(size_hint=(1,1)))
         self.Lbuttons = [] #liste des boutons répartis en colonne pour capter les clics
         for i in range(7): #création des boutons
@@ -83,6 +82,7 @@ class Grille(BoxLayout):
             for i in range(6): #création des cercles de couleur noir par dessus le rectangle bleu pour faire des 'trous' dans la grille
                 for j in range(7):
                     self.LC[i].append(Ellipse(pos=(100,100),size=(50,50)))
+        
 
 class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans robot
 
@@ -95,7 +95,6 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
         self.first_player = 'computer' #joueur qui commence
         self.P1 = P1 #choix du mode de jeu (fait à partir de Mode : prend la valeur donnée à Mode)
         self.player = 'J' # prend la valeur 'J' ou 'R' en fonction de la couleur du jeton
-        
         self.reset() #on initialise la partie
 
     def on_press_reset(self, instance):
@@ -107,14 +106,12 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
 
     def reset(self):
         self.clear_widgets() # on enlève tous les widgets de la fenêtre
-        self.main_layout = BoxLayout(
-            orientation='vertical',
-            size_hint=(1, 1),
-            pos_hint={'x': 0, 'y': 0}
-        )
+        
+        self.player = 'J' # on remet le joueur à J
         self.grille = Grille() # on instancie une nouvelle grille de jeu
-        self.main_layout.add_widget(self.grille) #On affiche la grille
+        self.add_widget(self.grille) #On affiche la grille
         self.grid = np.array([0 for j in range(42)]) # on créé une grille de jeu 'théorique' qui permet de gérer ce qui se passe en back
+        self.table = self.minimax.grid_to_table(self.grid) # on convertit la grille en table pour l'algorithme Minimax
         self.init_C() #Initialisation des pions qui vont s'afficher dans la grille
         self.button() #initioalisation des boutons bindés
         self.wpionJ = Widget() #créarion du pion Jaune
@@ -141,18 +138,9 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             on_press = self.on_press_reset,
             on_release = self.on_release_reset
         )
-        self.add_widget(self.main_layout) #On ajoute la grille à la fenêtre
-        self.main_layout.size = self.size
-        self.main_layout.pos = self.pos
-        self.bind(size=self._update_main_layout, pos=self._update_main_layout)
-        self.add_widget(self.top_right_btn)
-        self.grille.size_hint = (1, 1) #On fixe la taille de la grille
-        self.wwidth,self.wheight = Window.size[0], Window.size[1] #On fixe la taille de la fenêtre
-        Window.size = 0.9*self.wwidth,0.9*self.wheight
-        Window.size = (self.wwidth, self.wheight) #On remet la taille de la fenêtre à sa taille d'origine
-    def _update_main_layout(self, *args):
-            self.main_layout.size = self.size
-            self.main_layout.pos = self.pos
+        self.add_widget(self.top_right_btn)        
+        self.on_size() #On met à jour la taille de la fenêtre
+
     
 
     def _update_bg(self, *args):
@@ -171,6 +159,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             else:
                 P1 = '2'
             return P1
+
 
     def detPos(self):
         mode = var1.MODE
