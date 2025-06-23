@@ -83,6 +83,17 @@ class Connect4:
     def table_to_grid(self,table): # reverses the operation made by grid_t_table so that table_to_grid(grid_to_table(grid))=grid
         table = table.T
         return np.array(table.reshape(1,table.size)).ravel()
+    
+    def free_pos_table(self,grid): # tells authorized moves in a given table
+        table = self.grid_to_table(grid)
+        L = []
+        for j in range(table.shape[1]):
+            i = 5
+            while table[i, j] != 0 and i >= 0:
+                i = i - 1
+            if table[i, j] == 0:
+                L.append([i, j])
+        return L
 
     def free_pos(self, grid): # tells authorized moves in a given grid
         table = self.grid_to_table(grid)
