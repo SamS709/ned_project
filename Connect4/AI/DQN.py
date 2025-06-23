@@ -24,6 +24,7 @@ class DQN(Connect4):
         self.learning_rate = learning_rate
         self.P1 = P1
         self.model_name = model_name
+        self.boost = True # tells the ai if a given position will lead to a lose at next turn
         self.dir_path = os.getcwd()+'\Connect4\AI\models'+f'\{self.model_name}'+self.P1
 
         try:
@@ -75,6 +76,10 @@ class DQN(Connect4):
         n1 = np.count_nonzero(grid == 1)
         n2 = np.count_nonzero(grid == 2)
         L = super().free_pos(grid)
+        if self.boost == True:
+            L1 = super().free_not_losing_pos_grid(grid.copy())
+            if len(L1) != 0:
+                L = L1
         A = -np.inf
         if self.P1 == '1':
             if n1<=n2:

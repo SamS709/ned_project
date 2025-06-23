@@ -8,6 +8,7 @@ from kivy.uix.label import Label
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.switch import Switch
 import random as rd
 from Morpion.morpionInterface import var1
 from kivy.lang import Builder
@@ -26,38 +27,6 @@ DARK_RED = [170/256,14/256,14/256,1]
 LIGHT_BLUE = [182 / 256, 229 / 265, 246 / 256, 1]
 BLUE = [112 / 256, 159 / 265, 256 / 256, 1]
 DARK_BLUE = [82 / 256, 129 / 265, 256 / 256, 1]
-
-class Mode(BoxLayout):  #Menu du choix de nombre de joueurs
-
-    colors1 = ListProperty([1,0,0,1]) #couleur du bouton1
-    colors2 = ListProperty([1, 0, 0, 1]) #couleur du bouton2
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.size_hint = 1, 1
-        self.first = 'Start Playing'
-        self.second = 'Let opponent Start'
-
-    def pressB(self,instance): #on choisi le mode de jeu en cliquant sur B1 ou B2
-        if instance.text == self.first:
-            self.P1 = '1'
-        if instance.text == self.second:
-            self.P1 = '2'
-        self.remove_widget(self.ids.B1) # on enlève tous les widgets du menu Mode
-        self.remove_widget(self.ids.B2)
-        self.remove_widget(self.ids.B3)
-        self.game = Connect4GameNoRobot(gameMode=self.P1) # On charge une nouvelle partie avec le mode sélectionné
-        self.add_widget(self.game) # On affiche la partie à l'écran
-
-    def changeColor(self,instance): #on change la couleur du bouton quand on appuie dessus
-        if instance.text == self.first:
-            if self.colors1 == [1,0,0,1]:
-                self.colors1 = [0,1,0,1]
-            else:
-                self.colors1 =[1,0,0,1]
-            print(instance.state)
-        if instance.text == self.second:
-            self.colors2 = [0,1,0,1]
 
 
 
@@ -86,15 +55,12 @@ class Grille(BoxLayout):
 
 class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans robot
 
-    def __init__(self, P1='1P',TF=True, **kwargs):
+    def __init__(self, P1='1P', **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.mouse_pos)
         self.depth = 3 #niveau de jeu
         self.minimax = MinMax() #on instancie l'algorithme Minimax
-        self.TF = TF
-        self.first_player = 'computer' #joueur qui commence
         self.P1 = P1 #choix du mode de jeu (fait à partir de Mode : prend la valeur donnée à Mode)
-        self.player = 'J' # prend la valeur 'J' ou 'R' en fonction de la couleur du jeton
         self.reset() #on initialise la partie
 
     def on_press_reset(self, instance):
@@ -106,15 +72,15 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
 
     def reset(self):
         self.clear_widgets() # on enlève tous les widgets de la fenêtre
-        
-        self.player = 'J' # on remet le joueur à J
+        self.P1 = '2' # by default, the AI plays after
+        self.player = 'J' # by default, the user starts (user = yellow player)
         self.grille = Grille() # on instancie une nouvelle grille de jeu
         self.add_widget(self.grille) #On affiche la grille
         self.grid = np.array([0 for j in range(42)]) # on créé une grille de jeu 'théorique' qui permet de gérer ce qui se passe en back
         self.table = self.minimax.grid_to_table(self.grid) # on convertit la grille en table pour l'algorithme Minimax
         self.init_C() #Initialisation des pions qui vont s'afficher dans la grille
         self.button() #initioalisation des boutons bindés
-        self.wpionJ = Widget() #créarion du pion Jaune
+        self.wpionJ = Widget() # we create the piece of user
         with self.canvas.before:
             Color(0.68, 0.85, 0.90, 1)  # light blue (RGB: 173, 216, 230)
             self.bg_rect = Rectangle(pos=self.pos, size=self.size)
@@ -122,30 +88,47 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
         with self.wpionJ.canvas:
             Color(1,1,0,1)
             self.pionJ = Ellipse(pos=(100, 100), size=(50, 50)) #On associe un canva au pion Jaune
-        self.add_widget(self.wpionJ)
-        self.wpionR = Widget() #créarion du pion Rouge
-        with self.wpionR.canvas:
-            Color(1,0,0,1)
-            self.pionR = Ellipse(pos=(100, 100), size=(50, 50)) #On associe un canva au pion Rouge
-        if self.P1 == '1': #Le robot commence à jouer en mode solo
-            self.play()
-        self.top_right_btn = TestButton(
-            text='Play Again',
-            size_hint=(0.18, 0.08),
+        self.add_widget(self.wpionJ) 
+        self.player_one_button = TestButton(
+            text='Play 2nd',
+            size_hint=(0.2, 0.08),
+            #size=(0.1, 0.1),
+            pos_hint={'right': 0.22, 'top': 0.98},
+            button_color = RED,
+            on_press = self.on_press_player_one,
+            on_release = self.on_release_player_one
+        )
+        self.reset_button = TestButton(
+            text='Play again',
+            size_hint=(0.2, 0.08),
             #size=(0.1, 0.1),
             pos_hint={'right': 0.98, 'top': 0.98},
             button_color = BLUE,
             on_press = self.on_press_reset,
             on_release = self.on_release_reset
         )
-        self.add_widget(self.top_right_btn)        
-        self.on_size() #On met à jour la taille de la fenêtre
+        self.add_widget(self.player_one_button) #On ajoute le bouton pour laisser l'adversaire commencer
+        self.add_widget(self.reset_button)        
+        self.on_size() # updateing the size of the elements
 
     
+    def on_press_player_one(self, instance):
+        if instance.button_color == RED :
+            instance.button_color = DARK_RED
+
+    def on_release_player_one(self, instance):
+        if instance.button_color == DARK_RED :
+            instance.button_color = LIGHT_RED
+            self.first_shot = True
+            self.player = 'R' #the red player starts
+            self.P1 = '1'
+            self.play() #we play the first move of the red player
+
 
     def _update_bg(self, *args):
         self.bg_rect.pos = self.pos
         self.bg_rect.size = self.size
+        
     def button(self): # création des 7 boutons verticaux captant les clics
         for i in range(7):
             self.grille.Lbuttons[i].bind(on_release = self.release) #on bind ce qu'il se passe qd on press
@@ -164,7 +147,6 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
     def detPos(self):
         mode = var1.MODE
         level = var1.LEVEL
-        print(var1.MODE)
         if mode == 'minimax':
             if level == 'novice':
                 self.depth = 1
@@ -175,19 +157,15 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             if level == 'expert':
                 self.depth = 4
             pos = self.minimax.best_pos(self.table,self.depth)
-            print('MINIMAX')
         else:
             self.ai = DQN(model_name=var1.model_name,softmax_=False,P1=self.P1)
             #return pos = self.ai.best_pos(self.table,self.P1) not ready for the moment
+            print(var1.MODE)
             pos = self.ai.best_pos(self.table)
-            print('AI')
         return pos
     
     def play(self):
-        if self.first_player == 'computer':
-            P1 ='1'
-        else:
-            P1 = '2'
+        self.player_one_button.button_color = LIGHT_RED
         self.P1 = self.firstPlayer(self.table)
         pos = self.detPos()
         p,q = pos[0],pos[1]
@@ -261,7 +239,6 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
 
         self.grille.width, self.grille.height =W,H
         self.pionJ.size = R,R
-        self.pionR.size = R, R
 
         for i in range(7):
             self.grille.LR[i].pos = i * w,0
@@ -279,7 +256,6 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
     def mouse_pos(self, window, pos):
         self.mousepos = pos
         self.pionJ.pos = pos[0] - self.pionJ.size[0] / 2, self.height - self.pionJ.size[1]
-        self.pionR.pos = pos[0] - self.pionJ.size[0] / 2, self.height - self.pionJ.size[1]
 
 
 

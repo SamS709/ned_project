@@ -99,6 +99,36 @@ class Connect4:
 
         return np.array(Lpos)
     
+    def free_not_losing_pos_grid(self, grid):
+        Not_losing_pos_grid = []
+        Not_losing_pos = self.free_not_losing_pos(grid)
+        for i in range(len(Not_losing_pos)):
+            Not_losing_pos_grid.append(Not_losing_pos[i][0]+6*Not_losing_pos[i][1]) 
+        return np.array(Not_losing_pos_grid)
+    
+    def free_not_losing_pos(self, grid):
+        Not_losing_pos = []
+        table0 = self.grid_to_table(grid)
+        L1 = self.free_pos_table(grid)
+        if len(L1)!=0:
+            for pos1 in L1:
+                table1 = table0.copy()
+                p1, q1 = pos1[0],pos1[1]
+                table1[p1, q1] = 1
+                grid1 = self.table_to_grid(table1)
+                L2 = self.free_pos_table(grid1)
+                lose = False
+                if len(L2) != 0:
+                    for pos2 in L2:
+                        p2, q2 = pos2[0], pos2[1]
+                        table2 = table1.copy()
+                        table2[p2, q2] = 2
+                        grid2 = self.table_to_grid(table2)
+                        if self.lose(grid2) :
+                            lose = True
+                    if lose == False:
+                        Not_losing_pos.append([p1, q1])
+        return Not_losing_pos
 
     def avaible_pos_graphics(self,grid):
         table = self.grid_to_table(grid)
