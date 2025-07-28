@@ -162,6 +162,7 @@ Removed sections:
 <li><b>graphics.py</b> : Game, strategy, and level selection menus will be found here</li>
 <li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection will be here</li>
 <li><b>morpion(resp. connect4)Interface.py</b> : GUI for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
+<li><b>game.py</b> : GUI for playing against the computer. The purpose of this interface is evaluate the power of an AI model by playing against it without needing the robot. </li>
 <li><b>box_layout_with_action_bar.py</b> : The actionbar which allows you to connect to the robot and to go to previous page. </li>
 <li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menus. </li>
 </ul>
