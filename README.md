@@ -93,7 +93,7 @@ Removed sections:
 
 <p align="center">
   <img src="images/readme/photo_pres.jpg" alt="screenshot"
-       style="border:2px solid #3498db; border-radius:10px; padding:4px; max-width:100%; height:auto;" />
+       style="border:2px solid #3498db; border-radius:10px; padding:4px; max-width:100%; height:auto;" height = "300" />
 </p>
 
 <!-- Introduction -->
@@ -134,9 +134,9 @@ Removed sections:
 <p></p>
 <p>I used <a href="https://opencv.org/"><b>Open-cv</b></a> python library to process the images returned by the camera of the robot.</p>
 <p>In the case of tic-tac-toe, the robot detects the shape of the pieces:</p>
-<img src = "images/readme/morpionDetection.png" height = "100"/>
+<img src = "images/readme/morpionDetection.png" height = "200"/>
 <p>In the case of Connect 4, it detects their color:</p>
-<img src = "images/readme/connect4Detection.png" height = "100"/>
+<img src = "images/readme/connect4Detection.png" height = "200"/>
 <p>The methods related to image processing are also in the Robot classes which is are "Robot.py" files located in Morpion and Connect4 folders.</p>
 </div>
 
@@ -145,11 +145,11 @@ Removed sections:
 <div>
 <p>To determine the next move, the robot can either send the current game grid to a minimax algorithm or to an AI model that will decide the best move to play.</p>
 <p>The <a href = "https://en.wikipedia.org/wiki/Minimax">minimax algorithm</a> will explore all possible outcomes of the game to determine the best move.</p>
-<img src = "images/readme/minimaxAlgorithm.png"/>
+<img src = "images/readme/minimaxAlgorithm.png" height = "200"/>
 <p>The AI ​​will rely on prior training (during which it has played many games) to determine the best move. This is <a href = "https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a></p>
 <p>Note that the user can create its own custom AI model and train it.</p>
 
-<img src = "images/readme/trainingMenu.png"/>
+<img src = "images/readme/trainingMenu.png" height = "200"/>
 <p>The minimax algorithm is located in Morpion(resp. Connect4)/Minimax.</p>
 <p>The AI algorithm is located in Morpion(resp. Connect4)/AI.</p>
 </div>
