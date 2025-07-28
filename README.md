@@ -86,10 +86,6 @@ Removed sections:
 - [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Run Locally](#run-locally)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
-  * [Code of Conduct](#code-of-conduct)
-- [License](#license)
 - [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
   
@@ -172,8 +168,8 @@ Removed sections:
 <li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menus. </li>
 </ul>
 
-<!-- File Structure -->
-### File Structure
+<!-- Project Structure -->
+#### Detailed Project Structure
 
 ```
 ned_project/
