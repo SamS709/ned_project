@@ -3,7 +3,13 @@
 <!--
 Hey, thanks for using the awesome-readme-template template.  
 If you have any enhancements, then fork this project and create a pull request 
-or just open an issue with the label "enhancement".
+or jus<ul>
+<li><b>graphics.py</b> : Game, strategy, and level selection menus will be found here</li>
+<li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection will be here</li>
+<li><b>morpion(resp. connect4)Interface.py</b> : GUI for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
+<li><b>box_layout_with_action_bar.py</b> : The actionbar which allows you to connect to the robot and to go to previous page. </li>
+<li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menus. </li>
+</ul>an issue with the label "enhancement".
 
 Don't forget to give this project a star for additional support ;)
 Maybe you can mention me or this repo in the acknowledgements too
@@ -25,7 +31,7 @@ Removed sections:
   <h1>Project: Robotic Arm playing games </h1>
   
   <p>
-    A way to have fun with your Ned2 Nyrio Robot !
+    A way to have fun with your Ned2 Niryo Robot !
   </p>
 
   
@@ -102,7 +108,7 @@ Removed sections:
 <div>
 <p>As a student at Les Nancy Mines, my first-year project was the development of a scientific mediation showroom.</p>
 
-<p>The aim is to spark interest in artificial intelligence and robotics among young people. The goal is to spark interest in artificial intelligence and robotics among young people. To achieve this, I decided to create a workshop where visitors can play tic-tac-toe and Connect 4 against a robot arm.</p>
+<p>The aim is to spark interest in artificial intelligence and robotics among young people. To achieve this, I decided to create a workshop where visitors can play tic-tac-toe and Connect 4 against a robot arm.</p>
 
 <p>Furthermore, it is a very comprehensive project which allows us to understand many concepts essential to the world of tomorrow.</p>
 </div>
@@ -110,7 +116,7 @@ Removed sections:
 ### Project Structure
 
 <div>
-<p>The project is devided in 3 main parts that interact with each other :</p>
+<p>The project is divided in 4 main parts that interact with each other :</p>
 
 1. [Robotics](#1-robotics)
 2. [Image Processing](#2-image-processing)
@@ -124,7 +130,7 @@ Removed sections:
 <img src="images/readme/ned2.gif" height="300"></img>
 <p></p>
 <p>The Robot used is Ned2 a six-axis collaborative robot, based on open-source technologies.</p>
-<p>I controll is with python pyniryo module, provided by the manufacturer, which is very convenient to start robotics.</p>
+<p>I control it with python pyniryo module, provided by the manufacturer, which is very convenient to start robotics.</p>
 <p>The classes related to robot control are in the "Robot.py" files located in Morpion and Connect4 folders.</p>
 </div>
 
@@ -137,7 +143,7 @@ Removed sections:
 <img src = "images/readme/morpionDetection.png" height = "200"/>
 <p>In the case of Connect 4, it detects their color:</p>
 <img src = "images/readme/connect4Detection.png" height = "200"/>
-<p>The methods related to image processing are also in the Robot classes which is are "Robot.py" files located in Morpion and Connect4 folders.</p>
+<p>The methods related to image processing are also in the Robot classes which are in "Robot.py" files located in Morpion and Connect4 folders.</p>
 </div>
 
 #### 3. Strategies
@@ -159,11 +165,11 @@ Removed sections:
 <p>I used <a href = "https://kivy.org">kivy</a> to make the GUI.</p>
 <p>Several files are used to manage the interface:</p>
 <ul>
-<li><b>graphics.py</b> : Game, strategy, and level selection menues will be found here</li>
+<li><b>graphics.py</b> : Game, strategy, and level selection menus will be found here</li>
 <li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection will be here</li>
 <li><b>morpion(resp. connect4)Interface.py</b> : Gui for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
 <li><b>box_layout_with_action_bar.py</b> : The actionbar which allows you to connect to the robot and to go to previous page. </li>
-<li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menues. </li>
+<li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menus. </li>
 </ul>
 
 <!-- TechStack -->
@@ -198,7 +204,7 @@ Removed sections:
 
 Install Python 3.8.0
 
-Run the following commands required to setup the environnement.
+Run the following commands required to setup the environment.
 
 ```bash
 pip install tensorflow==2.13.0

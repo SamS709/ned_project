@@ -1,6 +1,9 @@
 from kivy.lang import Builder
 from Connect4.Minimax.MinMax import *
 from kivy.app import App
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'GUI'))
 from graphics import var1
 from kivy.graphics import Color, Rectangle, Ellipse
 from kivy.properties import ListProperty, NumericProperty

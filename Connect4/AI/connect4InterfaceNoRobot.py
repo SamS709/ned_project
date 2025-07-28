@@ -14,7 +14,10 @@ from Morpion.morpionInterface import var1
 from kivy.lang import Builder
 from Connect4.AI.Train import *
 from kivy.core.window import Window
-from ai_models_interface import TestButton
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'GUI'))
+from ai_models_interface import MyButton
 
 Builder.load_file('Connect4/connect4Interface.kv')
 
@@ -89,7 +92,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             Color(1,1,0,1)
             self.pionJ = Ellipse(pos=(100, 100), size=(50, 50)) #On associe un canva au pion Jaune
         self.add_widget(self.wpionJ) 
-        self.player_one_button = TestButton(
+        self.player_one_button = MyButton(
             text='Play 2nd',
             size_hint=(0.2, 0.08),
             #size=(0.1, 0.1),
@@ -98,7 +101,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             on_press = self.on_press_player_one,
             on_release = self.on_release_player_one
         )
-        self.reset_button = TestButton(
+        self.reset_button = MyButton(
             text='Play again',
             size_hint=(0.2, 0.08),
             #size=(0.1, 0.1),
