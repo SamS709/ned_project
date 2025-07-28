@@ -50,20 +50,8 @@ Removed sections:
   <a href="https://github.com/SamS709/ned_project/issues/">
     <img src="https://img.shields.io/github/issues/SamS709/ned_project" alt="open issues" />
   </a>
-  <a href="https://github.com/SamS709/ned_project/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/SamS709/ned_project.svg" alt="license" />
-  </a>
 </p>
-   
-<h4>
-    <a href="https://github.com/SamS709/ned_project/">View Demo</a>
-  <span> · </span>
-    <a href="https://github.com/SamS709/ned_project">Documentation</a>
-  <span> · </span>
-    <a href="https://github.com/SamS709/ned_project/issues/">Report Bug</a>
-  <span> · </span>
-    <a href="https://github.com/SamS709/ned_project/issues/">Request Feature</a>
-  </h4>
+
 </div>
 
 <br />
@@ -160,7 +148,7 @@ Removed sections:
 <p>Several files are used to manage the interface:</p>
 <ul>
 <li><b>graphics.py</b> : Game, strategy, and level selection menus will be found here</li>
-<li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection will be here</li>
+<li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection.</li>
 <li><b>morpion(resp. connect4)Interface.py</b> : GUI for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
 <li><b>game.py</b> : GUI for playing against the computer. The purpose of this interface is to evaluate the power of an AI model by playing against it without needing the robot hardware. </li>
 <li><b>box_layout_with_action_bar.py</b> : The actionbar which allows you to connect to the robot and to go to previous page. </li>
