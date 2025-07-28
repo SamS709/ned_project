@@ -91,8 +91,8 @@ Removed sections:
 <!-- About the Project -->
 ## About the Project
 
-<div align="center"> 
-  <img src="images/readme/photo_pres.jpg" alt="screenshot" />
+<div align="center" style="border:2px solid #3498db; border-radius:10px; display:inline-block; padding:4px;">
+  <img src="images/readme/photo_pres.jpg" alt="screenshot" style="display:block; border-radius:10px;" />
 </div>
 
 
