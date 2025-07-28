@@ -134,9 +134,9 @@ Removed sections:
 <p></p>
 <p>I used <a href="https://opencv.org/"><b>Open-cv</b></a> python library to process the images returned by the camera of the robot.</p>
 <p>In the case of tic-tac-toe, the robot detects the shape of the pieces:</p>
-<img src = "images/readme/morpionDetection.png" height = "10"/>
+<img src = "images/readme/morpionDetection.png" height = "100"/>
 <p>In the case of Connect 4, it detects their color:</p>
-<img src = "images/readme/connect4Detection.png" height = "10"/>
+<img src = "images/readme/connect4Detection.png" height = "100"/>
 <p>The methods related to image processing are also in the Robot classes which is are "Robot.py" files located in Morpion and Connect4 folders.</p>
 </div>
 
