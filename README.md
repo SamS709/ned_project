@@ -21,7 +21,7 @@ Removed sections:
 
 <div align="center">
 
-  <img src="images/readme/logo.png" alt="logo" width="200" height="auto" />
+  <img src="images/readme/robot_arm.gif" alt="logo" width="200" height="auto" />
   <h1>Project: Robotic Arm playing games </h1>
   
   <p>
@@ -34,9 +34,7 @@ Removed sections:
   <a href="https://github.com/SamS709/ned_project/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/SamS709/ned_project" alt="contributors" />
   </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/Louis3797/awesome-readme-template" alt="last update" />
-  </a>
+
   <a href="https://github.com/SamS709/ned_project/network/members">
     <img src="https://img.shields.io/github/forks/SamS709/ned_project" alt="forks" />
   </a>
@@ -136,9 +134,9 @@ Removed sections:
 <p></p>
 <p>I used <a href="https://opencv.org/"><b>Open-cv</b></a> python library to process the images returned by the camera of the robot.</p>
 <p>In the case of tic-tac-toe, the robot detects the shape of the pieces:</p>
-<img src = "images/readme/tictactoe_detection"/>
+<img src = "images/readme/morpionDetection.png" height = "10"/>
 <p>In the case of Connect 4, it detects their color:</p>
-<img src = "images/readme/connect4_detection"/>
+<img src = "images/readme/connect4Detection.png" height = "10"/>
 <p>The methods related to image processing are also in the Robot classes which is are "Robot.py" files located in Morpion and Connect4 folders.</p>
 </div>
 
@@ -147,11 +145,11 @@ Removed sections:
 <div>
 <p>To determine the next move, the robot can either send the current game grid to a minimax algorithm or to an AI model that will decide the best move to play.</p>
 <p>The <a href = "https://en.wikipedia.org/wiki/Minimax">minimax algorithm</a> will explore all possible outcomes of the game to determine the best move.</p>
-<img src = "images/readme/minimax"/>
+<img src = "images/readme/minimaxAlgorithm.png"/>
 <p>The AI ​​will rely on prior training (during which it has played many games) to determine the best move. This is <a href = "https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a></p>
 <p>Note that the user can create its own custom AI model and train it.</p>
 
-<img src = "images/readme/AI"/>
+<img src = "images/readme/trainingMenu.png"/>
 <p>The minimax algorithm is located in Morpion(resp. Connect4)/Minimax.</p>
 <p>The AI algorithm is located in Morpion(resp. Connect4)/AI.</p>
 </div>
@@ -237,65 +235,10 @@ Start the application
   python graphics.py
 ```
 
-
-<!-- Usage -->
-## Usage
-
-Use this space to tell a little more about your project and how it can be used. Show additional screenshots, code samples, demos or link to other resources.
-
-
-```javascript
-import Component from 'my-project'
-
-function App() {
-  return <Component />
-}
-```
-
-<!-- Roadmap -->
-## Roadmap
-
-* [x] Todo 1
-* [ ] Todo 2
-
-<!-- Contributing -->
-## Contributing
-
-<a href="https://github.com/Louis3797/awesome-readme-template/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Louis3797/awesome-readme-template" />
-</a>
-
-
-Contributions are always welcome!
-
-See `contributing.md` for ways to get started.
-
-
-<!-- Code of Conduct -->
-### Code of Conduct
-
-Please read the [Code of Conduct](https://github.com/Louis3797/awesome-readme-template/blob/master/CODE_OF_CONDUCT.md)
-
-
-<!-- License -->
-## License
-
-Distributed under the no License. See LICENSE.txt for more information.
-
-
 <!-- Contact -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Sami LEROUX - sami.lerouxpro@gmail.com
 
 Project Link: [https://github.com/Louis3797/awesome-readme-template](https://github.com/Louis3797/awesome-readme-template)
 
-<!-- Acknowledgments -->
-## Acknowledgements
-
-Use this section to mention useful resources and libraries that you have used in your projects.
-
- - [Shields.io](https://shields.io/)
- - [Awesome README](https://github.com/matiassingers/awesome-readme)
- - [Emoji Cheat Sheet](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md#travel--places)
- - [Readme Template](https://github.com/othneildrew/Best-README-Template)
