@@ -86,9 +86,7 @@ Removed sections:
 - [Getting Started](#getting-started)
   * [Prerequisites](#prerequisites)
   * [Run Locally](#run-locally)
-- [Contact](#contact)
-- [Acknowledgements](#acknowledgements)
-  
+- [Contact](#contact)  
 
 <!-- About the Project -->
 ## About the Project
