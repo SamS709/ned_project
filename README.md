@@ -240,5 +240,5 @@ Start the application
 
 Sami LEROUX - sami.lerouxpro@gmail.com
 
-Project Link: [https://github.com/Louis3797/awesome-readme-template](https://github.com/Louis3797/awesome-readme-template)
+Project Link: [https://github.com/SamS709/ned_project/tree/develop](https://github.com/SamS709/ned_project/tree/develop)
 
