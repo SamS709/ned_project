@@ -1,0 +1,535 @@
+#:import navigation_screen_manager navigation_screen_manager
+#:import box_layout_with_action_bar box_layout_with_action_bar
+#:import ai_models_interface ai_models_interface
+#:set BLUE 0,0,1,1
+
+#:set LIGHT_BLUE [182 / 256, 229 / 265, 246 / 256, 1]
+#:set BLUE [112 / 256, 159 / 265, 256 / 256, 1]
+
+
+
+<TextArea>:
+    orientation : 'vertical'
+    canvas.before:
+        Color:
+            rgba : root.Background_color
+        Rectangle:
+            pos : self.pos
+            size : self.size
+    canvas:
+        Color:
+            rgba : root.TA_color
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [30]
+        Color:
+            rgba : root.TitleArea_color
+        RoundedRectangle:
+            size: self.width,0.25*self.height
+            pos : self.pos[0], 0.75*self.height + self.pos[1]
+            radius : [(30, 30), (30, 30), (0,0), (0,0)]
+        Color:
+            rgba : root.Line_color
+        Line:
+            rounded_rectangle : self.x+2, self.y+2, self.width-4, self.height-4, 28, 28, 28, 28, 100
+            width : 2
+        Line:
+            points : self.x+2,self.y+0.75*self.height,self.x+self.width-2,self.y+0.75*self.height
+            width : 2
+    BoxLayout:
+        size_hint : 1,0.3
+        Label:
+            text_size : 0.8*self.width,self.height
+            halign : 'center'
+            valign : 'middle'
+            color : 115/256,63/256,11/256,1
+            text : root.title
+            font_size : 0.07*self.width
+            font_name: "fonts/pixel.TTF"
+            markup : True
+    BoxLayout:
+        orientation:'vertical'
+        canvas.before:
+            Rectangle:
+                id : image
+                pos:self.pos[0]+(self.width- min(200,self.height-150,self.width-50))/2,root.image_height
+                size: min(200,self.height-150,self.width-50),min(200,self.height-150,self.width-50)
+                source: root.image_source
+        Label:
+            background_color:1,1,1,1
+            text : root.text
+            font_size : 0.04*self.width
+            font_name: "fonts/robotaur.ttf"
+            line_height : 1.5
+            color : root.Text_Color
+            text_size: 0.8*self.size[0],0.8*self.size[1]
+            halign:'left'
+            valign:'top'
+
+
+<ChoiceLevel>:
+    canvas.before:
+        Color:
+            rgba : 182/256,229/265,246/256,1
+        Rectangle:
+            size: root.size
+            pos : root.pos
+    orientation: 'vertical'
+    BoxLayoutWithActionBar:
+        BoxLayout:
+            size_hint:1,0.25
+            background_color:1,1,0,1
+            orientation:'horizontal'
+            Label:
+                padding: 0.03*self.width
+                font_name: "fonts/robotaur.TTF"
+                font_size : 0.04*self.width
+                text:root.titre
+                text_size: self.size
+                valign:'middle'
+                color: 0,0,1,1
+                halign:'center'
+        BoxLayout:
+            BoxLayout:
+                size_hint:0.2,None
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 0.04*self.height
+                spacing: 0.04*self.height
+                BoxLayout:
+                    size_hint:1,1
+                    Image:
+                        source: root.image_source
+                        allow_stretch: False
+                        keep_ratio: False
+                Button:
+                    id : B1
+                    font_size : 0.07*self.width
+                    font_name: "fonts/pixel.TTF"
+                    background_color:(0,0,0,0)
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+                    canvas.before:
+                        Color:
+                            rgba : root.colors1
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [38]
+                        Color:
+                            rgba : 1,1,1,1
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                            width : 2
+                    text: root.B1text
+                    size_hint : 1,1
+                Button:
+                    id : B2
+                    font_size : 0.07*self.width
+                    font_name: "fonts/pixel.TTF"
+                    background_color:(0,0,0,0)
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+                    canvas.before:
+                        Color:
+                            rgba : root.colors2
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [38]
+                        Color:
+                            rgba : 1,1,1,1
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                            width : 2
+                    text: root.B2text
+                    size_hint : 1,1
+                Button:
+                    id : B3
+                    font_size : 0.07*self.width
+                    font_name: "fonts/pixel.TTF"
+                    background_color:(0,0,0,0)
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+                    canvas.before:
+                        Color:
+                            rgba : root.colors3
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [38]
+                        Color:
+                            rgba : 1,1,1,1
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                            width : 2
+                    text: root.B3text
+                    size_hint : 1,1
+                Button:
+                    id : B4
+                    font_size : 0.07*self.width
+                    font_name: "fonts/pixel.TTF"
+                    background_color:(0,0,0,0)
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+                    canvas.before:
+                        Color:
+                            rgba : root.colors4
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [38]
+                        Color:
+                            rgba : 1,1,1,1
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                            width : 2
+                    text: root.B4text
+                    size_hint : 1,1
+                BoxLayout:
+                    BoxLayout:
+                        size_hint: .3,1
+                    Button:
+                        id : B5
+                        font_size : 0.07*self.width
+                        font_name: "fonts/pixel.TTF"
+                        background_color:(0,0,0,0)
+                        on_press : root.pressB(self)
+                        on_release : root.releaseB(self)
+                        canvas.before:
+                            Color:
+                                rgba : root.colors5
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [38]
+                            Color:
+                                rgba : 1,1,1,1
+                            Line:
+                                rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                                width : 2
+                        text: root.B5text
+                        size_hint : 1,1
+                    BoxLayout:
+                        size_hint: .3,1
+            BoxLayout:
+                id : zdt
+                padding: 0.03*self.width
+
+<ChoiceMode>:
+    canvas.before:
+        Color:
+            rgba : 182/256,229/265,246/256,1
+        Rectangle:
+            size: root.size
+            pos : root.pos
+    orientation: 'vertical'
+    BoxLayoutWithActionBar:
+        BoxLayout:
+            canvas:
+                Color:
+                    rgba : 1,1,1,1
+                Line:
+                    points: (0.3*self.width,self.pos[1]+15,0.7*self.width,self.pos[1]+15)
+                    width : 2
+            size_hint:1,0.2
+            background_color:1,1,0,1
+            orientation:'horizontal'
+            Label:
+                padding: 0.2*self.height
+                font_name: "fonts/robotaur.TTF"
+                font_size : 0.04*self.width
+                text:"Choisis ton adversaire !"
+                text_size: self.size
+                valign:'top'
+                color: 0,0,1,1
+                halign:'center'
+        BoxLayout:
+            BoxLayout:
+                size_hint:0.15,None
+            BoxLayout:
+                size_hint : 0.85,1
+                orientation: 'vertical'
+                padding: 0,0,0,0.04*self.height
+                spacing: 0.04*self.height
+                BoxLayout:
+                    size_hint:1,3.5
+                    Image:
+                        source: root.image_source
+                        allow_stretch: False
+                        keep_ratio: False
+
+                Button:
+                    id : B1
+                    font_size : 0.07*self.width
+                    font_name: "fonts/pixel.TTF"
+                    background_color:(0,0,0,0)
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+                    canvas.before:
+                        Color:
+                            rgba : root.colors1
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [38]
+                        Color:
+                            rgba : 1,1,1,1
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                            width : 2
+                    text: root.B1text
+                    size_hint : 1,1
+                Button:
+                    id : B2
+                    font_size : 0.07*self.width
+                    font_name: "fonts/pixel.TTF"
+                    background_color:(0,0,0,0)
+                    on_press : root.pressB(self)
+                    on_release : root.releaseB(self)
+                    canvas.before:
+                        Color:
+                            rgba : root.colors2
+                        RoundedRectangle:
+                            size: self.size
+                            pos: self.pos
+                            radius: [38]
+                        Color:
+                            rgba : 1,1,1,1
+                        Line:
+                            rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                            width : 2
+                    text: root.B2text
+                    size_hint : 1,1
+                BoxLayout:
+                    BoxLayout:
+                        size_hint: .3,1
+                    Button:
+                        id : B5
+                        font_size : 0.07*self.width
+                        font_name: "fonts/pixel.TTF"
+                        background_color:(0,0,0,0)
+                        on_press : root.pressB(self)
+                        on_release :
+                            root.releaseB(self)
+                        canvas.before:
+                            Color:
+                                rgba : root.colors5
+                            RoundedRectangle:
+                                size: self.size
+                                pos: self.pos
+                                radius: [38]
+                            Color:
+                                rgba : 1,1,1,1
+                            Line:
+                                rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                                width : 2
+                        text: root.B5text
+                        size_hint : 1,1
+                    BoxLayout:
+                        size_hint: .3,1
+            BoxLayout:
+                size_hint:0.03,1
+            BoxLayout:
+                id : zdt
+                padding: 0.03*self.width
+
+<ChoiceGame>:
+    canvas.before:
+        Color:
+            rgba : 182/256,229/265,246/256,1
+        Rectangle:
+            size: root.size
+            pos : root.pos
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint:1,0.3
+        orientation : "horizontal"
+        BoxLayout:
+            canvas.before:
+                Color:
+                    rgba : 1,1,1,1
+                Rectangle:
+                    pos: self.pos
+                    size : self.size
+                Color:
+                    rgba : 0,0,0,1
+                Line:
+                    points:(2,self.pos[1],2,self.height+self.pos[1]-2,self.width-2,self.height+self.pos[1]-2,self.width-2,self.pos[1],2,self.pos[1])
+                    width:2
+            background_color:1,1,0,1
+            orientation:'horizontal'
+            Label:
+                padding: 0.03*self.width
+                font_name: "fonts/robotaur.TTF"
+                font_size : 0.04*self.width
+                text:"Choisis le jeu auquel tu veux affronter Ned"
+                text_size: self.size
+                valign:'middle'
+                color: 0,0,0,1
+                halign:'center'
+        Button:
+            id : Bsettings
+            canvas.before:
+                Rectangle:
+                    pos : self.pos
+                    size : self.size
+                    source : root.source_settings
+            background_color : [0,0,0,0]
+            size_hint: None,1
+            width: self.height
+            text : ""
+            on_press : root.pressB(self)
+            on_release : root.releaseB(self)
+    BoxLayout:
+        BoxLayout:
+            padding: 0.08*self.width
+            orientation: 'vertical'
+            padding: 0.04*self.height
+            spacing: 0.04*self.height
+            BoxLayout:
+                size_hint:1,2.5
+                padding: 30
+                RelativeLayout:
+                    Image:
+                        source: root.image_morpion
+                        allow_stretch: False
+                        keep_ratio: False
+            Button:
+                id : B1
+                font_size : 0.07*self.width
+                font_name: "fonts/pixel.TTF"
+                background_color:(0,0,0,0)
+                on_press : root.pressB(self)
+                on_release : root.releaseB(self)
+                canvas.before:
+                    Color:
+                        rgba : root.colors1
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [58]
+                    Color:
+                        rgba : root.color_line1
+                    Line:
+                        rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                        width : 2
+                text: root.B1text
+                size_hint : 1,1
+
+        BoxLayout:
+            padding: 0.15*self.width
+            orientation: 'vertical'
+            padding: 0.04*self.height
+            spacing: 0.04*self.height
+            BoxLayout:
+                size_hint:1,2.5
+                Image:
+                    source: root.image_connect4
+                    allow_stretch: False
+                    keep_ratio: False
+            Button:
+                id : B2
+                font_size : 0.07*self.width
+                font_name: "fonts/pixel.TTF"
+                background_color:(0,0,0,0)
+                on_press : root.pressB(self)
+                on_release : root.releaseB(self)
+                canvas.before:
+                    Color:
+                        rgba : root.colors2
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [58]
+                    Color:
+                        rgba : root.color_line2
+                    Line:
+                        rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                        width : 2
+                text: root.B2text
+                size_hint : 1,1
+    BoxLayout:
+        size_hint: 1,.3
+        padding : [0.4*self.width, 0.2*self.height, 0.4*self.width, 0.2*self.height]
+        Button:
+            id : B5
+            font_size : 0.1*self.width
+            font_name: "fonts/pixel.TTF"
+            background_color:(0,0,0,0)
+            on_press : root.pressB(self)
+            on_release :
+                root.releaseB(self)
+            canvas.before:
+                Color:
+                    rgba : root.colors5
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [48]
+                Color:
+                    rgba : 1,1,1,1
+                Line:
+                    rounded_rectangle : self.x, self.y, self.width, self.height, 58, 58, 58, 58, 100
+                    width : 2
+            text: root.B5text
+            size_hint : 1,1
+
+
+<Settings>:
+
+<ChoiceModeMorpion>:
+
+<ChooseAiModelPuissance4>:
+
+<MyScreenManager>:
+    Screen:
+        name: "ChoiceGame"
+        ChoiceGame:
+    Screen:
+        name: 'ChoiceModeMorpion'
+        ChoiceModeMorpion:
+    Screen:
+        name: 'ChoiceModePuissance4'
+        ChoiceModePuissance4:
+    Screen:
+        name: 'ChoiceLevelMinimax'
+        ChoiceLevelMinimax:
+    Screen:
+        name: 'ChoiceLevelIA'
+        ChoiceLevelIA:
+    Screen:
+        name: 'MorpionGame'
+        MorpionGame:
+    Screen:
+        name: 'Connect4Game'
+        Connect4Game:
+    Screen:
+        name: 'ChooseAIModelConnect4'
+        ChooseAIModel:
+            game: "Connect4"
+    Screen:
+        name : "EditModelsConnect4"
+        EditModels:
+            game: "Connect4"
+    Screen:
+        name: 'ChooseAIModelMorpion'
+        ChooseAIModel:
+            game: "Morpion"
+    Screen:
+        name : "EditModelsMorpion"
+        EditModels:
+            game: "Morpion"
+    Screen:
+        name: "MySettings"
+        MySettings:
+    Screen: 
+        name: "Connect4GameNoRobot"
+        BoxLayoutWithActionBar:
+            Connect4GameNoRobot:
+
+
+
+
+

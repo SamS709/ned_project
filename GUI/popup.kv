@@ -1,0 +1,13 @@
+<MyPopup>:
+    background_color: [0,0,0,0]
+    canvas.before:
+        Color:
+            rgba: BLUE
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: LIGHT_BLUE
+        Line:
+            rectangle: self.x+2, self.y+2, self.width-4, self.height-4
+            width: 2

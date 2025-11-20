@@ -14,7 +14,10 @@ from Morpion.morpionInterface import var1
 from kivy.lang import Builder
 from Connect4.AI.Train import *
 from kivy.core.window import Window
-from ai_models_interface import TestButton
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'GUI'))
+from ai_models_interface import MyButton
 
 Builder.load_file('Connect4/connect4Interface.kv')
 
@@ -36,8 +39,8 @@ class Grille(BoxLayout):
         super().__init__(**kwargs)
         
         #self.add_widget(Button(size_hint=(1,1)))
-        self.Lbuttons = [] #liste des boutons répartis en colonne pour capter les clics
-        for i in range(7): #création des boutons
+        self.Lbuttons = [] # list of buttons distributed in columns to capture clicks
+        for i in range(7): # button creation
             self.Lbuttons.append(Button(text=str(i),background_color=(0,0,0,0),color=(1,1,1,0)))
             self.add_widget(self.Lbuttons[i])
         #self.add_widget(Button(size_hint=(1, 1)))
@@ -45,23 +48,23 @@ class Grille(BoxLayout):
         self.LC = [[]for j in range(7)]
         with self.canvas.before:
             Color(0, 0, 1, 0.9)
-            for i in range(7): #création d'un fond blau pour chaque bouton => grand rectangle bleu qui fait toute la page
+            for i in range(7): # creating a blue background for each button => big blue rectangle that covers the whole page
                 self.LR.append(Rectangle(pos=self.Lbuttons[2].pos, size=self.Lbuttons[0].size))
             Color(LIGHT_BLUE[0], LIGHT_BLUE[1], LIGHT_BLUE[2], LIGHT_BLUE[3])
-            for i in range(6): #création des cercles de couleur noir par dessus le rectangle bleu pour faire des 'trous' dans la grille
+            for i in range(6): # creating black circles on top of the blue rectangle to make 'holes' in the grid
                 for j in range(7):
                     self.LC[i].append(Ellipse(pos=(100,100),size=(50,50)))
         
 
-class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans robot
+class Connect4GameNoRobot(FloatLayout): # Main class for Connect4 game without robot
 
     def __init__(self, P1='1P', **kwargs):
         super().__init__(**kwargs)
         Window.bind(mouse_pos=self.mouse_pos)
-        self.depth = 3 #niveau de jeu
-        self.minimax = MinMax() #on instancie l'algorithme Minimax
-        self.P1 = P1 #choix du mode de jeu (fait à partir de Mode : prend la valeur donnée à Mode)
-        self.reset() #on initialise la partie
+        self.depth = 3 # game level
+        self.minimax = MinMax() # instantiate the Minimax algorithm
+        self.P1 = P1 # game mode choice (made from Mode: takes the value given to Mode)
+        self.reset() # initialize the game
 
     def on_press_reset(self, instance):
         instance.button_color = DARK_BLUE
@@ -71,15 +74,15 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
         self.reset()
 
     def reset(self):
-        self.clear_widgets() # on enlève tous les widgets de la fenêtre
+        self.clear_widgets() # remove all widgets from the window
         self.P1 = '2' # by default, the AI plays after
         self.player = 'J' # by default, the user starts (user = yellow player)
-        self.grille = Grille() # on instancie une nouvelle grille de jeu
-        self.add_widget(self.grille) #On affiche la grille
-        self.grid = np.array([0 for j in range(42)]) # on créé une grille de jeu 'théorique' qui permet de gérer ce qui se passe en back
-        self.table = self.minimax.grid_to_table(self.grid) # on convertit la grille en table pour l'algorithme Minimax
-        self.init_C() #Initialisation des pions qui vont s'afficher dans la grille
-        self.button() #initioalisation des boutons bindés
+        self.grille = Grille() # instantiate a new game grid
+        self.add_widget(self.grille) # Display the grid
+        self.grid = np.array([0 for j in range(42)]) # create a 'theoretical' game grid that manages what happens in the back
+        self.table = self.minimax.grid_to_table(self.grid) # convert the grid to table for Minimax algorithm
+        self.init_C() # Initialize the pieces that will be displayed in the grid
+        self.button() # initialize the bound buttons
         self.wpionJ = Widget() # we create the piece of user
         with self.canvas.before:
             Color(0.68, 0.85, 0.90, 1)  # light blue (RGB: 173, 216, 230)
@@ -87,9 +90,9 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
         self.bind(pos=self._update_bg, size=self._update_bg)
         with self.wpionJ.canvas:
             Color(1,1,0,1)
-            self.pionJ = Ellipse(pos=(100, 100), size=(50, 50)) #On associe un canva au pion Jaune
+            self.pionJ = Ellipse(pos=(100, 100), size=(50, 50)) # Associate a canvas to the Yellow piece
         self.add_widget(self.wpionJ) 
-        self.player_one_button = TestButton(
+        self.player_one_button = MyButton(
             text='Play 2nd',
             size_hint=(0.2, 0.08),
             #size=(0.1, 0.1),
@@ -98,7 +101,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             on_press = self.on_press_player_one,
             on_release = self.on_release_player_one
         )
-        self.reset_button = TestButton(
+        self.reset_button = MyButton(
             text='Play again',
             size_hint=(0.2, 0.08),
             #size=(0.1, 0.1),
@@ -107,7 +110,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
             on_press = self.on_press_reset,
             on_release = self.on_release_reset
         )
-        self.add_widget(self.player_one_button) #On ajoute le bouton pour laisser l'adversaire commencer
+        self.add_widget(self.player_one_button) # Add the button to let the opponent start
         self.add_widget(self.reset_button)        
         self.on_size() # updateing the size of the elements
 
@@ -129,10 +132,10 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
         self.bg_rect.pos = self.pos
         self.bg_rect.size = self.size
         
-    def button(self): # création des 7 boutons verticaux captant les clics
+    def button(self): # creation of 7 vertical buttons capturing clicks
         for i in range(7):
-            self.grille.Lbuttons[i].bind(on_release = self.release) #on bind ce qu'il se passe qd on press
-            self.grille.Lbuttons[i].bind(on_press=self.press) #on bind ce qu'il se passe qd on relache
+            self.grille.Lbuttons[i].bind(on_release = self.release) # bind what happens when button is pressed
+            self.grille.Lbuttons[i].bind(on_press=self.press) # bind what happens when button is released
 
     def firstPlayer(self,table): # tells who played the first move
             n1 = np.count_nonzero(table == 1)
@@ -210,11 +213,11 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
 
 
 
-    def init_C(self,*args):
-        self.LwCJ = [[] for j in range(7)]
-        self.LwCR = [[] for j in range(7)]
-        self.LCJ = [[] for j in range(7)]
-        self.LCR = [[] for j in range(7)]
+    def init_C(self,*args): # init the circles
+        self.LwCJ = [[] for j in range(7)] # yellow widgets
+        self.LwCR = [[] for j in range(7)] # red widgets
+        self.LCJ = [[] for j in range(7)] # yellow canvas
+        self.LCR = [[] for j in range(7)] # red canvas
         for i in range(6):
             for j in range(7):
                 self.LwCJ[i].append(Widget())
@@ -230,7 +233,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
 
 
 
-    def on_size(self, *args):
+    def on_size(self, *args): # keeps proportions
 
         W,H= self.width, self.height
         w,h = W/7, 6*H/8
@@ -253,7 +256,7 @@ class Connect4GameNoRobot(FloatLayout): #Classe principale du jeu Connect4 sans 
                 self.LCJ[5-i][j].pos = j * w + w / 2 - R / 2, i * hh + hh / 2 - R / 2
                 self.LCR[5-i][j].pos = j * w + w / 2 - R / 2, i * hh + hh / 2 - R / 2
 
-    def mouse_pos(self, window, pos):
+    def mouse_pos(self, window, pos): # detects mouse pos, and changes the yellow piece position thanks to it
         self.mousepos = pos
         self.pionJ.pos = pos[0] - self.pionJ.size[0] / 2, self.height - self.pionJ.size[1]
 
@@ -264,7 +267,7 @@ class graphicsApp(App):
     title = "Kivy Mouse Pos Demo"
 
     def build(self):
-        return Mode()
+        return Connect4GameNoRobot()
 
 
 if __name__ == "__main__":
