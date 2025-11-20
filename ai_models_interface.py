@@ -43,17 +43,20 @@ class ThemedProgressBar(ProgressBar):
 class GetInfo:
      
      def __init__(self,game="Connect4"):
-          self.path = f"\{game}\AI\models"
+          self.curr_dir =os.path.dirname(os.path.abspath(__file__))
+          
+          self.path = os.path.join(game,"AI","models")
      
      def get_model_path(self,model_name):
-         return os.path.join(os.getcwd()+self.path,model_name)
+         return os.path.join(self.curr_dir,self.path,model_name)
      
      def get_model_names(self): # returns a list of the name of the models we have
-          return os.listdir(os.getcwd()+self.path)
+          print("curr_dir=",self.curr_dir)
+          return os.listdir(os.path.join(self.curr_dir,self.path))
      
      def get_info_model(self,model_name):
         print(os.getcwd())
-        filepath=os.getcwd()+self.path+f"\{str(model_name)}1"
+        filepath=os.path.join(self.curr_dir,self.path,f"\{str(model_name)}1")
         print(filepath)
         model = keras.models.load_model(filepath=filepath)
         cfg = model.get_config()

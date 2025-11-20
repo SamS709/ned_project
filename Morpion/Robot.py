@@ -20,9 +20,9 @@ class Robot:
         self.robot = robot
         self.stock = PoseObject(x = -0.0220, y = -0.1308, z = 0.0989,
                                 roll = -0.248, pitch = 1.259, yaw = 2.945)  # position of the stock of circles (pieces played by the robot)
-        self.observation_pose2 = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
+        self.observation_pose = PoseObject(x = 0.0019, y = -0.2310, z = 0.3170,
                                            roll = -3.046, pitch = 1.204, yaw = 1.689) # DON'T USE THIS, prefer the next one which matches with the original camera
-        self.observation_pose = PoseObject(x = -0.0039, y = -0.2469, z = 0.3117,
+        self.observation_pose2 = PoseObject(x = -0.0039, y = -0.2469, z = 0.3117,
                                            roll = -2.849, pitch = 1.375, yaw = 1.852) # position adapted to analyse the board
         self.home_pos = PoseObject(x = -0.0003, y = -0.1231, z = 0.1630,
                                    roll = -0.014, pitch = 1.053, yaw = -1.560)
@@ -195,33 +195,33 @@ class Robot:
             table[L2[0],L2[1]] = 2
         return table
 
-    def pos_grid2(self,i,j): # BE CAREFUL, THIS FUNCTION IS MADE FOR ME BECAUSE I DONT HAVE THE ORIGINAL CAMERA
+    def pos_grid(self,i,j): # BE CAREFUL, THIS FUNCTION IS MADE FOR ME BECAUSE I DONT HAVE THE ORIGINAL CAMERA
         x,x,y,y = 0,0,0,0
         if i==0 :
             if j == 0:
-                x,y = 239 , 80
+                x,y = 250 , 198
             if j == 1:
-                x,y = 353 , 82
+                x,y = 356 , 202
             if j == 2:
-                x,y = 484 , 86
+                x,y = 466 , 201
         if i == 1:
             if j == 0:
-                x, y = 235 , 199
+                x, y = 259 , 305
             if j == 1:
-                x, y = 357 , 202
+                x, y = 369 , 308
             if j == 2:
-                x, y = 477 , 205
+                x, y = 483 , 316
         if i == 2:
             if j == 0:
-                x, y = 239 , 325
+                x, y = 239 , 443
             if j == 1:
-                x, y = 358 , 323
+                x, y = 361 , 437
             if j == 2:
-                x, y = 482 , 327
+                x, y = 486 , 450
         eps = 35
         return [y-eps,y+eps,x-eps,x+eps]
 
-    def pos_grid(self, i, j): # returns the position in the real space (x,y) of table[i,j] for the original camera
+    def pos_grid2(self, i, j): # returns the position in the real space (x,y) of table[i,j] for the original camera
         x,x,y,y = 0,0,0,0
         if i==0 :
             if j == 0:
@@ -341,8 +341,8 @@ class Robot:
 
 if __name__ == '__main__':
     robot1 = Robot()
-    robot1.affiche_contours()
-    #robot1.get_HSV_and_mousePos()
+    """robot1.affiche_contours()
+    robot1.get_HSV_and_mousePos()"""
     print(robot1.modif_table())
     print(robot1.robot.get_pose())
     #robot1.place(0,0)

@@ -19,8 +19,8 @@ class Robot:
                                      roll = 0.077, pitch = 1.028, yaw = 0.042) # middle position when the robot plays in order to avoid collisions with the board
         self.home_pos = PoseObject(x = 0.1344, y = -0.0001, z = 0.1652,
                                    roll = 0.000, pitch = 1.011, yaw = -0.001)
-        self.observationPose2 = PoseObject(x = 0.1314, y = 0.0054, z = 0.2100,
-                                           roll = 0.031, pitch = 0.337, yaw = 0.034)
+        self.observationPose2 = PoseObject(x = 0.1448, y = 0.0048, z = 0.1768,
+                                           roll = 0.045, pitch = 0.449, yaw = 0.036)
         self.observationPose = PoseObject(x = 0.1320, y = 0.0052, z = 0.2225,
                                             roll = -0.040, pitch = 0.273, yaw = 0.034)
 
@@ -40,12 +40,12 @@ class Robot:
         hsvFrame = cv2.cvtColor(img_undis, cv2.COLOR_BGR2HSV)
 
         # Set range for red color
-        red_lower = np.array([165, 100, 75], np.uint8)
+        red_lower = np.array([165, 0, 75], np.uint8)
         red_upper = np.array([180, 255, 255], np.uint8)
         red_mask = cv2.inRange(hsvFrame, red_lower, red_upper)
 
         # Set range for yellow color
-        yellow_lower = np.array([10,100,80], np.uint8)
+        yellow_lower = np.array([10,0,80], np.uint8)
         yellow_upper = np.array([30,255,255], np.uint8)
         yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
 
@@ -111,7 +111,7 @@ class Robot:
         cv2.imshow("Color Detection", imageFrame)
         cv2.waitKey(0)
 
-    def pos_grid(self,i,j): # returns the position in the real space (x,y) of table[i,j]
+    def pos_grid2(self,i,j): # returns the position in the real space (x,y) of table[i,j]
         x0,x1,y0,y1 = 0,0,0,0
         eps = 30
         if i == 0:
@@ -292,181 +292,181 @@ class Robot:
         return [x0,x1,y0,y1 ]
 
 
-    def pos_grid2(self,i,j): # returns the position in the real space (x,y) of table[i,j]
+    def pos_grid(self,i,j): # returns the position in the real space (x,y) of table[i,j]
         x0,x1,y0,y1 = 0,0,0,0
         eps = 30
         if i == 0:
             if j == 0:
-                x,y= 50 , 134
+                x,y=   86 , 57
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y= 147 , 133
+                x,y= 171 , 62
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
-                x,y=242 , 130
+                x,y=251 , 60
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 3:
-                x, y =329 , 131
+                x, y = 329 , 62
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y =418 , 130
+                x, y =402 , 64
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
-                x, y = 512 , 127
+                x, y = 471 , 62
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 6:
-                x, y = 604 , 122
+                x, y = 548 , 59 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
         if i == 1:
             if j == 0:
-                x,y=55 , 199
+                x,y=93 , 131
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y=152 , 197
+                x,y=172 , 132
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
-                x,y= 245 , 199
+                x,y= 253 , 135
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 3:
-                x, y = 332 , 197
+                x, y = 328 , 131 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y = 423 , 197
+                x, y = 399 , 132
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
-                x, y = 513 , 193
+                x, y = 474 , 132 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 6:
-                x, y = 600 , 189
+                x, y = 544 , 133
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
         if i == 2:
             if j == 0:
-                x,y= 61 , 264
+                x,y=  97 , 196
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y= 156 , 261
+                x,y= 175 , 197
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
-                x,y= 247 , 261
+                x,y= 257 , 197
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 3:
-                x, y = 336 , 258
+                x, y = 331 , 202
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y = 424 , 262
+                x, y = 401 , 197
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
-                x, y = 509 , 257
+                x, y = 473 , 196
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 6:
-                x, y = 596 , 254
+                x, y = 549 , 192
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
         if i == 3:
             if j == 0:
-                x,y= 62 , 329
+                x,y= 102 , 266
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y= 156 , 328
+                x,y= 179 , 265
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
-                x,y= 247 , 325
+                x,y= 258 , 264
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 3:
-                x, y = 336 , 324
+                x, y = 334 , 260
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y = 425 , 323
+                x, y = 403 , 267
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
-                x, y = 510 , 324
+                x, y = 476 , 266
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 6:
-                x, y = 593 , 317
+                x, y = 546 , 262
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
         if i == 4:
             if j == 0:
-                x,y= 69 , 389
+                x,y= 103 , 334
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y= 162 , 390
+                x,y= 179 , 329
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
-                x,y= 249 , 389
+                x,y= 254 , 332
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 3:
-                x, y = 337 , 388
+                x, y = 329 , 330 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y = 422 , 386
+                x, y = 396 , 329 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
-                x, y = 510 , 383
+                x, y = 470 , 323
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 6:
-                x, y = 595 , 379
+                x, y = 545 , 333 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
         if i == 5:
             if j == 0:
-                x,y= 71 , 449
+                x,y= 106 , 397 
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 1:
-                x,y= 160 , 448
+                x,y= 179 , 398
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 2:
-                x,y= 249 , 445
+                x,y= 256 , 395
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 3:
-                x, y = 335 , 446
+                x, y = 327 , 402
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 4:
-                x, y = 424 , 443
+                x, y = 401 , 399
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 5:
-                x, y = 506 , 441
+                x, y = 468 , 394
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
             if j == 6:
-                x, y = 588 , 436
+                x, y = 537 , 390
                 x0,x1 = x-eps,x+eps
                 y0,y1 = y-eps,y+eps
 
@@ -597,6 +597,6 @@ if __name__=='__main__':
     #robot1.place(0)
     print(robot1.robot.get_pose())
     print(robot1.modif_table())
-    #robot1.get_HSV_and_mousePos()
+    robot1.get_HSV_and_mousePos()
     """for j in range(7):
         robot1.place(j)"""
