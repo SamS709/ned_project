@@ -502,7 +502,9 @@ class Robot:
             table[ind[0],ind[1]]=1
         for ind in L_table_yellow:
             table[ind[0],ind[1]]=2
-        print(self.check_table(table))
+        L_undetected = self.check_table(table)
+        for undetected in L_undetected:
+            table[undetected] = 1
         return table
 
 
