@@ -103,8 +103,19 @@ class Robot:
 
         L_pos_red = L_pos_red[1:,:]
         L_pos_yellow = L_pos_yellow[1:,:]
-
         return imageFrame, L_pos_red, L_pos_yellow
+    
+    def check_table(self,table):
+        L_undetected_pieces = []
+        for j in range(7):
+            for i in range(5,-1,-1):
+                if table[i,j] == 0:
+                    top_ind = range(i,-1,-1)
+                    for t in top_ind:
+                        if table[t,j] == 1 or table[t,j] == 2 and [i,j] not in L_undetected_pieces:
+                            L_undetected_pieces.append([i,j])
+        return L_undetected_pieces
+
 
     def show_image(self): # to show the image returned by red_yellow_pos
         imageFrame = self.red_yellow_pos()[0]
@@ -471,20 +482,27 @@ class Robot:
                 y0,y1 = y-eps,y+eps
 
         return [x0,x1,y0,y1 ]
+    
+    def L_pos_to_L_table(self,L_pos):
+        L_table = []
+        for pos in L_pos:
+            for i in range(6):
+                for j in range(7):
+                    if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
+                        L_table.append([i,j])
+        return L_table
+
 
     def modif_table(self): # returns the table (2d numpy array 6*7) detected by the robot
         imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
+        L_table_yellow = self.L_pos_to_L_table(Lposyellow)
+        L_table_red = self.L_pos_to_L_table(Lposred)
         table = np.array([[0 for i in range(7)]for i in range(6)])
-        for pos in Lposred:
-            for i in range(6):
-                for j in range(7):
-                    if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
-                        table[i,j]=1
-        for pos in Lposyellow:
-            for i in range(6):
-                for j in range(7):
-                    if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
-                        table[i,j]=2
+        for ind in L_table_red:
+            table[ind[0],ind[1]]=1
+        for ind in L_table_yellow:
+            table[ind[0],ind[1]]=2
+        print(self.check_table(table))
         return table
 
 
@@ -594,9 +612,9 @@ class Robot:
 if __name__=='__main__':
 
     robot1 = Robot()
-    #robot1.place(0)
-    print(robot1.robot.get_pose())
-    print(robot1.modif_table())
-    robot1.get_HSV_and_mousePos()
-    """for j in range(7):
-        robot1.place(j)"""
+    # #robot1.place(0)
+    # print(robot1.robot.get_pose())
+    # print(robot1.modif_table())
+    # robot1.get_HSV_and_mousePos()
+    # """for j in range(7):
+    #     robot1.place(j)"""

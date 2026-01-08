@@ -17,7 +17,7 @@
         ActionView:
             ActionPrevious:
                 title: root.title #c'est le titre donné au BoxLayoutWithActionBar
-                #on_release: root.parent.parent.pop()     # on remonte dans les parents : BoxLayoutWithActionBar->Screen->ScreenManager
+                # on_release: root.parent.parent.parent.pop()     # on remonte dans les parents : BoxLayoutWithActionBar->Screen->ScreenManager
                 on_release: app.manager.pop()
                 app_icon : "images/lab_logo.png"
                 app_icon_height : "35dp"

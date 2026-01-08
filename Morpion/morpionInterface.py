@@ -275,7 +275,7 @@ class MorpionGame(BoxLayout):
         if i == 3:
             self.ids.G1._coreimage.anim_reset(True)
             self.ids.G1.anim_loop = 1
-            self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
+            # self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
             self.delay = 1 / 40
             self.animationFire('redFire')
             instance.color = [1,1,1,1]

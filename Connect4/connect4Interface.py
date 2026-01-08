@@ -229,7 +229,14 @@ class Connect4Game(BoxLayout):
                     if self.table[h, j] == 2:
                         self.game.add_widget(self.game.LwCJ[h][j])
         if i == 1:
-            self.game.add_widget(self.game.LwCR[p][q])
+            for h in range(self.table.shape[0]):
+                for j in range(self.table.shape[1]):
+                    self.game.remove_widget(self.game.LwCJ[h][j])
+                    self.game.remove_widget(self.game.LwCR[h][j])
+                    if self.table[h, j] == 1:
+                        self.game.add_widget(self.game.LwCR[h][j])
+                    if self.table[h, j] == 2:
+                        self.game.add_widget(self.game.LwCJ[h][j])
         if i == 2:
             self.animationFire('end')
             instance.text = 'Enleve les pieces\npour recommencer'
@@ -241,7 +248,7 @@ class Connect4Game(BoxLayout):
         if i == 3:
             self.ids.G1._coreimage.anim_reset(True)
             self.ids.G1.anim_loop = 1
-            self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
+            # self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
             self.delay = 1 / 40
             self.animationFire('redFire')
             instance.color = [1,1,1,1]
