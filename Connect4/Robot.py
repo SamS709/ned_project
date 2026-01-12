@@ -491,9 +491,21 @@ class Robot:
                     if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
                         L_table.append([i,j])
         return L_table
+    
+    def count_pieces(self, table):
+        n_red = 0
+        n_yellow = 0
+        for i in range (table.shape[0]):
+            for j in range(table.shape[1]):
+                if table[i, j] == 1:
+                    n_red += 1
+                elif table[i, j] == 2:
+                    n_yellow += 2
+        return n_red, n_yellow
+                  
 
 
-    def modif_table(self): # returns the table (2d numpy array 6*7) detected by the robot
+    def modif_table(self, table_0): # returns the table (2d numpy array 6*7) detected by the robot
         imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
         L_table_yellow = self.L_pos_to_L_table(Lposyellow)
         L_table_red = self.L_pos_to_L_table(Lposred)
