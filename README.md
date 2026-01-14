@@ -1,30 +1,5 @@
 
 
-<!--
-Hey, thanks for using the awesome-readme-template template.  
-If you have any enhancements, then fork this project and create a pull request 
-or jus<ul>
-<li><b>graphics.py</b> : Game, strategy, and level selection menus will be found here</li>
-<li><b>ai_models_interface.py</b> : All the graphics related to AI, such as model edit, training or selection will be here</li>
-<li><b>morpion(resp. connect4)Interface.py</b> : GUI for playing against the robot. The purpose of this interface is to tell the robot when to play and to see if the piece detection is working correctly. </li>
-<li><b>box_layout_with_action_bar.py</b> : The actionbar which allows you to connect to the robot and to go to previous page. </li>
-<li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menus. </li>
-</ul>an issue with the label "enhancement".
-
-Don't forget to give this project a star for additional support ;)
-Maybe you can mention me or this repo in the acknowledgements too
--->
-
-<!--
-This README is a slimmed down version of the original one.
-Removed sections:
-- Screenshots
-- Running Test
-- Deployment
-- FAQ
-- Acknowledgements
--->
-
 <div align="center">
 
   <img src="images/readme/robot_arm.gif" alt="logo" width="200" height="auto" />
@@ -35,7 +10,6 @@ Removed sections:
   </p>
 
   
-<!-- Badges -->
 <p>
   <a href="https://github.com/SamS709/ned_project/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/SamS709/ned_project" alt="contributors" />
@@ -132,7 +106,7 @@ Removed sections:
 
 <div>
 <p>To determine the next move, the robot can either send the current game grid to a minimax algorithm or to an AI model that will decide the best move to play.</p>
-<p>The <a href = "https://en.wikipedia.org/wiki/Minimax">minimax algorithm</a> will explore all possible outcomes of the game to determine the best move.</p>
+<p>The <a href = "https://en.wikipedia.org/wiki/Minimax">algorithm</a> will explore all possible outcomes of the game to determine the best move.</p>
 <img src = "images/readme/minimaxAlgorithm.png" height = "200"/>
 <p>The AI ​​will rely on prior training (during which it has played many games) to determine the best move. This is <a href = "https://en.wikipedia.org/wiki/Reinforcement_learning">reinforcement learning</a></p>
 <p>Note that the user can create its own custom AI model and train it.</p>
@@ -155,65 +129,7 @@ Removed sections:
 <li><b>navigation_screen_manager.py</b> : Manage the screens so that we can navigate between menus. </li>
 </ul>
 
-<!-- Project Structure -->
-#### Detailed Project Structure
 
-```
-ned_project/
-├── main.py                           # Main application launcher
-├── global_vars.py                    # Global variables and color constants
-├── README.md                         # Project documentation
-│
-├── GUI/                              # Graphical User Interface
-│   ├── graphics.py/.kv               # Main game selection interface
-│   ├── ai_models_interface.py/.kv    # AI model management interface
-│   ├── box_layout_with_action_bar.py/.kv  # Navigation bar with robot connection
-│   ├── popup.py/.kv                  # Dialog boxes and popups
-│   ├── navigation_screen_manager.py  # Screen navigation management
-│   └── test.py/.kv                   # Testing interface
-│
-├── Connect4/                         # Connect 4 game implementation
-│   ├── Connect4.py                   # Game logic and rules
-│   ├── connect4Interface.py/.kv      # Game interface for robot play
-│   ├── Robot.py                      # Robot control and image processing
-│   ├── game.py/.kv                   # Game board visualization
-│   ├── test.py                       # Testing utilities
-│   │
-│   ├── AI/                           # Artificial Intelligence
-│   │   ├── DQN.py                    # Deep Q-Network implementation
-│   │   ├── Train.py                  # AI model training
-│   │   ├── connect4InterfaceNoRobot.py/.kv  # AI testing without robot
-│   │   ├── models/                   # Trained AI models storage
-│   │   └── fonts/                    # UI fonts for AI interface
-│   │
-│   ├── Minimax/                      # Minimax algorithm
-│   │   └── MinMax.py                 # Minimax strategy implementation
-│   │
-│   ├── fonts/                        # Connect4-specific fonts
-│   ├── gifs/                         # Animation files
-│   └── image/                        # Connect4 game images
-│
-├── Morpion/                          # Tic-tac-toe game implementation
-│   ├── Morpion.py                    # Game logic and rules
-│   ├── morpionInterface.py/.kv       # Game interface for robot play
-│   ├── Robot.py                      # Robot control and image processing
-│   │
-│   ├── AI/                           # Artificial Intelligence
-│   │   └── [AI implementation files]
-│   │
-│   ├── Minimax/                      # Minimax algorithm
-│   │   └── MinMax.py                 # Minimax strategy implementation
-│   │
-│   ├── fonts/                        # Morpion-specific fonts
-│   ├── gifs/                         # Animation files
-│   └── image/                        # Tic-tac-toe game images
-│
-├── fonts/                            # Global fonts
-│
-└── images/                           # Global images
-```
-
-<!-- TechStack -->
 ### Tech Stack
 
 <details>
@@ -287,5 +203,5 @@ Start the application
 
 Sami LEROUX - sami.lerouxpro@gmail.com
 
-Project Link: [https://github.com/SamS709/ned_project/tree/develop](https://github.com/SamS709/ned_project/tree/develop)
+Project Link: [https://github.com/SamS709/ned_project/tree/develop](https://github.com/SamS709/ned_project)
 

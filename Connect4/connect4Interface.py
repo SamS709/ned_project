@@ -172,7 +172,7 @@ class Connect4Game(BoxLayout): # manages secondary animations and robot actions
         try:
             self.robot1 = Robot() # useful to access to ned's actions
             self.action_bar.animate_wifi("green")
-            self.table = self.robot1.modif_table() # the robot look at the game and change the table according to the detected piece
+            self.table = self.robot1.modif_table(self.table.copy()) # the robot look at the game and change the table according to the detected piece
             self.fire("red") # change traffic light to red
             self.first_end = False # if a game is restarted we want first_end to be false
             self.modifUI(instance,0)# update the displayed game according to the table
@@ -229,7 +229,14 @@ class Connect4Game(BoxLayout): # manages secondary animations and robot actions
                     if self.table[h, j] == 2:
                         self.game.add_widget(self.game.LwCJ[h][j])
         if i == 1:
-            self.game.add_widget(self.game.LwCR[p][q])
+            for h in range(self.table.shape[0]):
+                for j in range(self.table.shape[1]):
+                    self.game.remove_widget(self.game.LwCJ[h][j])
+                    self.game.remove_widget(self.game.LwCR[h][j])
+                    if self.table[h, j] == 1:
+                        self.game.add_widget(self.game.LwCR[h][j])
+                    if self.table[h, j] == 2:
+                        self.game.add_widget(self.game.LwCJ[h][j])
         if i == 2:
             self.animateTrafficLight('end')
             instance.text = self.restartText
@@ -241,7 +248,7 @@ class Connect4Game(BoxLayout): # manages secondary animations and robot actions
         if i == 3:
             self.ids.G1._coreimage.anim_reset(True)
             self.ids.G1.anim_loop = 1
-            self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
+            # self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
             self.delay = 1 / 40
             self.animateTrafficLight('redFire')
             instance.color = [1,1,1,1]

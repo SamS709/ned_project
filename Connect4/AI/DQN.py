@@ -1,5 +1,4 @@
-from silence_tensorflow import silence_tensorflow
-silence_tensorflow("ERROR")
+
 import random
 import os
 from tensorflow import keras
