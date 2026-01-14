@@ -2,6 +2,8 @@ from pyniryo import *
 import time
 import numpy as np
 import cv2
+from sympy import false
+from Connect4 import Connect4
 
 class Robot:
 
@@ -105,17 +107,7 @@ class Robot:
         L_pos_yellow = L_pos_yellow[1:,:]
         return imageFrame, L_pos_red, L_pos_yellow
     
-    def check_table(self,table):
-        L_undetected_pieces = []
-        for j in range(7):
-            for i in range(5,-1,-1):
-                if table[i,j] == 0:
-                    top_ind = range(i,-1,-1)
-                    for t in top_ind:
-                        if table[t,j] == 1 or table[t,j] == 2 and [i,j] not in L_undetected_pieces:
-                            L_undetected_pieces.append([i,j])
-        return L_undetected_pieces
-
+ 
 
     def show_image(self): # to show the image returned by red_yellow_pos
         imageFrame = self.red_yellow_pos()[0]
@@ -505,18 +497,40 @@ class Robot:
                   
 
 
+    def compare_tables(self, table_0, table): # True if table is a valid "next" table after table_0
+        L_avaible_pos = Connect4().avaible_pos_graphics(Connect4().table_to_grid(table_0))
+        count_different_pieces = 0
+        p, q = 0, 0
+        for i in range((table.shape[0])):
+            for j in range(table.shape[1]):
+                if table_0[i,j] != table[i,j]:
+                    count_different_pieces +=1
+                    p, q = i, j
+        print(count_different_pieces)
+        print(p,q)
+        if count_different_pieces != 1:
+            return False
+        elif [p,q] in L_avaible_pos:
+            return True
+        return False
+
+
+
     def modif_table(self, table_0): # returns the table (2d numpy array 6*7) detected by the robot
-        imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
-        L_table_yellow = self.L_pos_to_L_table(Lposyellow)
-        L_table_red = self.L_pos_to_L_table(Lposred)
-        table = np.array([[0 for i in range(7)]for i in range(6)])
-        for ind in L_table_red:
-            table[ind[0],ind[1]]=1
-        for ind in L_table_yellow:
-            table[ind[0],ind[1]]=2
-        L_undetected = self.check_table(table)
-        for undetected in L_undetected:
-            table[undetected] = 1 #
+        
+        n_iter = 10
+        table = table_0.copy()
+        while n_iter >=0 and not self.compare_tables(table_0, table):
+            imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
+            L_table_yellow = self.L_pos_to_L_table(Lposyellow)
+            L_table_red = self.L_pos_to_L_table(Lposred)
+            for ind in L_table_red:
+                table[ind[0],ind[1]]=1
+            for ind in L_table_yellow:
+                table[ind[0],ind[1]]=2
+            table[table_0 != 0] = table_0[table_0 != 0]
+            n_iter -= n_iter
+
         return table
 
 
