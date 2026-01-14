@@ -8,6 +8,7 @@ from kivy.app import App
 from global_vars import *
 from ai_models_interface import MyButton, InfoLabel, InfoBoxLayout
 
+# The popup that appears to choose between playing the robot or the computer.
 
 class MyPopup(Popup):
     def __init__(self, **kwargs):

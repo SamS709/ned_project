@@ -17,26 +17,30 @@ class DQN(Connect4):
     def __init__(self,model_name,softmax_,n_layers=2,n_neurons=32,learning_rate=1e-2,gamma=1e-1,eps = 0.9,P1="1",reset = False):
 
         super().__init__()
+
+        # parameters of the model
+        self.model_name = model_name
         self.n_layers = n_layers
         self.n_neurons = n_neurons
         self.eps = eps
         self.gamma = gamma
         self.learning_rate = learning_rate
-        self.P1 = P1
-        self.model_name = model_name
+
+        self.P1 = P1 # tells which model is loaded (1 is the robot starts, 2 otherwise)
         self.boost = True # tells the ai if a given position will lead to a lose at next turn
         self.dir_path = os.getcwd()+'\Connect4\AI\models'+f'\{self.model_name}'+self.P1
 
-        try:
+        try: 
             self.load_model()
-        except:
+        except: # if model doesn't exist
             self.create_model()
-
+        
+        # the reward given for an end ([win,lose,tie])
         self.end_score = [1,-1,0]
         if softmax_:
             self.end_score = [1,0,0.5]
 
-    def create_model(self):
+    def create_model(self): # create a new model
         input_ = keras.layers.Input(shape=(42))
         one_hot = keras.layers.Lambda(lambda x : K.one_hot(K.cast(x, 'int64'), 3))(input_)
         flatten = keras.layers.Flatten(input_shape=(42, 3))(one_hot)
@@ -57,19 +61,19 @@ class DQN(Connect4):
         self.model.save(self.dir_path,overwrite=True)
         self.target = keras.models.load_model(self.dir_path)
 
-    def load_model(self):
+    def load_model(self): # loading an existing model
         self.model = keras.models.load_model(self.dir_path)
         self.target = keras.models.load_model(self.dir_path)
         self.target.set_weights(self.model.get_weights())
 
 
-    def epsilon_greedy(self): #(1-eps) est la roba de jouer un coup random
-        a = np.random.rand() #appartient à [0,1[
+    def epsilon_greedy(self): #(1-eps) is the probability of playing a random move
+        a = np.random.rand() #belongs to [0,1[
         if a<self.eps:
             return False
         return True
 
-    def argmax(self,grid,return_pos=False): # détermine la grille maximale pour accessible à partir de grid en de basant sur le online network, if return_pos==True: it returns the best position
+    def argmax(self,grid,return_pos=False): # determines the optimal grid reachable from grid based on the online network, if return_pos==True: it returns the best position
         grid2 = grid.copy()
         if super().end(grid):
             return grid2
@@ -110,13 +114,13 @@ class DQN(Connect4):
             return pos2
         return grid2
 
-    def best_pos(self,table):
+    def best_pos(self,table): # returns the best position in the current grid according to the model
         grid = super().table_to_grid(table)
         pos_grid = self.argmax(grid,return_pos=True)
         pos_table = super().posgrid_to_postable(pos_grid)
         return pos_table
 
-    def batch_learn(self, DX, Dy):
+    def batch_learn(self, DX, Dy): # learning grom a batch of experiences (games)
         n_obs = DX.shape[1]
         batch_size = 2
         Dy_ = np.reshape(Dy, (len(Dy), 1))
@@ -128,7 +132,7 @@ class DQN(Connect4):
             X_batch, y_batch = Xy[start:stop, :-1], Xy[start:stop, -1:]
             self.grad_desc(X_batch,y_batch)
 
-    def grad_desc(self,X_batch,y_batch): #batch_grid est de taille 9*m
+    def grad_desc(self,X_batch,y_batch): # performs a gradient descent 
         optimizer = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
         loss_fn = tf.keras.losses.mean_squared_error
         with tf.GradientTape() as tape:
@@ -142,7 +146,7 @@ class DQN(Connect4):
             self.dnn2.update_data()
             self.dnn2.init_params()'''
 
-    def output_y(self,grid): #prend en entrée l'état St+1 et renvoie la valeur de yt pour l'état St
+    def output_y(self,grid): #takes state St+1 as input and returns the yt value for state St
         #end of the game
         r = 0
         if super().win(grid):
@@ -159,7 +163,7 @@ class DQN(Connect4):
             next_q = self.Q_value(GRID)
         return r + self.gamma*np.array([next_q])
 
-    def Q_value(self,grid):#prend en argument une grille et renvoie la valeur à partir du target network
+    def Q_value(self,grid):#takes a grid as argument and returns the value from the target network
         # reward
         if super().win(grid):
             val = self.end_score[0]
@@ -167,7 +171,7 @@ class DQN(Connect4):
             val = self.end_score[1]
         elif super().tie(grid):
             val = self.end_score[2]
-        # pas reward
+        # no reward
         else:
             val = self.target(grid.reshape(1,42))
             val = float(val)
@@ -199,15 +203,15 @@ class DQN(Connect4):
         val = float(self.target(grid.reshape((1,42))))
         return val
 
-    def Q_value1(self,grid):
+    def Q_value1(self,grid): # the value of the grid according to the online model
         val = float(self.model(grid.reshape((1,42))))
         return val
 
-    def count_lines(self,table,Nlines,n): # renvoie le nombre de lignes ayant Npions consécutifs pour le jour n
+    def count_lines(self,table,Nlines,n): # returns the number of lines having Npions consecutive pieces for player n
 
         if Nlines == 2:
 
-            S2 = 0 #nombre de lignes à 2 éléms
+            S2 = 0 #number of lines with 2 elements
 
             # Horizontal positions
             for i in range(table.shape[0]):
@@ -236,7 +240,7 @@ class DQN(Connect4):
 
         if Nlines == 3:
 
-            S3 = 0  # nombre de lignes à 3 éléms
+            S3 = 0  # number of lines with 3 elements
 
             # Horizontal positions
             for i in range(table.shape[0]):
@@ -263,7 +267,7 @@ class DQN(Connect4):
                         S3 = S3 + 1
             return S3
 
-    def reward(self,table):
+    def reward(self,table): # reward for a table (can be used to enhance model performance : faster)
         S1N3 = self.count_lines(table,Nlines=3,n=1)
         S1N2 = self.count_lines(table,Nlines=2,n=1) - 2*S1N3
         S2N3 = self.count_lines(table,Nlines=3,n=2)

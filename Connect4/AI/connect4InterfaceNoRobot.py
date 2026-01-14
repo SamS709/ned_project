@@ -10,28 +10,16 @@ from kivy.uix.widget import Widget
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.switch import Switch
 import random as rd
-from Morpion.morpionInterface import var1
 from kivy.lang import Builder
 from Connect4.AI.Train import *
 from kivy.core.window import Window
+from global_vars import *
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'GUI'))
 from ai_models_interface import MyButton
 
 Builder.load_file('Connect4/connect4Interface.kv')
-
-LIGHT_GREEN = [169 / 256, 221 / 256, 175 / 256, 1]
-GREEN = [62 / 256, 182 / 256, 75 / 256, 1]
-DARK_GREEN = [16 / 256, 118 / 256, 0, 1]
-LIGHT_RED = [256/256,187/256,187/256,1]
-RED = [237/256,79/256,79/256,1]
-DARK_RED = [170/256,14/256,14/256,1]
-LIGHT_BLUE = [182 / 256, 229 / 265, 246 / 256, 1]
-BLUE = [112 / 256, 159 / 265, 256 / 256, 1]
-DARK_BLUE = [82 / 256, 129 / 265, 256 / 256, 1]
-
-
 
 class Grille(BoxLayout):
 

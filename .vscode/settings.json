@@ -1,0 +1,6 @@
+{
+    "python.analysis.autoImportCompletions": true,
+    "editor.codeLens": true,
+    "python.analysis.enableReferencesCodeLens": true,
+    "python.showReferencesCodeLens": true
+}

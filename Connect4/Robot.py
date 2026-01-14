@@ -583,7 +583,7 @@ class Robot:
         self.robot.execute_trajectory_from_poses([pos, pos2, pos1])
 
 
-    def say_no(self):
+    def say_no(self): # to make the robot say no in real world 
         pos1 = [0.1271,-0.0404,0.2085,-0.122, 0.333,-0.305]
         pos2 = [0.1276, 0.0350,0.2117,-0.086,0.359,0.294]
         self.robot.set_arm_max_velocity(100)

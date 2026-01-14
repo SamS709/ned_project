@@ -12,6 +12,7 @@ from kivy.clock import mainthread
 import time
 import threading
 from Morpion.Robot import *
+from global_vars import LNG, D_text_button
 
 Builder.load_file('Morpion/morpionInterface.kv')
 
@@ -74,7 +75,7 @@ class MorpionItems(Widget): # creates the circles and the squares that will be a
     def on_size(self,*args):
         w,h = self.width,self.height
 
-        #position de la grille et des boutons
+        # position of the grid and of the buttons 
         self.Grid.width,self.Grid.height = w,h
         a,b = 0.05*w,0.05*h
         x,y = (w-2*a)/3, (h-2*b)/3
@@ -110,10 +111,10 @@ class MorpionGame(BoxLayout):
         self.morpion = Morpion()
         self.minimax = MinMax()
         #self.ai = AI()
-        self.pressText = ' Press when you \nfinished your move' # the text on the button before it is pressed
-        self.restartText = 'Enleve les pieces\npour recommencer' # the text on the button when pieces should be removed
-        self.releaseText = 'Ned is playing...' # the text on the button when ned is playing
-        self.depth = 6 # exploratio's depth of minimax's algorithm
+        self.pressText = D_text_button["pressText"][LNG] # the text on the button before it is pressed
+        self.restartText = D_text_button["restartText"][LNG] # the text on the button when pieces should be removed
+        self.releaseText = D_text_button["releaseText"][LNG] # the text on the button when ned is playing
+        self.depth = 6 # exploration's depth of minimax's algorithm
 
     
 
@@ -266,7 +267,7 @@ class MorpionGame(BoxLayout):
             self.game.add_widget(self.game.Lwcircle[2 - p][2 - q])
         if i == 2:
             self.animationFire('end')
-            instance.text = 'Enleve les pieces\npour recommencer'
+            instance.text = self.restartText
             self.ids.G1.anim_loop = 1
             instance.color = [1, 1, 1, 1]
             self.colorsLine = [1, 1, 1, 1]
@@ -282,14 +283,14 @@ class MorpionGame(BoxLayout):
             self.colors = [1,0,0,1]
         if i==4:
             instance.text = self.releaseText # change text's button
-            instance.text = "Ned is playing..."
+            instance.text = self.releaseText
             self.colors = self.color2 # change the color of the button
             self.colorsLine = self.colorLine2 # change the color of the line
             instance.color = [1, 1, 1, 1] # change the color of the text
             self.delay = 1/33
             self.anim_loop = 0
         if i == 6:
-            instance.text = ' Press when you \nfinished your move'
+            instance.text = self.pressText
             instance.color = [115 / 256, 63 / 256, 11 / 256, 1]
             self.colors = self.color1
             self.colorsLine = self.colorLine1      
