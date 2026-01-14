@@ -497,17 +497,15 @@ class Robot:
                   
 
 
-    def compare_tables(self, table_0, table): # True if table is a valid "next" table after table_0
+    def compare_tables(self, table_0, table): # True if table is a valid "next" table after a play of the human:2 table_0
         L_avaible_pos = Connect4().avaible_pos_graphics(Connect4().table_to_grid(table_0))
         count_different_pieces = 0
         p, q = 0, 0
         for i in range((table.shape[0])):
             for j in range(table.shape[1]):
-                if table_0[i,j] != table[i,j]:
+                if table_0[i,j] != table[i,j] and table[i, j] == 2:
                     count_different_pieces +=1
                     p, q = i, j
-        print(count_different_pieces)
-        print(p,q)
         if count_different_pieces != 1:
             return False
         elif [p,q] in L_avaible_pos:
@@ -529,7 +527,7 @@ class Robot:
             for ind in L_table_yellow:
                 table[ind[0],ind[1]]=2
             table[table_0 != 0] = table_0[table_0 != 0]
-            n_iter -= n_iter
+            n_iter -= 1
 
         return table
 

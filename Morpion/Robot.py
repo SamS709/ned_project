@@ -185,14 +185,28 @@ class Robot:
             if i!=None and j!=None:
                 LSind.append([i,j])
         return LCind,LSind
+    
+    def compare_tables(self, table_0, table): # True if table is a valid "next" table after a play of the human:2 table_0
+        count_different_pieces = 0
+        for i in range((table.shape[0])):
+            for j in range(table.shape[1]):
+                if table_0[i,j] != table[i,j] and table[i, j] == 2:
+                    count_different_pieces +=1
+        if count_different_pieces != 1:
+            return False
+        return True
 
-    def modif_table(self): # returns the table detected by the robot
-        table = np.array([[0 for i in range(3)]for i in range(3)])
-        LCind,LSind = self.index_pos()
-        for L2 in LCind:
-            table[L2[0],L2[1]] = 1
-        for L2 in LSind:
-            table[L2[0],L2[1]] = 2
+    def modif_table(self, table_0): # returns the table detected by the robot
+        n_iter = 10
+        table = table_0.copy()
+        while n_iter >=0 and not self.compare_tables(table_0, table):
+            LCind,LSind = self.index_pos()
+            for L2 in LCind:
+                table[L2[0],L2[1]] = 1
+            for L2 in LSind:
+                table[L2[0],L2[1]] = 2
+            table[table_0 != 0] = table_0[table_0 != 0]
+            n_iter -= 1
         return table
 
     def pos_grid(self,i,j): # BE CAREFUL, THIS FUNCTION IS MADE FOR ME BECAUSE I DONT HAVE THE ORIGINAL CAMERA
