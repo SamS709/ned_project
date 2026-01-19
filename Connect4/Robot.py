@@ -3,6 +3,7 @@ import time
 import os
 import numpy as np
 import cv2
+import winsound
 
 class Robot:
 
@@ -627,6 +628,8 @@ class Robot:
         self.robot.execute_trajectory_from_poses([pos1, pos2,pos1,pos2])
 
     def take_picture(self):
+        # Play sound to notify that picture is being taken
+        
         save_path = "connect4_dataset"
         os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
         self.cam_pos()
@@ -638,6 +641,13 @@ class Robot:
         # Save with timestamp
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         cv2.imwrite(os.path.join(save_path, f'img_undis_{timestamp}.png'), img_undis)
+        winsound.Beep(500, 200)  # frequency 1000Hz, duration 500ms
+    
+    def take_n_pictures(self, n):
+        for i in range(n):
+            time.sleep(3.0)
+            self.take_picture()
+            print("Picture taken || num of the pic: ", i)
 
 
 
@@ -648,6 +658,7 @@ if __name__=='__main__':
     # #robot1.place(0)
     print(robot1.robot.get_pose())
     # print(robot1.modif_table())
-    robot1.take_picture()
+    # robot1.take_picture()
+    robot1.take_n_pictures(100)
     # """for j in range(7):
     #     robot1.place(j)"""
