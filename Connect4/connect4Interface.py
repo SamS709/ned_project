@@ -20,39 +20,39 @@ from kivy.clock import mainthread
 
 
 
-class Connect4Grille(BoxLayout):
+class Connect4Grille(BoxLayout): # load  the connect4 grid
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.size_hint = None,None #taille de la grille
+        self.size_hint = None,None # grid size
         self.LR = []
         self.LC = [[]for j in range(7)]
         with self.canvas.before:
             Color(0.1, 0.1, 0.1, 1)
-            for i in range(7): #création d'un fond blau pour chaque bouton => grand rectangle bleu qui fait toute la page
+            for i in range(7): # creating a blue background for each button => big blue rectangle that covers the whole page
                 self.LR.append(Rectangle())
             Color(182/256,229/265,246/256,1)
-            for i in range(6): #création des cercles de couleur noir par dessus le rectangle bleu pour faire des 'trous' dans la grille
+            for i in range(6): # creating black circles on top of the blue rectangle to make 'holes' in the grid
                 for j in range(7):
                     self.LC[i].append(Ellipse(pos=(100,100),size=(50,50)))
 
 
 
 
-class Connect4Items(BoxLayout):
+class Connect4Items(BoxLayout): # load the red and yellow pieces
 
     def __init__(self, gameMode='1P', **kwargs):
         super().__init__(**kwargs)
         self.minimax = MinMax()
-        self.depth = 3 #niveau de jeu
-        self.P1 = '1' #joueur qui commence
-        self.player = '1' # prend la valeur 'J' ou 'R' en fonction de la couleur du jeton
-        self.grille = Connect4Grille() # on instancie une nouvelle grille de jeu
-        self.add_widget(self.grille) #On affiche la grille
-        self.table = np.array([[0 for j in range(7)] for i in range(6)]) # on créé une grille de jeu 'théorique' qui permet de gérer ce qui se passe en back
-        self.init_C() #Initialisation des pions qui vont s'afficher dans la grille
+        self.depth = 3 # game level
+        self.P1 = '1' # player who starts
+        self.player = '1' # takes the value 'J' or 'R' depending on the piece color
+        self.grille = Connect4Grille() # instantiate a new game grid
+        self.add_widget(self.grille) # Display the grid
+        self.table = np.array([[0 for j in range(7)] for i in range(6)]) # create a 'theoretical' game grid that manages what happens in the back
+        self.init_C() # Initialize the pieces that will be displayed in the grid
 
-    def init_C(self,*args):
+    def init_C(self,*args): # init the canvas and widgets of the pieces
         self.LwCJ = [[] for j in range(7)]
         self.LwCR = [[] for j in range(7)]
         self.LCJ = [[] for j in range(7)]
@@ -71,7 +71,7 @@ class Connect4Items(BoxLayout):
                     self.LCR[i].append(Ellipse(pos=(100, 100), size=(50, 50)))
 
 
-    def on_size(self, *args):
+    def on_size(self, *args): # keep everything with good proportions
 
         W,H= self.width, self.height
         w,h = W/7, 7.5*H/8
@@ -95,7 +95,7 @@ class Connect4Items(BoxLayout):
                 self.LCJ[5-i][j].pos = j * w + w / 2 - R / 2, i * hh + hh / 2 - R / 2
                 self.LCR[5-i][j].pos = j * w + w / 2 - R / 2, i * hh + hh / 2 - R / 2
 
-class Connect4Game(BoxLayout):
+class Connect4Game(BoxLayout): # manages secondary animations and robot actions
 
     delay = NumericProperty(1000)
     anim_loop = NumericProperty(0)
@@ -108,7 +108,7 @@ class Connect4Game(BoxLayout):
 
 
     def __init__(self,depth=3, **kwargs):
-        self.first_end = False #indique si le robot détecte la fin ou pas: utile pour le feu de fin : si self.end == True et self.first_end == False alors on célèbre le fin. Si self.end == False : on indique q'il faut retirer les pieces
+        self.first_end = False # indicates if the robot detects the end or not: useful for the end light: if self.end == True and self.first_end == False then we celebrate the end. If self.end == False: we indicate that pieces must be removed
         super().__init__(**kwargs)
         self.minimax = MinMax()
         self.connect4 = Connect4()
@@ -127,7 +127,7 @@ class Connect4Game(BoxLayout):
 
 
     @mainthread
-    def animationFire(self, state):
+    def animateTrafficLight(self, state): # traffic light annimation
         if state == 'end':
             animate = Animation(image_num=3, duration=0)
             for i in range(3):
@@ -170,7 +170,7 @@ class Connect4Game(BoxLayout):
 
     def thread_robot(self,instance):
         try:
-            self.robot1 = Robot() # useful toaccess to ned's actions
+            self.robot1 = Robot() # useful to access to ned's actions
             self.action_bar.animate_wifi("green")
             self.table = self.robot1.modif_table(self.table.copy()) # the robot look at the game and change the table according to the detected piece
             print("ok")
@@ -209,7 +209,7 @@ class Connect4Game(BoxLayout):
             self.robot1.robot.move_pose(self.robot1.home_pos)
             self.robot1.robot.close_connection() # close the connection of the robot in order not to connect multiple times to the robot.
             self.robot_connected = False
-            # Morever, we don't want the robot to be connected too long because it creates bugs
+            # Moreover, we don't want the robot to be connected too long because it creates bugs
         else :
             pass
         self.anim_loop = 1 # the animation of the robot is not looping
@@ -239,37 +239,37 @@ class Connect4Game(BoxLayout):
                     if self.table[h, j] == 2:
                         self.game.add_widget(self.game.LwCJ[h][j])
         if i == 2:
-            self.animationFire('end')
-            instance.text = 'Enleve les pieces\npour recommencer'
+            self.animateTrafficLight('end')
+            instance.text = self.restartText
             self.ids.G1.anim_loop = 1
             instance.color = [1, 1, 1, 1]
             self.colorsLine = [1, 1, 1, 1]
             self.colors = [240 / 256, 0, 0, 1]
-            self.first_end = True  # indicates that the end game has already been signaled to te user
+            self.first_end = True  # indicates that the end game has already been signaled to the user
         if i == 3:
             self.ids.G1._coreimage.anim_reset(True)
             self.ids.G1.anim_loop = 1
             # self.ids.G1.source = 'Morpion/gifs/Stop_arm.gif'
             self.delay = 1 / 40
-            self.animationFire('redFire')
+            self.animateTrafficLight('redFire')
             instance.color = [1,1,1,1]
             self.colors = [1,0,0,1]
         if i==4:
-            instance.text = self.releaseText # change text's button
-            instance.text = "Ned is playing..."
+            instance.text = self.releaseText # change button's text
+            instance.text = self.releaseText
             self.colors = self.color2 # change the color of the button
             self.colorsLine = self.colorLine2 # change the color of the line
             instance.color = [1, 1, 1, 1] # change the color of the text
             self.delay = 1/33
             self.anim_loop = 0
         if i == 6:
-            instance.text = ' Press when you \nfinished your move'
+            instance.text = self.pressText
             instance.color = [1,1,1, 1]
             self.colors = self.color1
             self.colorsLine = self.colorLine1
 
 
-    def pressB(self,instance): # when the button ispressed
+    def pressB(self,instance): # when the button is pressed
         cond = instance.text == self.pressText or instance.text == self.restartText
         if cond and self.t1.is_alive() == False: # if the button is pressed when the user has finished his move or if the game is restarted
             self.modifUI(instance,4)

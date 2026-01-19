@@ -56,7 +56,7 @@
             size_hint: 1, 0.15
             InfoLabel:
                 id : title_label
-                text: "Modele personnalise"
+                text: root.header
                 font_name: "fonts/pixel.TTF"
                 color: 0,0,0,0
                 font_size : 0.05*self.width
@@ -75,7 +75,7 @@
                     InfoLabel:
                         font_size : 0.06*self.width
                         font_name: "fonts/pixel.TTF"
-                        text: "Infos sur le modele"
+                        text: root.text_info_model
                 BoxLayout:
                     id: info_box
                     orientation: "vertical"

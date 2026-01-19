@@ -1,9 +1,6 @@
 import numpy as np
 
-class Connect4:
-
-    def __init__(self):
-        pass
+class Connect4: # Class that defines the rules of the Connect4
 
     def win(self,grid): # tells if the state of the table a win for the robot
         grid = self.grid_to_table(grid)
@@ -55,7 +52,7 @@ class Connect4:
                 d2 = grid[i,j + 3] == 2 and grid[i + 1,j + 2] == 2 and grid[i + 2,j + 1] == 2 and grid[i + 3,j] == 2
                 if d1 or d2:
                     return True
-        #Autre
+        # else
         return False
 
     def tie(self,grid): # tells if the state of the table a tie
@@ -110,14 +107,14 @@ class Connect4:
 
         return np.array(Lpos)
     
-    def free_not_losing_pos_grid(self, grid):
+    def free_not_losing_pos_grid(self, grid): # free pos that don't lead to a lose for next move (for a grid)
         Not_losing_pos_grid = []
         Not_losing_pos = self.free_not_losing_pos(grid)
         for i in range(len(Not_losing_pos)):
             Not_losing_pos_grid.append(Not_losing_pos[i][0]+6*Not_losing_pos[i][1]) 
         return np.array(Not_losing_pos_grid)
     
-    def free_not_losing_pos(self, grid):
+    def free_not_losing_pos(self, grid): # free pos that don't lead to a lose for next move (for a table)
         Not_losing_pos = []
         table0 = self.grid_to_table(grid)
         L1 = self.free_pos_table(grid)
@@ -222,7 +219,7 @@ class Connect4:
         S = S1N3 + 0.3*S1N2 - (S2N3 + 0.3*S2N2)
         return S
     
-    def posgrid_to_postable(self,pos):
+    def posgrid_to_postable(self,pos): # transforms a grid pos to a table pos
         j = pos//6
         i = pos-6*j
         return[i,j]

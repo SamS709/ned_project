@@ -101,8 +101,8 @@ class ScrollableLabel(ScrollView): # A Scrollable label used to display logs
 class ScrollingMenu(BoxLayout):
 
     # kivy properties you find in the graphics.kv file (TextArea class)
-    text = StringProperty("Liste des modeles") # text displayed in the blue area
-    title = StringProperty("Selectionne le modele d'IA de Ned") # title displayed in the brown area
+    text = StringProperty(D_static_texts["models_list"][LNG]) # text displayed in the blue area
+    title = StringProperty(D_static_texts["model_choice"][LNG]) # title displayed in the brown area
     image_source = StringProperty('images/transparent.png') # source of the image displayed in the text area
     image_height = NumericProperty(30) # height of the image displayed
     TitleArea_color = ListProperty(SAND) # color of the title area
@@ -127,15 +127,14 @@ class ScrollableBoxes(BoxLayout):
     background_color = ListProperty(BLUE)
     line_button_color = ListProperty(WHITE)
 
-    def __init__(self,D_models={}, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.orientation = "vertical"
-        self.D_models = D_models
         self.scroll = ScrollView(size_hint=(1,1))
         self.layout = BoxLayout(padding = [5,10,5,10], orientation="vertical",spacing=5, size_hint_y=None )
         self.layout.bind(minimum_height=self.layout.setter('height'))
         box=BoxLayout(size_hint_y=None, height=40)
-        lbl = Label(font_name = "fonts/pixel.ttf",size_hint_y=None, height=40, text = "Modeles en cours d'entrainement:",valign="middle", halign="center", color=WHITE)
+        lbl = Label(font_name = "fonts/pixel.ttf",size_hint_y=None, height=40, text = D_static_texts["models_in_training"][LNG],valign="middle", halign="center", color=WHITE)
         lbl.bind(
                     size=lambda instance, value: (
                         setattr(instance, 'text_size', value),
@@ -153,6 +152,9 @@ class ScrollableBoxes(BoxLayout):
 class ChooseAIModel(BoxLayout): # Menu to choose the model to play against
 
     Background_color = ListProperty(LIGHT_BLUE)
+    text_info_model = StringProperty("")
+    game = StringProperty("Connect4")
+    header = StringProperty("")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -169,9 +171,11 @@ class ChooseAIModel(BoxLayout): # Menu to choose the model to play against
         self.scroll = self.scroll_menu.ids.scroll 
         self.info_label = self.ids.info_label
         self.scroll_box = self.ids.Scroll_box
-        self.text1 = "Nom du modele"
-        self.text2 = "Nombre de couches"
-        self.text3 = "Nombre de neurones par couche"
+        self.text_info_model = D_static_texts["model_info"][LNG]
+        self.header = D_static_texts["custom_model"][LNG]
+        self.text1 = D_text_train["model_name"][LNG]
+        self.text2 = D_text_train["n_layers"][LNG]
+        self.text3 = D_text_train["n_neurons"][LNG]
         self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
         self.init_buttons()
         self.setup_title()
@@ -254,7 +258,7 @@ class ChooseAIModel(BoxLayout): # Menu to choose the model to play against
             model_name,  n_layers, n_neurons= self.getInfo.get_info_model(instance.text)
             info = f"{self.text1}: {model_name}\n\n\n{self.text2}: {n_layers}\n\n\n{self.text3}: {n_neurons}"
         except:
-             info = "Erreur de chargement des informations"
+             info = D_text_train["loading_info_error"][LNG]
         self.info_label.text = info
 
 class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
@@ -293,24 +297,21 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
                 n_neurons_per_layer = int(self.info_input.children[1].children[0].children[0].children[1].text)
             except:
                 n_neurons_per_layer = 0
-            n_neurons_tot = n_layers*n_neurons_per_layer
-            print(f"Model name: {self.model_name}, Number of layers: {n_layers}, Neurons per layer: {n_neurons_per_layer}, Total neurons: {n_neurons_tot}")
             self.log_label.text = ""
             if self.model_name == "":
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nDonne un nom valide à ton modele"
-            if n_neurons_per_layer == 0:
+                self.log_label.text+=D_text_log["error_name_str"][LNG]
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir 0 neurone !"
+                self.log_label.text+=D_text_log["error_n_neurons_inf"][LNG]
             if n_layers == 0:
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir 0 couche de neurones !"
+                self.log_label.text+=D_text_log["error_n_layers_inf"][LNG]
             if n_neurons_per_layer > 512:
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir plus de 512 neurones par couche !"
+                self.log_label.text+=D_text_log["error_n_neurons_sup"][LNG]
             if n_layers > 10:
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text+="\n[ERREUR] Le modele n'a pas pu etre créé \nLe modele ne peut pas avoir plus de 10 couches !"
+                self.log_label.text+=D_text_log["error_n_layers_sup"][LNG]
             else:
                 t1 = threading.Thread(target=self.create_model, args=(n_layers, n_neurons_per_layer))
                 t1.start()
@@ -324,16 +325,16 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
         for model in self.model_list:
             if self.model_name.upper() == model[:-1].upper():
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text = "\n[ERREUR] Le modele n'a pas pu etre créé \nCe nom est deja pris !"
+                self.log_label.text = D_text_log["error_name_already_exists"][LNG]
         if self.log_label.text == "":
             self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
             try:
                 DQN(reset=False,model_name=self.model_name,n_neurons=n_neurons_per_layer,n_layers=n_layers,softmax_=False,P1="1")
                 DQN(reset=False,model_name=self.model_name,n_neurons=n_neurons_per_layer,n_layers=n_layers,softmax_=False,P1="2")
-                self.log_label.text = f"\n[color=3EB64B][INFO] Le modele {self.model_name} a été créé avec succès.[/color]"
+                self.log_label.text = f"{D_text_log['info_successful_model_creation'][LNG]} {self.model_name} .[/color]"
             except:
                 self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                self.log_label.text = "\n[ERREUR] Le modele n'a pas pu etre créé \nErreur inconnue !"
+                self.log_label.text = D_text_log["error_unknown"][LNG]
             self.load_button_list()
 
     def on_release_cancel_new(self):
@@ -350,7 +351,7 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
         self.bottom_box.clear_widgets()
         self.bottom_box.add_widget(self.log_label)
         self.left_title = self.scroll_menu.ids.left_title
-        self.left_title.text = "Liste des modeles"
+        self.left_title.text = D_static_texts["models_list"][LNG]
         self.actions = BoxLayout(size_hint=(1,0.3),orientation="horizontal",padding = [0.1*self.width,0,0.1*self.width,0.1*self.height], spacing = 10)
         self.actions2 = BoxLayout(size_hint=(1,0.3),orientation="horizontal",padding = [0.1*self.width,0,0.1*self.width,0.1*self.height], spacing = 10)
 
@@ -370,10 +371,10 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
     def log_error(self,i):
         if i == 1:
             self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-            self.log_label.text+"\n[ERREUR] Impossible de supprimer le modele "+str(self.model_name) + self.log_label.text
+            self.log_label.text+D_text_log["error_model_delete"][LNG]+str(self.model_name) + self.log_label.text
         if i == 2:
             self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-            self.log_label.text="\n[ERREUR] Impossible de supprimer les modeles presents par defaut" + self.log_label.text
+            self.log_label.text=D_text_log["error_default_model_delete"][LNG] + self.log_label.text
 
 
     def on_press(self, instance):
@@ -395,7 +396,7 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
         if instance.button_color == DARK_BLUE:
             instance.button_color = BLUE
             self.scroll_box.clear_widgets()
-            self.info_label.text = f"Nombre d'epoques: \n\n\nTaux d'apprentissage: \n\n\nFacteur de reduction:"
+            self.info_label.text = f"{D_text_train['n_epochs']} \n\n\n{D_text_train['learning_rate']} \n\n\n{D_text_train['discount_factor']}"
             #self.scroll_box.padding = [0,0,0,0]
             self.scroll_box.add_widget(self.menu_train)
         
@@ -416,7 +417,7 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
                 try:
                     shutil.rmtree(path+"1")
                     self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
-                    self.log_label.text = f"\n[color=3EB64B][INFO] Le modèle {self.model_name} a été supprimé avec succès.[/color]"
+                    self.log_label.text = f"\n[color=3EB64B]{D_text_log['info_successful_model_delete']}: {self.model_name}.[/color]"
                 except:
                     self.log_error(1)
                 try:
@@ -433,7 +434,7 @@ class EditModels(ChooseAIModel): # Menu to edit (create and delete) models
         if instance.button_color == DARK_GREEN:
             instance.button_color = GREEN
             self.scroll_box.clear_widgets()
-            self.info_label.text = f"Nom du modele: \n\n\nNombre de couches: \n\n\nNombre de neurones par couche:"
+            self.info_label.text = f"{self.text1} \n\n\n{self.text2} \n\n\n{self.text1}"
             #self.scroll_box.padding = [0,0,0,0]
             self.scroll_box.add_widget(self.info_input)
 
@@ -498,19 +499,19 @@ class MenuInput(BoxLayout):
 
     def on_kv_post(self, base_widget):
         super().on_kv_post(base_widget)
-        self.text1 = "Nom du modele"
-        self.text2 = "Nombre de couches"
-        self.text3 = "Nombre de neurones par couche"
+        self.text1 = D_text_train["model_name"][LNG]
+        self.text2 = D_text_train["n_layers"][LNG]
+        self.text3 = D_text_train["n_neurons"][LNG]
         self.info_label.text = f"{self.text1}: \n\n\n{self.text2}: \n\n\n{self.text3}:"
     
     def log_info(self,i):
         self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
         if i== 0:
-            self.log_label.text="\n[ERREUR] Le nom du modele ne peut pas etre vide."+self.log_label.text
+            self.log_label.text=D_text_log["error_name_empty"][LNG]+self.log_label.text
         if i == 1:
-            self.log_label.text="\n[ERREUR] Le nombre de neurones doit être compris entre 1 et 512."+self.log_label.text
+            self.log_label.text=D_text_log["error_n_neurons_interval"][LNG]+self.log_label.text
         if i == 2:
-            self.log_label.text="\n[ERREUR] Le nombre de couches doit être compris entre 1 et 10."+self.log_label.text
+            self.log_label.text=D_text_log["error_n_layers_interval"][LNG]+self.log_label.text
 
     def on_press_cancel(self,instance):
         if instance.button_color == RED:
@@ -600,13 +601,13 @@ class MenuTrain(MenuInput):
         self.scrollable_label = ScrollableBoxes()
         self.scrollable_label.font_size1 = 0.1*self.width
         super().on_kv_post(base_widget)
-        self.text1 = "Nombre d'epoques"
-        self.text2 = "Taux d'apprentissage"
-        self.text3 = "Facteur de reduction"
+        self.text1 = D_text_train["n_epochs"][LNG]
+        self.text2 = D_text_train["learning_rate"][LNG]
+        self.text3 = D_text_train["discount_factor"][LNG]
         self.filter1 = "int"
         self.filter2 = "float"
-        self.titre = "Entraine le modele" + MODEL_NAME
-        self.green_text = "Entrainer"
+        self.titre = D_text_train["train_the_model"][LNG] + MODEL_NAME
+        self.green_text = D_text_button["train"][LNG]
         self.epochs = None
         self.learning_rate = None
         self.discount_factor = None
@@ -617,21 +618,21 @@ class MenuTrain(MenuInput):
     def log_info(self,i,model_name = ""):
         self.bottom_box.padding = [0,0.05*self.bottom_box.height,0,0.05*self.bottom_box.height]
         if i == 0:
-            self.log_label.text = "\n[ERREUR] Le nombre d'epoques doit être compris entre 1 et 10000."+self.log_label.text
+            self.log_label.text = D_text_log["error_n_epochs_interval"][LNG]+self.log_label.text
         if i == 1:
-            self.log_label.text = "\n[ERREUR] Le taux d'apprentissage doit être compris entre 0.00001 et 0.1"+self.log_label.text
+            self.log_label.text = D_text_log["error_lraning_rate_interval"][LNG]+self.log_label.text
         if i == 2:
-            self.log_label.text = "\n[ERREUR] Le facteur de réduction doit être compris entre 0.1 et 0.999"+self.log_label.text
+            self.log_label.text = D_text_log["error_discount_factor_interval"][LNG]+self.log_label.text
         if i == 3:
-            self.log_label.text = "\n[ERREUR] Tu dois remplir tous les champs avec une valeur valide avant de lancer l'entrainement."+self.log_label.text
+            self.log_label.text = D_text_log["error_invalid_input"][LNG]+self.log_label.text
         if i == 4:
-            self.log_label.text = "\n[ERREUR] Ce modèle est déjà en cours d'entrainement."+self.log_label.text
+            self.log_label.text = D_text_log["error_model_already_training"][LNG]+self.log_label.text
         if i == 5:
-            self.log_label.text = "\n[color=3EB64B][INFO] L'entrainement du modèle "+model_name+" a été lancé avec succès.[/color]"+self.log_label.text
+            self.log_label.text = f"\n[color=3EB64B]{D_text_log['info_successful_started_training'][LNG]} "+model_name+".[/color]"+self.log_label.text
         if i == 6:
-            self.log_label.text = "\n[color=3EB64B][INFO] L'entrainement du modèle "+model_name+" est terminé.[/color]"+self.log_label.text
+            self.log_label.text = f"\n[color=3EB64B]]{D_text_log['info_successful_finished_training'][LNG]} "+model_name+".[/color]"+self.log_label.text
         if i == 7:
-            self.log_label.text = "\n[ERREUR] Tu ne peux pas entrainer plus de 3 modeles a la fois."+self.log_label.text
+            self.log_label.text = f"\n{D_text_log['error_too_much_models_training'][LNG]}"+self.log_label.text
 
     
     def set_on_press0(self):

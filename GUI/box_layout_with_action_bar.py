@@ -16,13 +16,12 @@ if not hasattr(Builder, '_box_layout_with_action_bar_loaded'):
     Builder._box_layout_with_action_bar_loaded = True
 
 class BoxLayoutWithActionBar(BoxLayout):
-    title = StringProperty() # c'est une chaîne de caractère qu'on va pouvoir remplir après dans un fichier kv
     icon = StringProperty("images/wifi/wifi_w.png")
+    title = StringProperty("")
     button_color_wifi = ListProperty([1,1,1,0])
 
-    def on_press(self):
+    def on_press(self): # wifi connexion button
         self.button_color_wifi = [1,1,1,0.3]
-        print("Connexion en cours")
         self.t1 = threading.Thread(target=self.animate_wifi,args=("orange",))
         self.t1.start()
         self.t2 = threading.Thread(target=self.connect_robot)
@@ -39,7 +38,7 @@ class BoxLayoutWithActionBar(BoxLayout):
     def set_wifi_r(self,c):
         self.icon = f"images/wifi/wifi_{str(c)}.png"
 
-    def animate_wifi(self,color):
+    def animate_wifi(self,color): # wifi logo animation
         if color=="orange":
             for i in range(3):
                 for i in range(1,5):
@@ -56,9 +55,7 @@ class BoxLayoutWithActionBar(BoxLayout):
             self.set_wifi_r("g")
 
     
-    
-    
-    def connect_robot(self):
+    def connect_robot(self): # attempting connexion to robot
         try:
             robot_ip_address = "10.10.10.10"
             robot = NiryoRobot(robot_ip_address)
@@ -70,10 +67,7 @@ class BoxLayoutWithActionBar(BoxLayout):
             self.animate_wifi("green")
             robot.close_connection()
         except:
-            print("eeeeeeeeeeee")
             while self.t1.is_alive():
                 a=0
             self.animate_wifi("red")
     
-  
-        
