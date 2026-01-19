@@ -341,8 +341,8 @@ class Robot:
 
 if __name__ == '__main__':
     robot1 = Robot()
-    """robot1.affiche_contours()
-    robot1.get_HSV_and_mousePos()"""
-    print(robot1.modif_table())
-    print(robot1.robot.get_pose())
+    robot1.affiche_contours()
+    # robot1.get_HSV_and_mousePos()
+    # print(robot1.modif_table())
+    # print(robot1.robot.get_pose())
     #robot1.place(0,0)

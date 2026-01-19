@@ -173,6 +173,7 @@ class Connect4Game(BoxLayout):
             self.robot1 = Robot() # useful toaccess to ned's actions
             self.action_bar.animate_wifi("green")
             self.table = self.robot1.modif_table(self.table.copy()) # the robot look at the game and change the table according to the detected piece
+            print("ok")
             self.fire("red") # change traffic light to red
             self.first_end = False # if a game is restarted we want first_end to be false
             self.modifUI(instance,0)# update the displayed game according to the table

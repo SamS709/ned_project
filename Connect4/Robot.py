@@ -1,5 +1,6 @@
 from pyniryo import *
 import time
+import os
 import numpy as np
 import cv2
 
@@ -30,6 +31,7 @@ class Robot:
 
     def red_yellow_pos(self): # returns the image frame, a list of red pieces positions and a list of yellow pieces positions
         self.cam_pos()
+        
         time.sleep(1)  # avoid problems of pieces detection : let time to the camera to adapt its luminosity
         mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
         img = self.robot.get_img_compressed() # getting image
@@ -40,13 +42,13 @@ class Robot:
         hsvFrame = cv2.cvtColor(img_undis, cv2.COLOR_BGR2HSV)
 
         # Set range for red color
-        red_lower = np.array([165, 0, 75], np.uint8)
-        red_upper = np.array([180, 255, 255], np.uint8)
+        red_lower = np.array([135, 0, 75], np.uint8)
+        red_upper = np.array([220, 255, 255], np.uint8)
         red_mask = cv2.inRange(hsvFrame, red_lower, red_upper)
 
         # Set range for yellow color
-        yellow_lower = np.array([10,0,80], np.uint8)
-        yellow_upper = np.array([30,255,255], np.uint8)
+        yellow_lower = np.array([10,0,10], np.uint8)
+        yellow_upper = np.array([40,255,255], np.uint8)
         yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
 
         # to detect only that particular color
@@ -507,6 +509,7 @@ class Robot:
 
     def modif_table(self, table_0): # returns the table (2d numpy array 6*7) detected by the robot
         imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
+        
         L_table_yellow = self.L_pos_to_L_table(Lposyellow)
         L_table_red = self.L_pos_to_L_table(Lposred)
         table = np.array([[0 for i in range(7)]for i in range(6)])
@@ -514,9 +517,11 @@ class Robot:
             table[ind[0],ind[1]]=1
         for ind in L_table_yellow:
             table[ind[0],ind[1]]=2
-        L_undetected = self.check_table(table)
-        for undetected in L_undetected:
-            table[undetected] = 1
+        # L_undetected = self.check_table(table)
+        # print(L_undetected)
+        # for undetected in L_undetected:
+        #     table[undetected] = 1
+        # print("ok")
         return table
 
 
@@ -621,14 +626,28 @@ class Robot:
         self.robot.set_arm_max_velocity(100)
         self.robot.execute_trajectory_from_poses([pos1, pos2,pos1,pos2])
 
+    def take_picture(self):
+        save_path = "connect4_dataset"
+        os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
+        self.cam_pos()
+        time.sleep(0.5)
+        mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
+        img = self.robot.get_img_compressed() # getting image
+        img_uncom = uncompress_image(img) # uncompressing image
+        img_undis = undistort_image(img_uncom, mtx, dist) # undistort
+        # Save with timestamp
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        cv2.imwrite(os.path.join(save_path, f'img_undis_{timestamp}.png'), img_undis)
+
+
 
 
 if __name__=='__main__':
 
     robot1 = Robot()
     # #robot1.place(0)
-    # print(robot1.robot.get_pose())
+    print(robot1.robot.get_pose())
     # print(robot1.modif_table())
-    # robot1.get_HSV_and_mousePos()
+    robot1.take_picture()
     # """for j in range(7):
     #     robot1.place(j)"""
