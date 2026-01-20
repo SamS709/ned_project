@@ -13,6 +13,7 @@ class Robot:
         # connect to the robot when a new Robot object is created
         self.model = torch.load(os.path.join("models", "first_model.pt"), weights_only= False)
         self.device = next(self.model.parameters()).device
+        self.model.eval()
         robot_ip_address = "10.10.10.10"
         robot = NiryoRobot(robot_ip_address)
         robot.calibrate_auto()
@@ -43,9 +44,10 @@ class Robot:
         img_undis = undistort_image(img_uncom, mtx, dist) # undistort
         img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
         imageFrame = img_undis
-        X = transform(img_undis)
-        X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
-        pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
+        with torch.no_grad():
+            X = transform(img_undis)
+            X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
+            pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
         L_pos_red, L_pos_yellow = [], []
         for i in range(pred_table.shape[0]):
             for j in range(pred_table.shape[1]):
