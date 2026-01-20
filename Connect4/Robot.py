@@ -4,11 +4,15 @@ import os
 import numpy as np
 import cv2
 import winsound
+from predictor import Model, transform
+import torch
 
 class Robot:
 
     def __init__(self):
         # connect to the robot when a new Robot object is created
+        self.model = torch.load(os.path.join("models", "first_model.pt"), weights_only= False)
+        self.device = next(self.model.parameters()).device
         robot_ip_address = "10.10.10.10"
         robot = NiryoRobot(robot_ip_address)
         robot.calibrate_auto()
@@ -32,80 +36,24 @@ class Robot:
 
     def red_yellow_pos(self): # returns the image frame, a list of red pieces positions and a list of yellow pieces positions
         self.cam_pos()
-        
         time.sleep(1)  # avoid problems of pieces detection : let time to the camera to adapt its luminosity
         mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
         img = self.robot.get_img_compressed() # getting image
         img_uncom = uncompress_image(img) # uncompressing image
         img_undis = undistort_image(img_uncom, mtx, dist) # undistort
+        img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
         imageFrame = img_undis
-        # Convert BGR to HSV colorspace
-        hsvFrame = cv2.cvtColor(img_undis, cv2.COLOR_BGR2HSV)
-
-        # Set range for red color
-        red_lower = np.array([135, 0, 75], np.uint8)
-        red_upper = np.array([220, 255, 255], np.uint8)
-        red_mask = cv2.inRange(hsvFrame, red_lower, red_upper)
-
-        # Set range for yellow color
-        yellow_lower = np.array([10,0,10], np.uint8)
-        yellow_upper = np.array([40,255,255], np.uint8)
-        yellow_mask = cv2.inRange(hsvFrame, yellow_lower, yellow_upper)
-
-        # to detect only that particular color
-        kernal = np.ones((5, 5), "uint8")
-
-        # red color
-        red_mask = cv2.dilate(red_mask, kernal)
-        res_red = cv2.bitwise_and(imageFrame, imageFrame, mask=red_mask)
-
-        #yellow color
-        yellow_mask = cv2.dilate(yellow_mask, kernal)
-        res_yellow = cv2.bitwise_and(imageFrame, imageFrame, mask=yellow_mask)
-
-        L_pos_red = np.array([[0, 0]])
-        L_pos_yellow = np.array([[0, 0]])
-
-        # Creating contour to track red color
-
-        contours, hierarchy = cv2.findContours(red_mask,
-                                               cv2.RETR_TREE,
-                                               cv2.CHAIN_APPROX_SIMPLE)
-
-        for pic, contour in enumerate(contours):
-            area = cv2.contourArea(contour)
-            if (area > 500):
-                x, y, w, h = cv2.boundingRect(contour)
-                L_pos_red = np.concatenate((L_pos_red, np.array([[int(x + w / 2), int(y + h / 2)]])))
-                imageFrame = cv2.rectangle(imageFrame, (x, y),
-                                           (x + w, y + h),
-                                           (0, 0, 255), 2)
-
-                cv2.putText(imageFrame, "Red", (x, y),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1.0,
-                            (0, 0, 255))
-
-        # Creating contour to track yellow color
-
-        contours, hierarchy = cv2.findContours(yellow_mask,
-                                               cv2.RETR_TREE,
-                                               cv2.CHAIN_APPROX_SIMPLE)
-
-        for pic, contour in enumerate(contours):
-            area = cv2.contourArea(contour)
-            if (area > 500):
-                x, y, w, h = cv2.boundingRect(contour)
-                L_pos_yellow = np.concatenate((L_pos_yellow,np.array([[int(x+w/2),int(y+h/2)]])))
-                imageFrame = cv2.rectangle(imageFrame, (x, y),
-                                           (x + w, y + h),
-                                           (0, 255, 255), 2)
-
-                cv2.putText(imageFrame, "Yellow", (x, y),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            1.0, (0, 255, 255))
-
-        L_pos_red = L_pos_red[1:,:]
-        L_pos_yellow = L_pos_yellow[1:,:]
+        X = transform(img_undis)
+        X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
+        pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
+        L_pos_red, L_pos_yellow = [], []
+        for i in range(pred_table.shape[0]):
+            for j in range(pred_table.shape[1]):
+                if pred_table[i,j] == 1:
+                    L_pos_red.append([i,j])
+                if pred_table[i,j] == 2:
+                    L_pos_yellow.append([i,j])
+        
         return imageFrame, L_pos_red, L_pos_yellow
     
     def check_table(self,table):
