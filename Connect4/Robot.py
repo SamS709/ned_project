@@ -4,15 +4,35 @@ import os
 import numpy as np
 import cv2
 import winsound
-from predictor import Model, transform
+from Connect4.model import Model, transform
 import torch
+from PIL import Image
+import sys
+import importlib
+import importlib.util
+
+# Ensure torch.load can resolve pickled references to module 'model'.
+# We reliably alias 'model' to the local Connect4/model.py using a file-based import,
+# which works whether the package import path is available or not.
+try:
+    module_path = os.path.join(os.path.dirname(__file__), 'model.py')
+    spec = importlib.util.spec_from_file_location('model', module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sys.modules['model'] = module
+except Exception:
+    # Fallback: try regular package import alias if available
+    try:
+        sys.modules['model'] = importlib.import_module('Connect4.model')
+    except Exception:
+        pass
 
 class Robot:
 
     def __init__(self):
         # connect to the robot when a new Robot object is created
-        self.model = torch.load(os.path.join("models", "first_model.pt"), weights_only= False)
-        self.device = next(self.model.parameters()).device
+        self.model = torch.load(os.path.join("Connect4", "AI", "models", "model2.pt"), weights_only= False, map_location=torch.device('cpu'))
+        self.device = 'cpu'
         self.model.eval()
         robot_ip_address = "10.10.10.10"
         robot = NiryoRobot(robot_ip_address)
@@ -36,38 +56,25 @@ class Robot:
 
 
     def red_yellow_pos(self): # returns the image frame, a list of red pieces positions and a list of yellow pieces positions
+        save_path = "current_game"
+        os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
         self.cam_pos()
-        time.sleep(1)  # avoid problems of pieces detection : let time to the camera to adapt its luminosity
         mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
         img = self.robot.get_img_compressed() # getting image
         img_uncom = uncompress_image(img) # uncompressing image
         img_undis = undistort_image(img_uncom, mtx, dist) # undistort
-        img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
-        imageFrame = img_undis
+        # Save with timestamp
+        image_name = "current.png"
+        cv2.imwrite(os.path.join(save_path, image_name), img_undis)
+        image = Image.open(os.path.join(save_path, image_name)).convert('RGB')
+        X = transform(image)
         with torch.no_grad():
-            X = transform(img_undis)
+            # cv2.imshow("coucou", X.numpy())
             X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
             pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
-        L_pos_red, L_pos_yellow = [], []
-        for i in range(pred_table.shape[0]):
-            for j in range(pred_table.shape[1]):
-                if pred_table[i,j] == 1:
-                    L_pos_red.append([i,j])
-                if pred_table[i,j] == 2:
-                    L_pos_yellow.append([i,j])
         
-        return imageFrame, L_pos_red, L_pos_yellow
+        return img_undis, pred_table
     
-    def check_table(self,table):
-        L_undetected_pieces = []
-        for j in range(7):
-            for i in range(5,-1,-1):
-                if table[i,j] == 0:
-                    top_ind = range(i,-1,-1)
-                    for t in top_ind:
-                        if table[t,j] == 1 or table[t,j] == 2 and [i,j] not in L_undetected_pieces:
-                            L_undetected_pieces.append([i,j])
-        return L_undetected_pieces
 
 
     def show_image(self): # to show the image returned by red_yellow_pos
@@ -75,452 +82,12 @@ class Robot:
         cv2.imshow("Color Detection", imageFrame)
         cv2.waitKey(0)
 
-    def pos_grid2(self,i,j): # returns the position in the real space (x,y) of table[i,j]
-        x0,x1,y0,y1 = 0,0,0,0
-        eps = 30
-        if i == 0:
-            if j == 0:
-                x,y=  65 , 31 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 148 , 30
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y=233 , 31
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y =316 , 29
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y =391 , 28
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 471 , 24
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 548 , 27 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 1:
-            if j == 0:
-                x,y=77 , 103
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y=163 , 101
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 238 , 101
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 318 , 104
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 397 , 102 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 471 , 97 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 548 , 98
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 2:
-            if j == 0:
-                x,y= 91 , 173
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 166 , 173
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 249 , 173
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 318 , 174
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 398 , 173 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 467 , 171
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 540 , 170
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 3:
-            if j == 0:
-                x,y= 93 , 241 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 172 , 239
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 246 , 240
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 320 , 241
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 394 , 236
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 472 , 234 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 536 , 233 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 4:
-            if j == 0:
-                x,y= 106 , 306
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 180 , 304
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 249 , 301
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 326 , 299 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 392 , 299
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 461 , 301
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 534 , 290
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 5:
-            if j == 0:
-                x,y= 106 , 365 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 187 , 356
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 253 , 362
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 320 , 362
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 392 , 352
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 458 , 351
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 528 , 346
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-
-        return [x0,x1,y0,y1 ]
 
 
-    def pos_grid(self,i,j): # returns the position in the real space (x,y) of table[i,j]
-        x0,x1,y0,y1 = 0,0,0,0
-        eps = 30
-        if i == 0:
-            if j == 0:
-                x,y=   86 , 57
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 171 , 62
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y=251 , 60
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 329 , 62
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y =402 , 64
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 471 , 62
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 548 , 59 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 1:
-            if j == 0:
-                x,y=93 , 131
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y=172 , 132
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 253 , 135
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 328 , 131 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 399 , 132
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 474 , 132 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 544 , 133
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 2:
-            if j == 0:
-                x,y=  97 , 196
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 175 , 197
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 257 , 197
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 331 , 202
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 401 , 197
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 473 , 196
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 549 , 192
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 3:
-            if j == 0:
-                x,y= 102 , 266
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 179 , 265
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 258 , 264
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 334 , 260
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 403 , 267
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 476 , 266
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 546 , 262
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 4:
-            if j == 0:
-                x,y= 103 , 334
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 179 , 329
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 254 , 332
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 329 , 330 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 396 , 329 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 470 , 323
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 545 , 333 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-        if i == 5:
-            if j == 0:
-                x,y= 106 , 397 
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 1:
-                x,y= 179 , 398
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 2:
-                x,y= 256 , 395
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 3:
-                x, y = 327 , 402
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 4:
-                x, y = 401 , 399
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 5:
-                x, y = 468 , 394
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
-            if j == 6:
-                x, y = 537 , 390
-                x0,x1 = x-eps,x+eps
-                y0,y1 = y-eps,y+eps
 
-        return [x0,x1,y0,y1 ]
-    
-    def L_pos_to_L_table(self,L_pos):
-        L_table = []
-        for pos in L_pos:
-            for i in range(6):
-                for j in range(7):
-                    if self.pos_grid(i,j)[0]<=pos[0]<= self.pos_grid(i,j)[1] and self.pos_grid(i,j)[2]<=pos[1]<= self.pos_grid(i,j)[3]:
-                        L_table.append([i,j])
-        return L_table
-    
-    def count_pieces(self, table):
-        n_red = 0
-        n_yellow = 0
-        for i in range (table.shape[0]):
-            for j in range(table.shape[1]):
-                if table[i, j] == 1:
-                    n_red += 1
-                elif table[i, j] == 2:
-                    n_yellow += 2
-        return n_red, n_yellow
-                  
-
-
-    def modif_table(self, table_0): # returns the table (2d numpy array 6*7) detected by the robot
-        imageFrame,Lposred,Lposyellow = self.red_yellow_pos()
-        
-        L_table_yellow = self.L_pos_to_L_table(Lposyellow)
-        L_table_red = self.L_pos_to_L_table(Lposred)
-        table = np.array([[0 for i in range(7)]for i in range(6)])
-        for ind in L_table_red:
-            table[ind[0],ind[1]]=1
-        for ind in L_table_yellow:
-            table[ind[0],ind[1]]=2
-        # L_undetected = self.check_table(table)
-        # print(L_undetected)
-        # for undetected in L_undetected:
-        #     table[undetected] = 1
-        # print("ok")
+    def modif_table(self): # returns the table (2d numpy array 6*7) detected by the robot
+        imageFrame, table = self.red_yellow_pos()
         return table
-
-
-    def get_HSV_and_mousePos(self): # useful to set upper and lower bound of red and yellow masks (HSV color) defined in red_yellow_pos()
-                                    # also to set x and y in pos_grid(i,j) function
-        def on_mouse(event, x, y, flags, param):
-            # Check if the event was the left mouse button being clicked
-            if event == cv2.EVENT_LBUTTONDOWN:
-                # Get the BGR pixel value at the clicked location
-                pixel = frame[y, x]
-
-                # Convert BGR to HSV and print the pixel value
-                hsv_pixel = cv2.cvtColor(np.uint8([[pixel]]), cv2.COLOR_BGR2HSV)
-                print("HSV:", hsv_pixel[0][0])
-                print("pixel pos: (", x, ',', y, ')')
-                print()
-                # Append the pixel value to the values list
-                vals.append(hsv_pixel[0][0])
-
-        def get_thresh_from_vals(vals: np.array) -> np.array:
-            # Calculate the minimum and maximum values for each channel
-            min_h, min_s, min_v = np.min(vals, axis=0)
-            max_h, max_s, max_v = np.max(vals, axis=0)
-            lower_color = [min_h, min_s, min_v]
-            upper_color = [max_h, max_s, max_v]
-            # Output the results
-            print(f"lower bound: {lower_color}")
-            print(f"upper bound: {upper_color}")
-            return lower_color, upper_color
-        # Open a connection to the webcam (you may need to change the index)
-        frame = self.red_yellow_pos()[0]
-        print(frame.shape)
-        vals = []
-
-        while True:
-            # Capture frame-by-frame
-            frame = self.red_yellow_pos()[0]
-            # Display the frame
-            cv2.imshow('frame', frame)
-
-            # Set the callback function for mouse events
-            cv2.setMouseCallback('frame', on_mouse)  # Make sure 'Frame' matches the window name in cv2.imshow
-            # Break the loop if 'q' key is pressed
-            if cv2.waitKey(1) & 0XFF == ord('q'):
-                break
-        # Release the capture when everything is done
-        cv2.destroyAllWindows()
-        low, up = get_thresh_from_vals(vals)
 
     def place(self, j): # robot moves to puta piece in the j-th column
 
@@ -609,6 +176,7 @@ if __name__=='__main__':
     print(robot1.robot.get_pose())
     # print(robot1.modif_table())
     # robot1.take_picture()
-    robot1.take_n_pictures(100)
+    print(robot1.modif_table())
+    # robot1.take_n_pictures(1)
     # """for j in range(7):
     #     robot1.place(j)"""
