@@ -2,7 +2,8 @@ from pyniryo import *
 import numpy as np
 import time
 import cv2 as cv
-
+import pygame
+import os
 # WARNING : only works with pyniryo==1.1.2
 
 
@@ -339,10 +340,37 @@ class Robot:
         pos2 = []
         self.robot.execute_trajectory_from_poses([pos1,pos2])
 
+    def take_picture(self):
+        # Play sound to notify that picture is being taken
+        
+        save_path = "tictactoe_dataset"
+        os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
+        self.cam_pos()
+        time.sleep(0.5)
+        mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
+        img = self.robot.get_img_compressed() # getting image
+        img_uncom = uncompress_image(img) # uncompressing image
+        img_undis = undistort_image(img_uncom, mtx, dist) # undistort
+        print(img_undis.shape)
+        crop_l, crop_r, crop_t, crop_b = 140, 30, 100, 230
+        width, height = img_undis.shape[0], img_undis.shape[1]
+        img_undis = img_undis[crop_t: height - crop_b, crop_l: width - crop_r]
+        img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2GRAY)
+        # Save with timestamp
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        cv2.imwrite(os.path.join(save_path, f'img_undis_{timestamp}.png'), img_undis)
+        pygame.mixer.init()
+        pygame.mixer.music.load('Morpion/beep.wav')
+        pygame.mixer.music.play()
+        time.sleep(0.2)
+
+    
+    def take_n_pictures(self, n):
+        for i in range(n):
+            time.sleep(1.5)
+            self.take_picture()
+            print("Picture taken || num of the pic: ", i)
+
 if __name__ == '__main__':
     robot1 = Robot()
-    robot1.affiche_contours()
-    # robot1.get_HSV_and_mousePos()
-    # print(robot1.modif_table())
-    # print(robot1.robot.get_pose())
-    #robot1.place(0,0)
+    robot1.take_n_pictures(100)

@@ -10,6 +10,7 @@ from PIL import Image
 import sys
 import importlib
 import importlib.util
+import pygame
 
 # Ensure torch.load can resolve pickled references to module 'model'.
 # We reliably alias 'model' to the local Connect4/model.py using a file-based import,
@@ -158,8 +159,11 @@ class Robot:
         # Save with timestamp
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         cv2.imwrite(os.path.join(save_path, f'img_undis_{timestamp}.png'), img_undis)
-        winsound.Beep(500, 200)  # frequency 1000Hz, duration 500ms
-    
+        pygame.mixer.init()
+        pygame.mixer.music.load('Morpion/beep.wav')
+        pygame.mixer.music.play()
+        time.sleep(0.2)    
+
     def take_n_pictures(self, n):
         for i in range(n):
             time.sleep(3.0)
