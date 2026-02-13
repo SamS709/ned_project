@@ -92,18 +92,25 @@
 
 #### 2. Image Processing
 
+**Old version**
 <div>
 <p></p>
-<p>I used <a href="https://opencv.org/"><b>Open-cv</b></a> python library to process the images returned by the camera of the robot.</p>
-<p>In the case of tic-tac-toe, the robot detects the shape of the pieces:</p>
+<p>Before, <a href="https://opencv.org/"><b>Open-cv</b></a> python library was used to process the images returned by the camera of the robot.</p>
+<p>In the case of tic-tac-toe, the robot was detecting the shape of the pieces:</p>
 <img src = "images/readme/morpionDetection.png" height = "200"/>
-<p>In the case of Connect 4, it detects their color:</p>
+<p>In the case of Connect 4, it was detecting their color:</p>
 <img src = "images/readme/connect4Detection.png" height = "200"/>
-<p>The methods related to image processing are also in the Robot classes which are in "Robot.py" files located in Morpion and Connect4 folders.</p>
+<p>The problem is that the accuracy of the detection was heavily depending on the lightning conditions</p>
 </div>
 
-#### 3. Strategies
+**New version**
 
+To solve this problem, I opted for AI detection, using a FCNN trained on roughly 700 pictures. Its accuracy reached more than 99%, with highly undesirable lighting conditions, which is enough for this project.
+
+This is a small sub-project that is detail in [this repo](#https://github.com/SamS709/ned_cnn_detection)
+
+#### 3. Strategies
+ 
 <div>
 <p>To determine the next move, the robot can either send the current game grid to a minimax algorithm or to an AI model that will decide the best move to play.</p>
 <p>The <a href = "https://en.wikipedia.org/wiki/Minimax">algorithm</a> will explore all possible outcomes of the game to determine the best move.</p>
