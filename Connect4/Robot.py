@@ -3,7 +3,6 @@ import time
 import os
 import numpy as np
 import cv2
-import winsound
 from Connect4.model import Model, transform
 import torch
 from PIL import Image
