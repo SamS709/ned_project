@@ -2,5 +2,7 @@
     "python.analysis.autoImportCompletions": true,
     "editor.codeLens": true,
     "python.analysis.enableReferencesCodeLens": true,
-    "python.showReferencesCodeLens": true
+    "python.showReferencesCodeLens": true,
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
 }

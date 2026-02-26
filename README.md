@@ -166,12 +166,21 @@ This is a small sub-project that is detail in [this repo](#https://github.com/Sa
 <!-- Prerequisites -->
 ### Prerequisites
 
-Install Python 3.8.0
+Install Python 3.10
 
 Run the following commands required to setup the environment.
 
 ```bash
 pip install tensorflow==2.13.0
+```
+```bash
+pip install torch
+```
+```bash
+pip install torchvision
+```
+```bash
+pip install pygame
 ```
 ```bash
 pip install kivy[full]
@@ -182,6 +191,7 @@ pip install matplotlib
 ```bash
 pip install pyniryo==1.1.2
 ```
+
 
 <!-- Run Locally -->
 ### Run Locally

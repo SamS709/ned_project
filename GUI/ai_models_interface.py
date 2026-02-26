@@ -134,7 +134,7 @@ class ScrollableBoxes(BoxLayout):
         self.layout = BoxLayout(padding = [5,10,5,10], orientation="vertical",spacing=5, size_hint_y=None )
         self.layout.bind(minimum_height=self.layout.setter('height'))
         box=BoxLayout(size_hint_y=None, height=40)
-        lbl = Label(font_name = "fonts/pixel.ttf",size_hint_y=None, height=40, text = D_static_texts["models_in_training"][LNG],valign="middle", halign="center", color=WHITE)
+        lbl = Label(font_name = "fonts/pixel.TTF",size_hint_y=None, height=40, text = D_static_texts["models_in_training"][LNG],valign="middle", halign="center", color=WHITE)
         lbl.bind(
                     size=lambda instance, value: (
                         setattr(instance, 'text_size', value),
