@@ -4,15 +4,34 @@ import time
 import cv2 as cv
 import pygame
 import os
+from Morpion.model import Model, transform
+import torch
+from PIL import Image
+import sys
+import importlib
+import importlib.util
+import pygame
 # WARNING : only works with pyniryo==1.1.2
 
-
+try:
+    module_path = os.path.join(os.path.dirname(__file__), 'model.py')
+    spec = importlib.util.spec_from_file_location('model', module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sys.modules['model'] = module
+except Exception:
+    # Fallback: try regular package import alias if available
+    try:
+        sys.modules['model'] = importlib.import_module('Morpion.model')
+    except Exception:
+        pass
 
 
 class Robot:
 
     def __init__(self):
         # connect to the robot when a new Robot object is created
+        self.model = torch.load(os.path.join("Morpion", "AI", "models", "model.pt"), weights_only= False, map_location=torch.device('cpu'))
         robot_ip_address = "10.10.10.10"
         robot = NiryoRobot(robot_ip_address)
         robot.calibrate_auto()
@@ -188,13 +207,23 @@ class Robot:
         return LCind,LSind
 
     def modif_table(self): # returns the table detected by the robot
-        table = np.array([[0 for i in range(3)]for i in range(3)])
-        LCind,LSind = self.index_pos()
-        for L2 in LCind:
-            table[L2[0],L2[1]] = 1
-        for L2 in LSind:
-            table[L2[0],L2[1]] = 2
-        return table
+        save_path = "current_game"
+        os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
+        self.cam_pos()
+        mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
+        img = self.robot.get_img_compressed() # getting image
+        img_uncom = uncompress_image(img) # uncompressing image
+        img_undis = undistort_image(img_uncom, mtx, dist) # undistort
+        # Save with timestamp
+        image_name = "current.png"
+        cv2.imwrite(os.path.join(save_path, image_name), img_undis)
+        image = Image.open(os.path.join(save_path, image_name)).convert('RGB')
+        X = transform(image)
+        with torch.no_grad():
+            # cv2.imshow("coucou", X.numpy())
+            X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
+            pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
+        return pred_table
 
     def pos_grid(self,i,j): # BE CAREFUL, THIS FUNCTION IS MADE FOR ME BECAUSE I DONT HAVE THE ORIGINAL CAMERA
         x,x,y,y = 0,0,0,0
