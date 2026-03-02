@@ -31,6 +31,7 @@ class Robot:
 
     def __init__(self):
         # connect to the robot when a new Robot object is created
+        self.device = "cpu"
         self.model = torch.load(os.path.join("Morpion", "AI", "models", "model.pt"), weights_only= False, map_location=torch.device('cpu'))
         robot_ip_address = "10.10.10.10"
         robot = NiryoRobot(robot_ip_address)
