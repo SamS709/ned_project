@@ -53,6 +53,36 @@ class Robot:
     def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
             self.robot.move_pose(self.observation_pose)
 
+    def check_table(self, table0, table):
+        # Valid transition when player 2 has just played: exactly one 0 -> 2 change.
+        if isinstance(table0, torch.Tensor):
+            table0 = table0.detach().cpu().numpy()
+        else:
+            table0 = np.asarray(table0)
+
+        if isinstance(table, torch.Tensor):
+            table = table.detach().cpu().numpy()
+        else:
+            table = np.asarray(table)
+
+        if table0.shape != (3, 3) or table.shape != (3, 3):
+            return False
+
+        if not np.isin(table0, [0, 1, 2]).all() or not np.isin(table, [0, 1, 2]).all():
+            return False
+
+        old_values_mask = table0 != 0
+        if not np.array_equal(table[old_values_mask], table0[old_values_mask]):
+            return False
+
+        diff_mask = table != table0
+        if np.count_nonzero(diff_mask) != 1:
+            return False
+
+        i, j = np.argwhere(diff_mask)[0]
+        return table0[i, j] == 0 and table[i, j] == 2
+
+
     def modif_table(self): # returns the table detected by the robot
         save_path = "current_game"
         os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
