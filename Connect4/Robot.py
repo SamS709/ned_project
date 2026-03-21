@@ -54,27 +54,6 @@ class Robot:
     def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
         self.robot.move_pose(self.observationPose2)
 
-
-    def red_yellow_pos(self): # returns the image frame, a list of red pieces positions and a list of yellow pieces positions
-        save_path = "current_game"
-        os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
-        self.cam_pos()
-        mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
-        img = self.robot.get_img_compressed() # getting image
-        img_uncom = uncompress_image(img) # uncompressing image
-        img_undis = undistort_image(img_uncom, mtx, dist) # undistort
-        # Save with timestamp
-        image_name = "current.png"
-        cv2.imwrite(os.path.join(save_path, image_name), img_undis)
-        image = Image.open(os.path.join(save_path, image_name)).convert('RGB')
-        X = transform(image)
-        with torch.no_grad():
-            # cv2.imshow("coucou", X.numpy())
-            X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
-            pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
-        
-        return img_undis, pred_table
-    
     def check_table(self, table0: np.array, table: np.array):
         table0 = np.asarray(table0)
         table = np.asarray(table)
@@ -92,10 +71,6 @@ class Robot:
 
         i, j = np.argwhere(diff_mask)[0]
         return table0[i, j] == 0 and table[i, j] == 2
-
-
-
-
 
     def modif_table(self, table0: np.array): # returns the table detected by the robot
         pred_table = None
