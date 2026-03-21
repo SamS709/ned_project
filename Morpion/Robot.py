@@ -53,23 +53,12 @@ class Robot:
     def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
             self.robot.move_pose(self.observation_pose)
 
-    def check_table(self, table0, table):
-        # Valid transition when player 2 has just played: exactly one 0 -> 2 change.
-        if isinstance(table0, torch.Tensor):
-            table0 = table0.detach().cpu().numpy()
-        else:
-            table0 = np.asarray(table0)
-
-        if isinstance(table, torch.Tensor):
-            table = table.detach().cpu().numpy()
-        else:
-            table = np.asarray(table)
-
-        if table0.shape != (3, 3) or table.shape != (3, 3):
-            return False
-
-        if not np.isin(table0, [0, 1, 2]).all() or not np.isin(table, [0, 1, 2]).all():
-            return False
+    def check_table(self, table0: np.array, table: np.array):
+        table0 = np.asarray(table0)
+        table = np.asarray(table)
+        if np.count_nonzero(table0) == table0.size and np.count_nonzero(table) == table0.size:
+            return True
+            
 
         old_values_mask = table0 != 0
         if not np.array_equal(table[old_values_mask], table0[old_values_mask]):
@@ -83,27 +72,29 @@ class Robot:
         return table0[i, j] == 0 and table[i, j] == 2
 
 
-    def modif_table(self): # returns the table detected by the robot
-        save_path = "current_game"
-        os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
-        self.cam_pos()
-        mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
-        img = self.robot.get_img_compressed() # getting image
-        img_uncom = uncompress_image(img) # uncompressing image
-        img_undis = undistort_image(img_uncom, mtx, dist) # undistort
-        crop_l, crop_r, crop_t, crop_b = 140, 30, 100, 230
-        width, height = img_undis.shape[0], img_undis.shape[1]
-        img_undis = img_undis[crop_t: height - crop_b, crop_l: width - crop_r]
-        img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2GRAY)
-        # Save with timestamp
-        image_name = "current.png"
-        cv2.imwrite(os.path.join(save_path, image_name), img_undis)
-        image = Image.open(os.path.join(save_path, image_name)).convert('L')
-        X = transform(image)
-        with torch.no_grad():
-            # cv2.imshow("coucou", X.numpy())
-            X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
-            pred_table = torch.argmax(self.model(X), dim = 1).reshape([3,3]).cpu().numpy()
+    def modif_table(self, table0: np.array): # returns the table detected by the robot
+        pred_table = None
+        while not self.check_table(table0, pred_table):
+            save_path = "current_game"
+            os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
+            self.cam_pos()
+            mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
+            img = self.robot.get_img_compressed() # getting image
+            img_uncom = uncompress_image(img) # uncompressing image
+            img_undis = undistort_image(img_uncom, mtx, dist) # undistort
+            crop_l, crop_r, crop_t, crop_b = 140, 30, 100, 230
+            width, height = img_undis.shape[0], img_undis.shape[1]
+            img_undis = img_undis[crop_t: height - crop_b, crop_l: width - crop_r]
+            img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2GRAY)
+            # Save with timestamp
+            image_name = "current.png"
+            cv2.imwrite(os.path.join(save_path, image_name), img_undis)
+            image = Image.open(os.path.join(save_path, image_name)).convert('L')
+            X = transform(image)
+            with torch.no_grad():
+                # cv2.imshow("coucou", X.numpy())
+                X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
+                pred_table = torch.argmax(self.model(X), dim = 1).reshape([3,3]).cpu().numpy()
         return pred_table
 
     def pos_grid(self,i,j): # BE CAREFUL, THIS FUNCTION IS MADE FOR ME BECAUSE I DONT HAVE THE ORIGINAL CAMERA

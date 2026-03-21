@@ -31,7 +31,7 @@ class Robot:
 
     def __init__(self):
         # connect to the robot when a new Robot object is created
-        self.model = torch.load(os.path.join("Connect4", "AI", "models", "model2.pt"), weights_only= False, map_location=torch.device('cpu'))
+        self.model = torch.load(os.path.join("Connect4", "AI", "models", "model3.pt"), weights_only= False, map_location=torch.device('cpu'))
         self.device = 'cpu'
         self.model.eval()
         robot_ip_address = "10.10.10.10"
@@ -75,19 +75,49 @@ class Robot:
         
         return img_undis, pred_table
     
+    def check_table(self, table0: np.array, table: np.array):
+        table0 = np.asarray(table0)
+        table = np.asarray(table)
+        
+        if np.count_nonzero(table0) == table0.size and np.count_nonzero(table) == table0.size:
+            return True
+
+        old_values_mask = table0 != 0
+        if not np.array_equal(table[old_values_mask], table0[old_values_mask]):
+            return False
+
+        diff_mask = table != table0
+        if np.count_nonzero(diff_mask) != 1:
+            return False
+
+        i, j = np.argwhere(diff_mask)[0]
+        return table0[i, j] == 0 and table[i, j] == 2
 
 
-    def show_image(self): # to show the image returned by red_yellow_pos
-        imageFrame = self.red_yellow_pos()[0]
-        cv2.imshow("Color Detection", imageFrame)
-        cv2.waitKey(0)
 
 
 
-
-    def modif_table(self): # returns the table (2d numpy array 6*7) detected by the robot
-        imageFrame, table = self.red_yellow_pos()
-        return table
+    def modif_table(self, table0: np.array): # returns the table detected by the robot
+        pred_table = None
+        while not self.check_table(table0, pred_table):        
+            save_path = "current_game"
+            os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
+            self.cam_pos()
+            mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
+            img = self.robot.get_img_compressed() # getting image
+            img_uncom = uncompress_image(img) # uncompressing image
+            img_undis = undistort_image(img_uncom, mtx, dist) # undistort
+            # Save with timestamp
+            image_name = "current.png"
+            cv2.imwrite(os.path.join(save_path, image_name), img_undis)
+            image = Image.open(os.path.join(save_path, image_name)).convert('RGB')
+            X = transform(image)
+            with torch.no_grad():
+                # cv2.imshow("coucou", X.numpy())
+                X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
+                pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
+            
+        return pred_table
 
     def place(self, j): # robot moves to puta piece in the j-th column
 
