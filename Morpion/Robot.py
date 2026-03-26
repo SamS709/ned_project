@@ -54,11 +54,10 @@ class Robot:
             self.robot.move_pose(self.observation_pose)
 
     def check_table(self, table0: np.array, table):
-        if not table:
-            return False
+
         table0 = np.asarray(table0)
         table = np.asarray(table)
-        if np.count_nonzero(table0) == table0.size and np.count_nonzero(table) == table0.size:
+        if np.count_nonzero(table) == 0:
             return True
             
 
@@ -76,7 +75,7 @@ class Robot:
 
     def modif_table(self, table0: np.array): # returns the table detected by the robot
         pred_table = None
-        while not self.check_table(table0, pred_table):
+        while pred_table is None or not self.check_table(table0, pred_table):
             save_path = "current_game"
             os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
             self.cam_pos()

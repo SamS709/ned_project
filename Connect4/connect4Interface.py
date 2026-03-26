@@ -196,6 +196,7 @@ class Connect4Game(BoxLayout): # manages secondary animations and robot actions
                 self.modifUI(instance,1,p,q)  # add the piece on UI and change text / color ....
                 if self.connect4.end(self.grid): # if the robot won after its play
                     instance.text= self.releaseText
+                    self.robot1.dance()
                     self.modifUI(instance,2) # animation to tell the user the robot won
                 else:
                     instance.text = self.pressText # then, the user will be able to play

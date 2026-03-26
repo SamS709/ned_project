@@ -31,7 +31,25 @@ class Robot:
 
     def __init__(self):
         # connect to the robot when a new Robot object is created
-        self.model = torch.load(os.path.join("Connect4", "AI", "models", "model3.pt"), weights_only= False, map_location=torch.device('cpu'))
+        loaded_model = torch.load(
+            os.path.join("Connect4", "AI", "models", "model4.pt"),
+            weights_only=False,
+            map_location=torch.device('cpu')
+        )
+
+        # Rebuild a fresh Connect4 model from weights so runtime inference does not
+        # depend on pickled class resolution (which may point to another Model class).
+        self.model = Model()
+        if isinstance(loaded_model, torch.nn.Module):
+            self.model.load_state_dict(loaded_model.state_dict())
+        elif isinstance(loaded_model, dict):
+            if 'state_dict' in loaded_model:
+                self.model.load_state_dict(loaded_model['state_dict'])
+            else:
+                self.model.load_state_dict(loaded_model)
+        else:
+            raise TypeError(f"Unsupported checkpoint type: {type(loaded_model)}")
+
         self.device = 'cpu'
         self.model.eval()
         robot_ip_address = "10.10.10.10"
@@ -58,7 +76,7 @@ class Robot:
         table0 = np.asarray(table0)
         table = np.asarray(table)
         
-        if np.count_nonzero(table0) == table0.size and np.count_nonzero(table) == table0.size:
+        if np.count_nonzero(table0) == 0 and np.count_nonzero(table) == 0:
             return True
 
         old_values_mask = table0 != 0
@@ -74,7 +92,11 @@ class Robot:
 
     def modif_table(self, table0: np.array): # returns the table detected by the robot
         pred_table = None
-        while not self.check_table(table0, pred_table):        
+        max_attempts = 20
+        attempts = 0
+
+        while attempts < max_attempts and (pred_table is None or not self.check_table(table0, pred_table)):
+            attempts += 1
             save_path = "current_game"
             os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
             self.cam_pos()
@@ -84,14 +106,18 @@ class Robot:
             img_undis = undistort_image(img_uncom, mtx, dist) # undistort
             # Save with timestamp
             image_name = "current.png"
+            image_name = ""
             cv2.imwrite(os.path.join(save_path, image_name), img_undis)
             image = Image.open(os.path.join(save_path, image_name)).convert('RGB')
             X = transform(image)
+            print(X)
             with torch.no_grad():
                 # cv2.imshow("coucou", X.numpy())
                 X = X.unsqueeze(0).to(self.device)  # Add batch dimension and move to device
+                print(self.model(X))
                 pred_table = torch.argmax(self.model(X), dim = 1).reshape([6,7]).cpu().numpy()
-            
+                print(table0)
+                print(pred_table)
         return pred_table
 
     def place(self, j): # robot moves to puta piece in the j-th column
@@ -144,6 +170,12 @@ class Robot:
 
 
     def say_no(self): # to make the robot say no in real world 
+        pos1 = [0.1271,-0.0404,0.2085,-0.122, 0.333,-0.305]
+        pos2 = [0.1276, 0.0350,0.2117,-0.086,0.359,0.294]
+        self.robot.set_arm_max_velocity(100)
+        self.robot.execute_trajectory_from_poses([pos1, pos2,pos1,pos2])
+    
+    def dance(self):
         pos1 = [0.1271,-0.0404,0.2085,-0.122, 0.333,-0.305]
         pos2 = [0.1276, 0.0350,0.2117,-0.086,0.359,0.294]
         self.robot.set_arm_max_velocity(100)
