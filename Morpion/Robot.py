@@ -53,7 +53,9 @@ class Robot:
     def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
             self.robot.move_pose(self.observation_pose)
 
-    def check_table(self, table0: np.array, table: np.array):
+    def check_table(self, table0: np.array, table):
+        if not table:
+            return False
         table0 = np.asarray(table0)
         table = np.asarray(table)
         if np.count_nonzero(table0) == table0.size and np.count_nonzero(table) == table0.size:
