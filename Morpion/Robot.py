@@ -50,16 +50,37 @@ class Robot:
 
 
 
-    def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
-            self.robot.move_pose(self.observation_pose)
+    def cam_pos(self, rd=False): # the robot moves towards a position from which it can analyse the board game
+        target_pose = self.observation_pose
+        if rd:
+            # Add a small jitter to improve capture variation while keeping a safe camera pose.
+            target_pose = PoseObject(
+                x=self.observation_pose.x + float(np.random.uniform(-0.003, 0.003)),
+                y=self.observation_pose.y + float(np.random.uniform(-0.003, 0.003)),
+                z=self.observation_pose.z + float(np.random.uniform(-0.002, 0.002)),
+                roll=self.observation_pose.roll + float(np.random.uniform(-0.01, 0.01)),
+                pitch=self.observation_pose.pitch + float(np.random.uniform(-0.01, 0.01)),
+                yaw=self.observation_pose.yaw + float(np.random.uniform(-0.01, 0.01)),
+            )
+        self.robot.move_pose(target_pose)
 
-    def check_table(self, table0: np.array, table):
+    def check_table(self, table0, table):
+        # Valid transition when player 2 has just played: exactly one 0 -> 2 change.
+        if isinstance(table0, torch.Tensor):
+            table0 = table0.detach().cpu().numpy()
+        else:
+            table0 = np.asarray(table0)
 
-        table0 = np.asarray(table0)
-        table = np.asarray(table)
-        if np.count_nonzero(table) == 0:
-            return True
-            
+        if isinstance(table, torch.Tensor):
+            table = table.detach().cpu().numpy()
+        else:
+            table = np.asarray(table)
+
+        if table0.shape != (3, 3) or table.shape != (3, 3):
+            return False
+
+        if not np.isin(table0, [0, 1, 2]).all() or not np.isin(table, [0, 1, 2]).all():
+            return False
 
         old_values_mask = table0 != 0
         if not np.array_equal(table[old_values_mask], table0[old_values_mask]):
@@ -73,9 +94,9 @@ class Robot:
         return table0[i, j] == 0 and table[i, j] == 2
 
 
-    def modif_table(self, table0: np.array): # returns the table detected by the robot
+    def modif_table(self, table): # returns the table detected by the robot
         pred_table = None
-        while pred_table is None or not self.check_table(table0, pred_table):
+        while pred_table is None or not self.check_table(table, pred_table):
             save_path = "current_game"
             os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
             self.cam_pos()
@@ -200,21 +221,21 @@ class Robot:
         pos2 = []
         self.robot.execute_trajectory_from_poses([pos1,pos2])
 
-    def take_picture(self):
+    def take_picture(self, rd):
         # Play sound to notify that picture is being taken
         
         save_path = "tictactoe_dataset"
         os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
-        self.cam_pos()
-        time.sleep(0.5)
+        self.cam_pos(rd=rd)
+        time.sleep(0.1)
         mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
         img = self.robot.get_img_compressed() # getting image
         img_uncom = uncompress_image(img) # uncompressing image
         img_undis = undistort_image(img_uncom, mtx, dist) # undistort
-        print(img_undis.shape)
-        crop_l, crop_r, crop_t, crop_b = 140, 30, 100, 230
-        width, height = img_undis.shape[0], img_undis.shape[1]
-        img_undis = img_undis[crop_t: height - crop_b, crop_l: width - crop_r]
+        # print(img_undis.shape)
+        # crop_l, crop_r, crop_t, crop_b = 140, 30, 100, 230
+        # width, height = img_undis.shape[0], img_undis.shape[1]
+        # img_undis = img_undis[crop_t: height - crop_b, crop_l: width - crop_r]
         img_undis = cv2.cvtColor(img_undis, cv2.COLOR_BGR2GRAY)
         # Save with timestamp
         timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -225,12 +246,12 @@ class Robot:
         time.sleep(0.2)
 
     
-    def take_n_pictures(self, n):
+    def take_n_pictures(self, n, rd):
         for i in range(n):
-            time.sleep(1.5)
-            self.take_picture()
+            self.take_picture(rd=rd)
+            time.sleep(1.0)
             print("Picture taken || num of the pic: ", i)
 
 if __name__ == '__main__':
     robot1 = Robot()
-    robot1.take_n_pictures(100)
+    robot1.take_n_pictures(100, rd=True)

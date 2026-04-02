@@ -1,9 +1,10 @@
+if __name__ != "__main__":
+    from Connect4.model import Model, transform
 from pyniryo import *
 import time
 import os
 import numpy as np
 import cv2
-from Connect4.model import Model, transform
 import torch
 from PIL import Image
 import sys
@@ -69,8 +70,20 @@ class Robot:
         self.observationPose = PoseObject(x = 0.1320, y = 0.0052, z = 0.2225,
                                             roll = -0.040, pitch = 0.273, yaw = 0.034)
 
-    def cam_pos(self): # the robot moves towards a position from which it can analyse the board game
-        self.robot.move_pose(self.observationPose2)
+    def cam_pos(self, rd=False): # the robot moves towards a position from which it can analyse the board game
+        target_pose = self.observationPose2
+        if rd:
+            # Add a small jitter to improve capture variation while keeping a safe camera pose.
+            target_pose = PoseObject(
+                x=self.observationPose2.x + float(np.random.uniform(-0.003, 0.003)),
+                y=self.observationPose2.y + float(np.random.uniform(-0.003, 0.003)),
+                z=self.observationPose2.z + float(np.random.uniform(-0.002, 0.002)),
+                roll=self.observationPose2.roll + float(np.random.uniform(-0.01, 0.01)),
+                pitch=self.observationPose2.pitch + float(np.random.uniform(-0.01, 0.01)),
+                yaw=self.observationPose2.yaw + float(np.random.uniform(-0.01, 0.01)),
+            )
+        self.robot.move_pose(target_pose)
+
 
     def check_table(self, table0: np.array, table: np.array):
         table0 = np.asarray(table0)
@@ -181,13 +194,13 @@ class Robot:
         self.robot.set_arm_max_velocity(100)
         self.robot.execute_trajectory_from_poses([pos1, pos2,pos1,pos2])
 
-    def take_picture(self):
+    def take_picture(self, rd):
         # Play sound to notify that picture is being taken
         
         save_path = "connect4_dataset"
         os.makedirs(save_path, exist_ok=True)  # Create directory if it doesn't exist
-        self.cam_pos()
-        time.sleep(0.5)
+        self.cam_pos(rd=rd)
+        time.sleep(0.2)
         mtx,dist = self.robot.get_camera_intrinsics() # see Niryo docuentation
         img = self.robot.get_img_compressed() # getting image
         img_uncom = uncompress_image(img) # uncompressing image
@@ -200,23 +213,25 @@ class Robot:
         pygame.mixer.music.play()
         time.sleep(0.2)    
 
-    def take_n_pictures(self, n):
+    def take_n_pictures(self, n, rd):
         for i in range(n):
-            time.sleep(3.0)
-            self.take_picture()
+            self.take_picture(rd=rd)
+            time.sleep(1.0)
             print("Picture taken || num of the pic: ", i)
 
 
 
 
 if __name__=='__main__':
+    from model import Model, transform
 
     robot1 = Robot()
     # #robot1.place(0)
-    print(robot1.robot.get_pose())
+    # print(robot1.robot.get_pose())
+    # # print(robot1.modif_table())
+    # # robot1.take_picture()
     # print(robot1.modif_table())
-    # robot1.take_picture()
-    print(robot1.modif_table())
     # robot1.take_n_pictures(1)
     # """for j in range(7):
     #     robot1.place(j)"""
+    robot1.take_n_pictures(100, rd=True)
