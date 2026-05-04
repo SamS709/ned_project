@@ -4,7 +4,6 @@ import time
 import cv2 as cv
 import pygame
 import os
-from Morpion.model import Model, transform
 import torch
 from PIL import Image
 import sys
@@ -12,6 +11,9 @@ import importlib
 import importlib.util
 import pygame
 # WARNING : only works with pyniryo==1.1.2
+if __name__ != "__main__":
+    from Morpion.model import Model, transform
+
 
 try:
     module_path = os.path.join(os.path.dirname(__file__), 'model.py')
@@ -253,5 +255,6 @@ class Robot:
             print("Picture taken || num of the pic: ", i)
 
 if __name__ == '__main__':
+    from model import Model, transform
     robot1 = Robot()
-    robot1.take_n_pictures(100, rd=True)
+    robot1.take_n_pictures(500, rd=True)
